@@ -1,6 +1,9 @@
 import { motion } from 'motion/react';
 import type { ReactNode } from 'react';
 import {
+  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis,
+} from 'recharts';
+import {
   AlertCircle, Building2, CalendarDays, CheckCircle2, ClipboardCheck,
   ClipboardList, Clock, FileSignature, Landmark, MapPin, Shield,
   TimerReset, UserCheck, UserPlus, Users, XCircle,
@@ -33,6 +36,12 @@ import { formatDate } from '../lib/utils';
 import { normalizeList } from '../lib/api-adapters';
 import { normalizeUserRole, ROLE_LABELS } from '../lib/nav-config';
 import type { UserRole } from '../lib/types';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from '../ui/chart';
 
 export function DashboardPage() {
   const user = useAppStore(s => s.user);
@@ -54,6 +63,110 @@ export function DashboardPage() {
   }
 }
 
+const CHART_COLORS = {
+  sky: '#0284c7',
+  emerald: '#059669',
+  amber: '#d97706',
+  rose: '#e11d48',
+  violet: '#7c3aed',
+  slate: '#475569',
+};
+
+type ChartDatum = { name: string; value: number; fill: string };
+
+const defaultChartConfig = {
+  value: { label: 'Total', color: CHART_COLORS.sky },
+} satisfies ChartConfig;
+
+function BarChartPanel({ title, data }: { title: string; data: ChartDatum[] }) {
+  return (
+    <DashboardPanel title={title}>
+      <ChartBlock data={data}>
+        <ChartContainer config={defaultChartConfig} className="h-[260px] w-full">
+          <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+            <XAxis dataKey="name" tickLine={false} axisLine={false} interval={0} tickMargin={10} />
+            <YAxis tickLine={false} axisLine={false} width={32} allowDecimals={false} />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+              {data.map((entry) => <Cell key={entry.name} fill={entry.fill} />)}
+            </Bar>
+          </BarChart>
+        </ChartContainer>
+      </ChartBlock>
+    </DashboardPanel>
+  );
+}
+
+function DonutChartPanel({ title, data }: { title: string; data: ChartDatum[] }) {
+  return (
+    <DashboardPanel title={title}>
+      <ChartBlock data={data}>
+        <ChartContainer config={defaultChartConfig} className="h-[260px] w-full">
+          <PieChart>
+            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            <Pie data={data} dataKey="value" nameKey="name" innerRadius={58} outerRadius={88} paddingAngle={3}>
+              {data.map((entry) => <Cell key={entry.name} fill={entry.fill} />)}
+            </Pie>
+          </PieChart>
+        </ChartContainer>
+      </ChartBlock>
+    </DashboardPanel>
+  );
+}
+
+function AreaChartPanel({ title, data }: { title: string; data: ChartDatum[] }) {
+  const gradientId = `area-${title.replace(/\s+/g, '-')}`;
+
+  return (
+    <DashboardPanel title={title}>
+      <ChartBlock data={data}>
+        <ChartContainer config={defaultChartConfig} className="h-[260px] w-full">
+          <AreaChart data={data} margin={{ top: 10, right: 14, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={data[0]?.fill ?? CHART_COLORS.sky} stopOpacity={0.35} />
+                <stop offset="95%" stopColor={data[0]?.fill ?? CHART_COLORS.sky} stopOpacity={0.02} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+            <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={10} />
+            <YAxis tickLine={false} axisLine={false} width={32} allowDecimals={false} />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke={data[0]?.fill ?? CHART_COLORS.sky}
+              fill={`url(#${gradientId})`}
+              strokeWidth={2}
+            />
+          </AreaChart>
+        </ChartContainer>
+      </ChartBlock>
+    </DashboardPanel>
+  );
+}
+
+function ChartBlock({ data, children }: { data: ChartDatum[]; children: ReactNode }) {
+  if (!data.length || data.every(item => item.value === 0)) {
+    return <div className="flex h-[260px] items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground">Sem dados suficientes para o grafico.</div>;
+  }
+
+  return (
+    <div className="space-y-3">
+      {children}
+      <div className="flex flex-wrap gap-3">
+        {data.map(item => (
+          <span key={item.name} className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: item.fill }} />
+            {item.name}: <strong className="font-semibold text-foreground">{item.value}</strong>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function SaasOwnerDashboard() {
   const { data: companiesRaw, isLoading: loadingCompanies } = useCompanies();
   const { data: pendingRaw, isLoading: loadingPending } = useSaasPendingRequests();
@@ -64,6 +177,16 @@ function SaasOwnerDashboard() {
   const pending = normalizeList((pendingRaw as any)?.solicitacoes ?? pendingRaw, (r: any) => r);
   const logs = normalizeList(logsRaw, (l: any) => l);
   const summary = (summaryRaw ?? {}) as any;
+  const requestStatusData = compactChartData([
+    { name: 'Pendentes', value: Number(summary.pendentes ?? pending.length), fill: CHART_COLORS.amber },
+    { name: 'Aprovadas', value: Number(summary.aprovadas ?? 0), fill: CHART_COLORS.emerald },
+    { name: 'Rejeitadas', value: Number(summary.rejeitadas ?? 0), fill: CHART_COLORS.rose },
+  ]);
+  const companyPlanData = distributionFrom(companies, [
+    { name: 'Basic', value: (c: any) => c.plan === 'basic' || c.plano === 'basic', fill: CHART_COLORS.sky },
+    { name: 'Professional', value: (c: any) => c.plan === 'professional' || c.plano === 'professional', fill: CHART_COLORS.violet },
+    { name: 'Enterprise', value: (c: any) => c.plan === 'enterprise' || c.plano === 'enterprise', fill: CHART_COLORS.emerald },
+  ]);
 
   return (
     <DashboardShell
@@ -77,6 +200,10 @@ function SaasOwnerDashboard() {
         { title: 'Rejeitadas', value: summary.rejeitadas ?? 0, icon: <XCircle className="h-5 w-5" />, color: 'red' },
       ]}
     >
+      <div className="grid gap-4 xl:grid-cols-[1fr_0.9fr]">
+        <BarChartPanel title="Estado das solicitacoes" data={requestStatusData} />
+        <DonutChartPanel title="Planos das empresas" data={companyPlanData} />
+      </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <DashboardPanel title="Solicitacoes pendentes" actionHref="#/companies" actionLabel="Gerir empresas">
           <SimpleList
@@ -116,6 +243,18 @@ function AdminDashboard() {
   const supervisors = normalizeList(supervisorsRaw, (s: any) => s);
   const requests = normalizeList(requestsRaw, (r: any) => r);
   const schedule = (scheduleRaw ?? {}) as any;
+  const structureData = compactChartData([
+    { name: 'Departamentos', value: departments.length, fill: CHART_COLORS.sky },
+    { name: 'Postos', value: posts.length, fill: CHART_COLORS.emerald },
+    { name: 'Supervisores', value: supervisors.length, fill: CHART_COLORS.violet },
+    { name: 'Pendentes', value: requests.length, fill: CHART_COLORS.amber },
+  ]);
+  const departmentLoadData = topByValue(
+    departments,
+    (d: any) => d.nome ?? d.name ?? `Depto ${d.id}`,
+    (d: any) => Number(d.total_colaboradores ?? d.employee_count ?? 0),
+    CHART_COLORS.sky,
+  );
 
   return (
     <DashboardShell
@@ -129,6 +268,10 @@ function AdminDashboard() {
         { title: 'Colaboradores pendentes', value: requests.length, icon: <UserPlus className="h-5 w-5" />, color: 'yellow' },
       ]}
     >
+      <div className="grid gap-4 xl:grid-cols-[1fr_0.9fr]">
+        <BarChartPanel title="Estrutura operacional" data={structureData} />
+        <BarChartPanel title="Colaboradores por departamento" data={departmentLoadData} />
+      </div>
       <div className="grid gap-4 lg:grid-cols-3">
         <DashboardPanel title="Solicitacoes de colaboradores" actionHref="#/employees" actionLabel="Abrir colaboradores">
           <SimpleList
@@ -181,6 +324,18 @@ function RhDashboard() {
   const payroll = normalizeList(payrollRaw, (p: any) => p);
   const vacations = normalizeList(vacationsRaw, (v: any) => v);
   const absences = normalizeList(absencesRaw, (a: any) => a);
+  const employeeStatusData = distributionFrom(employees, [
+    { name: 'Ativos', value: (e: any) => ['active', 'ativo'].includes(e.status), fill: CHART_COLORS.emerald },
+    { name: 'Ferias', value: (e: any) => ['vacation', 'ferias'].includes(e.status), fill: CHART_COLORS.amber },
+    { name: 'Afastados', value: (e: any) => ['leave', 'afastado'].includes(e.status), fill: CHART_COLORS.violet },
+    { name: 'Inativos', value: (e: any) => ['inactive', 'inativo'].includes(e.status), fill: CHART_COLORS.rose },
+  ]);
+  const rhFlowData = compactChartData([
+    { name: 'Funcionarios', value: employees.length, fill: CHART_COLORS.sky },
+    { name: 'Contratos', value: contracts.length, fill: CHART_COLORS.violet },
+    { name: 'Ferias', value: vacations.length, fill: CHART_COLORS.amber },
+    { name: 'Faltas', value: absences.length, fill: CHART_COLORS.rose },
+  ]);
 
   return (
     <DashboardShell
@@ -194,6 +349,10 @@ function RhDashboard() {
         { title: 'Faltas registadas', value: absences.length, icon: <Clock className="h-5 w-5" />, color: 'red' },
       ]}
     >
+      <div className="grid gap-4 xl:grid-cols-[0.9fr_1fr]">
+        <DonutChartPanel title="Situacao dos funcionarios" data={employeeStatusData} />
+        <BarChartPanel title="Volume de RH" data={rhFlowData} />
+      </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <DashboardPanel title="Ferias para processar" actionHref="#/vacations" actionLabel="Abrir ferias">
           <SimpleList
@@ -232,6 +391,13 @@ function SupervisorDashboard() {
   const schedules = normalizeList(schedulesRaw, (s: any) => s);
   const absence = (absenceRaw ?? {}) as any;
   const workPlan = (workPlanRaw ?? {}) as any;
+  const operationData = compactChartData([
+    { name: 'Equipa', value: employees.length, fill: CHART_COLORS.sky },
+    { name: 'Pendentes', value: pending.length, fill: CHART_COLORS.amber },
+    { name: 'Faltas', value: Number(absence.total_faltas ?? 0), fill: CHART_COLORS.rose },
+    { name: 'Escalas', value: schedules.length || Number(workPlan.total_dias_trabalho ?? 0), fill: CHART_COLORS.emerald },
+  ]);
+  const absenceTrend = trendFromRecords(absence.faltas ?? [], 'data', CHART_COLORS.rose);
 
   return (
     <DashboardShell
@@ -245,6 +411,10 @@ function SupervisorDashboard() {
         { title: 'Escalas', value: schedules.length || workPlan.total_dias_trabalho || 0, icon: <CalendarDays className="h-5 w-5" />, color: 'green' },
       ]}
     >
+      <div className="grid gap-4 xl:grid-cols-[1fr_0.9fr]">
+        <BarChartPanel title="Operacao da equipa" data={operationData} />
+        <AreaChartPanel title="Faltas recentes" data={absenceTrend} />
+      </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <DashboardPanel title="Presencas fora do geofencing" actionHref="#/geofencing-auth" actionLabel="Autorizar">
           <SimpleList
@@ -279,6 +449,17 @@ function DepartmentChiefDashboard() {
   const employees = normalizeList(employeesRaw, (e: any) => e);
   const pending = normalizeList((pendingRaw as any)?.pendentes ?? pendingRaw, (p: any) => p);
   const absence = (absenceRaw ?? {}) as any;
+  const teamStatusData = compactChartData([
+    { name: 'Equipa', value: employees.length, fill: CHART_COLORS.sky },
+    { name: 'A rever', value: pending.length, fill: CHART_COLORS.amber },
+    { name: 'Faltas', value: Number(absence.total_faltas ?? 0), fill: CHART_COLORS.rose },
+  ]);
+  const departmentRoleData = topByValue(
+    employees,
+    (e: any) => e.cargo ?? e.role_name ?? 'Sem funcao',
+    () => 1,
+    CHART_COLORS.violet,
+  );
 
   return (
     <DashboardShell
@@ -292,6 +473,10 @@ function DepartmentChiefDashboard() {
         { title: 'Departamento', value: employees[0]?.departamento ?? employees[0]?.department_name ?? '-', icon: <Landmark className="h-5 w-5" />, color: 'slate' },
       ]}
     >
+      <div className="grid gap-4 xl:grid-cols-[0.9fr_1fr]">
+        <DonutChartPanel title="Atencao do departamento" data={teamStatusData} />
+        <BarChartPanel title="Equipa por funcao" data={departmentRoleData} />
+      </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <DashboardPanel title="Equipa direta" actionHref="#/employees" actionLabel="Ver equipa">
           <SimpleList
@@ -320,6 +505,16 @@ function DepartmentChiefDashboard() {
 
 function CollaboratorDashboard() {
   const user = useAppStore(s => s.user);
+  const accessData = compactChartData([
+    { name: 'Perfil', value: 1, fill: CHART_COLORS.sky },
+    { name: 'Empresa', value: user?.company_name ? 1 : 0, fill: CHART_COLORS.emerald },
+    { name: 'Sessao', value: 1, fill: CHART_COLORS.violet },
+  ]);
+  const summaryData = compactChartData([
+    { name: 'Perfil', value: 1, fill: CHART_COLORS.sky },
+    { name: 'Conta', value: 1, fill: CHART_COLORS.emerald },
+    { name: 'Empresa', value: user?.company_name ? 1 : 0, fill: CHART_COLORS.violet },
+  ]);
 
   return (
     <DashboardShell
@@ -332,6 +527,10 @@ function CollaboratorDashboard() {
         { title: 'Proxima acao', value: 'Perfil', icon: <ClipboardList className="h-5 w-5" />, color: 'purple' },
       ]}
     >
+      <div className="grid gap-4 xl:grid-cols-[0.9fr_1fr]">
+        <DonutChartPanel title="Acessos disponiveis" data={accessData} />
+        <AreaChartPanel title="Resumo pessoal" data={summaryData} />
+      </div>
       <DashboardPanel title="Area de colaborador">
         <p className="text-sm leading-6 text-muted-foreground">
           O contrato atual da API exposto no YAML inclui autenticacao e consulta de perfil para este papel, mas nao documenta endpoints completos de autosservico do colaborador. Use a pagina de perfil para consultar os dados da conta autenticada.
@@ -451,4 +650,61 @@ function countFrom(raw: unknown, fallback: number) {
     return (raw as any).count;
   }
   return fallback;
+}
+
+function compactChartData(items: ChartDatum[]) {
+  return items.map(item => ({
+    ...item,
+    value: Number.isFinite(item.value) ? Math.max(0, item.value) : 0,
+  }));
+}
+
+function distributionFrom<T>(
+  rows: T[],
+  buckets: Array<{ name: string; value: (row: T) => boolean; fill: string }>,
+) {
+  return compactChartData(
+    buckets.map(bucket => ({
+      name: bucket.name,
+      value: rows.filter(bucket.value).length,
+      fill: bucket.fill,
+    })),
+  );
+}
+
+function topByValue<T>(
+  rows: T[],
+  labelOf: (row: T) => string,
+  valueOf: (row: T) => number,
+  fill: string,
+  limit = 5,
+) {
+  const grouped = rows.reduce<Record<string, number>>((acc, row) => {
+    const label = labelOf(row) || 'Sem dados';
+    acc[label] = (acc[label] ?? 0) + Number(valueOf(row) || 0);
+    return acc;
+  }, {});
+
+  return Object.entries(grouped)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([name, value], index) => ({
+      name,
+      value,
+      fill: index % 2 === 0 ? fill : CHART_COLORS.slate,
+    }));
+}
+
+function trendFromRecords(records: any[], dateKey: string, fill: string) {
+  const grouped = records.reduce<Record<string, number>>((acc, record) => {
+    const raw = record?.[dateKey] ?? record?.created_at ?? record?.criado_em ?? 'Sem data';
+    const label = typeof raw === 'string' ? raw.slice(0, 10) : 'Sem data';
+    acc[label] = (acc[label] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(grouped)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-7)
+    .map(([name, value]) => ({ name, value, fill }));
 }
