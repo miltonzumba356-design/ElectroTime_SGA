@@ -3,13 +3,13 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight, Zap, LogOut } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAppStore } from '../store/app.store';
-import { ROLE_NAV, ROLE_LABELS, ROLE_COLORS, type NavItem } from '../lib/nav-config';
+import { ROLE_NAV, ROLE_LABELS, ROLE_COLORS, normalizeUserRole, type NavItem } from '../lib/nav-config';
 
 export function Sidebar() {
   const { user, sidebarCollapsed, toggleSidebar, sidebarMobileOpen, setSidebarMobileOpen, logout } = useAppStore();
   const navigate = useNavigate();
 
-  const role = user?.role ?? 'admin';
+  const role = normalizeUserRole(user?.role);
   const navSections = ROLE_NAV[role] ?? [];
   const roleColors = ROLE_COLORS[role];
   const roleLabel = ROLE_LABELS[role];

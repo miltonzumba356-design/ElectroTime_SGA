@@ -5,7 +5,7 @@ import {
   CalendarDays, Clock, ClipboardCheck, FileText, BarChart3,
   Settings, User, Factory, BookOpen, FileSignature,
   DollarSign, CalendarX, CalendarOff, Stamp, CheckSquare,
-  AlertCircle, UserPlus, ShieldCheck, ClipboardList,
+  AlertCircle, UserPlus, ShieldCheck,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -23,12 +23,34 @@ export interface NavSection {
 
 export type RoleNavConfig = NavSection[];
 
-export const ROLE_NAV: Record<UserRole, RoleNavConfig> = {
+export const ROLE_LABELS: Record<UserRole, string> = {
+  dono_saas: 'Dono do SaaS',
+  admin: 'Admin da Empresa',
+  rh: 'Recursos Humanos',
+  supervisor: 'Supervisor',
+  chefe_departamento: 'Chefe de Departamento',
+  colaborador: 'Colaborador',
+};
 
-  // ----------------------------------------------------------------
-  // DONO SAAS — 2 módulos: empresas + auditoria
-  // ----------------------------------------------------------------
-  saas_owner: [
+export const LEGACY_ROLE_MAP: Record<string, UserRole> = {
+  dono_saas: 'dono_saas',
+  saas_owner: 'dono_saas',
+  admin: 'admin',
+  rh: 'rh',
+  hr: 'rh',
+  supervisor: 'supervisor',
+  chefe_departamento: 'chefe_departamento',
+  gestor: 'chefe_departamento',
+  manager: 'chefe_departamento',
+  colaborador: 'colaborador',
+};
+
+export function normalizeUserRole(role?: string | null): UserRole {
+  return LEGACY_ROLE_MAP[role ?? ''] ?? 'colaborador';
+}
+
+export const ROLE_NAV: Record<UserRole, RoleNavConfig> = {
+  dono_saas: [
     {
       items: [
         { to: '/', icon: LayoutDashboard, label: 'Dashboard', exact: true },
@@ -44,9 +66,6 @@ export const ROLE_NAV: Record<UserRole, RoleNavConfig> = {
     },
   ],
 
-  // ----------------------------------------------------------------
-  // ADMINISTRADOR — configurador de estrutura + aprovação/utilizadores
-  // ----------------------------------------------------------------
   admin: [
     {
       items: [
@@ -85,10 +104,7 @@ export const ROLE_NAV: Record<UserRole, RoleNavConfig> = {
     },
   ],
 
-  // ----------------------------------------------------------------
-  // RH — 9 secções, lógica de negócio de pessoas
-  // ----------------------------------------------------------------
-  hr: [
+  rh: [
     {
       items: [
         { to: '/', icon: LayoutDashboard, label: 'Dashboard', exact: true },
@@ -136,9 +152,6 @@ export const ROLE_NAV: Record<UserRole, RoleNavConfig> = {
     },
   ],
 
-  // ----------------------------------------------------------------
-  // SUPERVISOR — operacional, restrito ao seu departamento
-  // ----------------------------------------------------------------
   supervisor: [
     {
       items: [
@@ -177,10 +190,7 @@ export const ROLE_NAV: Record<UserRole, RoleNavConfig> = {
     },
   ],
 
-  // ----------------------------------------------------------------
-  // MANAGER — visão do departamento
-  // ----------------------------------------------------------------
-  manager: [
+  chefe_departamento: [
     {
       items: [
         { to: '/', icon: LayoutDashboard, label: 'Dashboard', exact: true },
@@ -207,20 +217,38 @@ export const ROLE_NAV: Record<UserRole, RoleNavConfig> = {
       ],
     },
   ],
+
+  colaborador: [
+    {
+      items: [
+        { to: '/', icon: LayoutDashboard, label: 'Dashboard', exact: true },
+      ],
+    },
+    {
+      title: 'Sistema',
+      items: [
+        { to: '/profile', icon: User, label: 'Perfil' },
+      ],
+    },
+  ],
 };
 
 export const ROLE_COLORS: Record<UserRole, { bg: string; text: string; border: string; dot: string }> = {
-  saas_owner: { bg: 'bg-violet-500/10', text: 'text-violet-500', border: 'border-violet-500/20', dot: 'bg-violet-500' },
-  admin:      { bg: 'bg-blue-500/10',   text: 'text-blue-500',   border: 'border-blue-500/20',   dot: 'bg-blue-500' },
-  hr:         { bg: 'bg-emerald-500/10', text: 'text-emerald-500', border: 'border-emerald-500/20', dot: 'bg-emerald-500' },
-  supervisor: { bg: 'bg-amber-500/10',  text: 'text-amber-600',  border: 'border-amber-500/20',  dot: 'bg-amber-500' },
-  manager:    { bg: 'bg-sky-500/10',    text: 'text-sky-500',    border: 'border-sky-500/20',    dot: 'bg-sky-500' },
+  dono_saas: { bg: 'bg-violet-500/10', text: 'text-violet-500', border: 'border-violet-500/20', dot: 'bg-violet-500' },
+  admin: { bg: 'bg-blue-500/10', text: 'text-blue-500', border: 'border-blue-500/20', dot: 'bg-blue-500' },
+  rh: { bg: 'bg-emerald-500/10', text: 'text-emerald-500', border: 'border-emerald-500/20', dot: 'bg-emerald-500' },
+  supervisor: { bg: 'bg-amber-500/10', text: 'text-amber-600', border: 'border-amber-500/20', dot: 'bg-amber-500' },
+  chefe_departamento: { bg: 'bg-sky-500/10', text: 'text-sky-500', border: 'border-sky-500/20', dot: 'bg-sky-500' },
+  colaborador: { bg: 'bg-zinc-500/10', text: 'text-zinc-500', border: 'border-zinc-500/20', dot: 'bg-zinc-500' },
 };
 
-export const ROLE_LABELS: Record<UserRole, string> = {
-  saas_owner: 'Dono SaaS',
-  admin:      'Administrador',
-  hr:         'Recursos Humanos',
-  supervisor: 'Supervisor',
-  manager:    'Gestor',
-};
+export const ROLE_ROUTE_ACCESS: Record<UserRole, string[]> = Object.fromEntries(
+  Object.entries(ROLE_NAV).map(([role, sections]) => [
+    role,
+    Array.from(new Set(sections.flatMap(section => section.items.map(item => item.to)))),
+  ]),
+) as Record<UserRole, string[]>;
+
+export function canAccessPath(role: UserRole, pathname: string) {
+  return ROLE_ROUTE_ACCESS[role]?.includes(pathname) ?? false;
+}

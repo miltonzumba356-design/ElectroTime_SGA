@@ -2,7 +2,13 @@
 // ELECTRO TIME — Domain Types
 // ============================================================
 
-export type UserRole = 'admin' | 'hr' | 'supervisor' | 'manager' | 'saas_owner';
+export type UserRole =
+  | 'dono_saas'
+  | 'admin'
+  | 'rh'
+  | 'supervisor'
+  | 'chefe_departamento'
+  | 'colaborador';
 
 export interface AuthUser {
   id: string;

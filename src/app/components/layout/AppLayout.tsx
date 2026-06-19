@@ -3,13 +3,20 @@ import { motion } from 'motion/react';
 import { Sidebar } from './Sidebar';
 import { Navbar } from './Navbar';
 import { useAppStore } from '../store/app.store';
+import { canAccessPath, normalizeUserRole } from '../lib/nav-config';
 
 export function AppLayout() {
   const isAuthenticated = useAppStore(s => s.isAuthenticated);
+  const user = useAppStore(s => s.user);
   const location = useLocation();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  const role = normalizeUserRole(user?.role);
+  if (!canAccessPath(role, location.pathname)) {
+    return <Navigate to="/" replace />;
   }
 
   return (

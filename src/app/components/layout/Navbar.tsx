@@ -5,7 +5,7 @@ import {
   Menu, Bell, Sun, Moon, Search, ChevronRight, LogOut, User, Settings, Check,
 } from 'lucide-react';
 import { useAppStore } from '../store/app.store';
-import { ROLE_COLORS, ROLE_LABELS } from '../lib/nav-config';
+import { ROLE_COLORS, ROLE_LABELS, canAccessPath, normalizeUserRole } from '../lib/nav-config';
 import { cn } from '../lib/utils';
 
 const routeLabels: Record<string, string[]> = {
@@ -23,20 +23,16 @@ const routeLabels: Record<string, string[]> = {
   '/companies': ['Empresas'],
   '/settings': ['Configurações'],
   '/profile': ['Perfil'],
-  // RH exclusive
   '/contracts': ['Contratos'],
   '/payroll': ['Folha de Salário'],
   '/holidays': ['Feriados'],
   '/declarations': ['Declarações'],
   '/vacations': ['Férias e Faltas'],
-  // Supervisor exclusive
   '/geofencing-auth': ['Presenças Pendentes'],
   '/tasks': ['Tarefas'],
   '/absence-registration': ['Registo de Faltas'],
-  // Admin exclusive
   '/geofencing-config': ['Configuração de Geofencing'],
   '/user-management': ['Gestão de Utilizadores'],
-  // SaaS Owner
   '/audit': ['Auditoria'],
 };
 
@@ -56,8 +52,10 @@ export function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [notifRead, setNotifRead] = useState<number[]>([]);
 
+  const role = normalizeUserRole(user?.role);
   const crumbs = routeLabels[location.pathname] ?? ['Página'];
   const unreadCount = NOTIFS.filter(n => n.unread && !notifRead.includes(n.id)).length;
+  const canOpenSettings = canAccessPath(role, '/settings');
 
   const logout = useAppStore(s => s.logout);
 
@@ -68,7 +66,6 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-card px-4 lg:px-6">
-      {/* Mobile menu toggle */}
       <button
         className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors lg:hidden"
         onClick={() => setSidebarMobileOpen(true)}
@@ -76,7 +73,6 @@ export function Navbar() {
         <Menu className="h-5 w-5" />
       </button>
 
-      {/* Breadcrumb */}
       <nav className="flex items-center gap-1 text-sm text-muted-foreground">
         <span className="text-muted-foreground/60">Electro Time</span>
         {crumbs.map((crumb, i) => (
@@ -88,7 +84,6 @@ export function Navbar() {
       </nav>
 
       <div className="ml-auto flex items-center gap-2">
-        {/* Search */}
         <div className="relative hidden md:block">
           {searchOpen ? (
             <motion.input
@@ -112,7 +107,6 @@ export function Navbar() {
           </button>
         </div>
 
-        {/* Theme toggle */}
         <button
           onClick={toggleTheme}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
@@ -121,7 +115,6 @@ export function Navbar() {
           {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </button>
 
-        {/* Notifications */}
         <div className="relative">
           <button
             onClick={() => { setNotifOpen(!notifOpen); setUserMenuOpen(false); }}
@@ -162,10 +155,9 @@ export function Navbar() {
                       )}
                       onClick={() => setNotifRead(p => [...p, n.id])}
                     >
-                      {n.unread && !notifRead.includes(n.id) && (
+                      {n.unread && !notifRead.includes(n.id) ? (
                         <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
-                      )}
-                      {(n.unread === false || notifRead.includes(n.id)) && (
+                      ) : (
                         <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-transparent" />
                       )}
                       <div className="flex-1">
@@ -180,7 +172,6 @@ export function Navbar() {
           )}
         </div>
 
-        {/* User Menu */}
         <div className="relative">
           <button
             onClick={() => { setUserMenuOpen(!userMenuOpen); setNotifOpen(false); }}
@@ -192,8 +183,8 @@ export function Navbar() {
             <div className="hidden sm:flex flex-col items-start">
               <span className="text-xs font-medium text-foreground leading-none">{user?.name.split(' ')[0]}</span>
               {user?.role && (
-                <span className={cn('text-[10px] font-medium leading-none mt-0.5', ROLE_COLORS[user.role].text)}>
-                  {ROLE_LABELS[user.role]}
+                <span className={cn('text-[10px] font-medium leading-none mt-0.5', ROLE_COLORS[role].text)}>
+                  {ROLE_LABELS[role]}
                 </span>
               )}
             </div>
@@ -213,7 +204,9 @@ export function Navbar() {
                 </div>
                 <div className="p-1">
                   <MenuItem icon={User} label="Meu perfil" onClick={() => { navigate('/profile'); setUserMenuOpen(false); }} />
-                  <MenuItem icon={Settings} label="Configurações" onClick={() => { navigate('/settings'); setUserMenuOpen(false); }} />
+                  {canOpenSettings && (
+                    <MenuItem icon={Settings} label="Configurações" onClick={() => { navigate('/settings'); setUserMenuOpen(false); }} />
+                  )}
                   <div className="my-1 border-t border-border" />
                   <MenuItem icon={LogOut} label="Sair" onClick={handleLogout} danger />
                 </div>

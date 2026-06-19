@@ -170,6 +170,12 @@ export const adminApi = {
   getGlobalSchedule: () =>
     api.get('/api/admin/visualizar_horarios_globais/').then(r => r.data),
 
+  setPostSchedule: (body: { posto_id: number; horario_entrada: string; horario_saida: string; horario_almoco_inicio: string; horario_almoco_fim: string }) =>
+    api.post('/api/admin/configurar_horarios_posto/', body).then(r => r.data),
+
+  getPostSchedule: (params?: { posto_id?: number }) =>
+    api.get('/api/admin/visualizar_horarios_posto/', { params }).then(r => r.data),
+
   approveEmployee: (body: Record<string, unknown>) =>
     api.post('/api/admin/aprovar_colaborador/', body).then(r => r.data),
 

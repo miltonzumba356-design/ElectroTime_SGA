@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   adminApi, companiesApi, departmentsApi, rolesApi, configApi,
-  rhApi, supervisorApi, saasApi, geofencingApi, publicApi,
+  rhApi, supervisorApi, saasApi, geofencingApi, publicApi, authApi,
 } from './api';
 
 // ─── Query Keys ───────────────────────────────────────────────────
@@ -41,6 +41,10 @@ export const QK = {
 // ─── Admin ────────────────────────────────────────────────────────
 export function useMyCompany() {
   return useQuery({ queryKey: QK.myCompany, queryFn: adminApi.getMyCompany });
+}
+
+export function useMyProfile() {
+  return useQuery({ queryKey: QK.myProfile, queryFn: authApi.profile });
 }
 
 export function useAdminDepartments() {
@@ -104,6 +108,17 @@ export function useSetGlobalSchedule() {
   return useMutation({
     mutationFn: adminApi.setGlobalSchedule,
     onSuccess: () => qc.invalidateQueries({ queryKey: QK.globalSchedule }),
+  });
+}
+
+export function useSetPostSchedule() {
+  return useMutation({ mutationFn: adminApi.setPostSchedule });
+}
+
+export function usePostSchedule(params?: { posto_id?: number }) {
+  return useQuery({
+    queryKey: ['post-schedule', params?.posto_id ?? 'all'],
+    queryFn: () => adminApi.getPostSchedule(params),
   });
 }
 

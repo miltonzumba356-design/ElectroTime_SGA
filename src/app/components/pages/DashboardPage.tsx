@@ -6,20 +6,34 @@ import {
 } from 'recharts';
 import {
   Users, UserCheck, UserX, Clock, TrendingUp,
-  ClipboardList, Building2, ArrowRight, Loader2,
+  ClipboardList, Building2, ArrowRight, Loader2, Shield,
 } from 'lucide-react';
 import { StatsCard } from '../shared/StatsCard';
 import { PageHeader } from '../shared/PageHeader';
 import { useAppStore } from '../store/app.store';
 import { useAbsenceReport, useEmployees, useAdminDepartments, usePendingPresences, useVacations } from '../lib/api-hooks';
 import { formatDate } from '../lib/utils';
+import { canAccessPath, normalizeUserRole } from '../lib/nav-config';
+import type { UserRole } from '../lib/types';
 
 const DEPT_COLORS = ['#0057D9', '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444'];
 
 export function DashboardPage() {
+  const user = useAppStore(s => s.user);
+  const role = normalizeUserRole(user?.role);
+
+  if (role === 'colaborador') {
+    return <CollaboratorDashboard />;
+  }
+
+  return <OperationalDashboard role={role} />;
+}
+
+function OperationalDashboard({ role }: { role: UserRole }) {
   const { theme, user } = useAppStore();
   const isDark = theme === 'dark';
   const [chartView, setChartView] = useState<'weekly' | 'attendance'>('weekly');
+  const canOpenGeofencingAuth = canAccessPath(role, '/geofencing-auth');
 
   const chartColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
   const axisColor  = isDark ? '#4B5563' : '#94A3B8';
@@ -253,9 +267,11 @@ export function DashboardPage() {
             <h3 className="text-sm font-semibold text-foreground">Presenças Fora do Geofencing</h3>
             <p className="text-xs text-muted-foreground mt-0.5">{pendingList.length} pendente(s) de autorização</p>
           </div>
-          <a href="#/geofencing-auth" className="flex items-center gap-1 text-xs text-primary hover:underline">
-            Ver todas <ArrowRight className="h-3 w-3" />
-          </a>
+          {canOpenGeofencingAuth && (
+            <a href="#/geofencing-auth" className="flex items-center gap-1 text-xs text-primary hover:underline">
+              Ver todas <ArrowRight className="h-3 w-3" />
+            </a>
+          )}
         </div>
         {pendingList.length === 0 ? (
           <div className="px-5 py-8 text-center text-sm text-muted-foreground">
@@ -280,6 +296,30 @@ export function DashboardPage() {
           </div>
         )}
       </motion.div>
+    </div>
+  );
+}
+
+function CollaboratorDashboard() {
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Dashboard"
+        description="Área de colaborador"
+      />
+      <div className="rounded-xl border border-border bg-card p-6">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Shield className="h-5 w-5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Endpoints de colaborador não implementados neste painel</h3>
+            <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              O role existe no backend, mas os endpoints de colaborador ficaram fora do escopo solicitado. Use a página de perfil para consultar os dados da conta autenticada.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

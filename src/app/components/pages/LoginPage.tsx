@@ -8,22 +8,13 @@ import {
 import { toast } from 'sonner';
 import { useAppStore } from '../store/app.store';
 import { authApi } from '../lib/api';
-import type { UserRole } from '../lib/types';
 import { cn } from '../lib/utils';
+import { normalizeUserRole } from '../lib/nav-config';
 
 interface LoginForm {
   email: string;
   password: string;
 }
-
-const ROLE_MAP: Record<string, UserRole> = {
-  admin:      'admin',
-  rh:         'hr',
-  supervisor: 'supervisor',
-  gestor:     'manager',
-  manager:    'manager',
-  saas_owner: 'saas_owner',
-};
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -43,8 +34,7 @@ export function LoginPage() {
     try {
       const res = await authApi.login(data.email.trim().toLowerCase(), data.password);
 
-      const apiRole = res.role?.tipo_role ?? '';
-      const role: UserRole = ROLE_MAP[apiRole] ?? 'manager';
+      const role = normalizeUserRole(res.role?.tipo_role);
 
       login(
         {
