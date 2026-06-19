@@ -1,0 +1,4738 @@
+openapi: 3.0.3
+info:
+  title: Eletro Time - API de Presença
+  version: 1.0.0
+  description: API REST para controle de presença com geofencing
+paths:
+  /api/admin-saas/logs/:
+    get:
+      operationId: admin_saas_logs_list
+      description: |-
+        [DONO SAAS] Auditoria - Logs de ações
+
+        Visualizar histórico de todas as ações realizadas pelo Dono SaaS.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - '[DONO SAAS] Auditoria'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLogAcaoAdminList'
+          description: ''
+  /api/admin-saas/logs/{id}/:
+    get:
+      operationId: admin_saas_logs_retrieve
+      description: |-
+        [DONO SAAS] Auditoria - Logs de ações
+
+        Visualizar histórico de todas as ações realizadas pelo Dono SaaS.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este log acao admin.
+        required: true
+      tags:
+      - '[DONO SAAS] Auditoria'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogAcaoAdmin'
+          description: ''
+  /api/admin-saas/logs/por_acao/:
+    get:
+      operationId: admin_saas_logs_por_acao_retrieve
+      description: Agrupar logs por tipo de ação
+      tags:
+      - '[DONO SAAS] Auditoria'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  Aprovar Empresa: 5
+                  Rejeitar Empresa: 1
+                  Atualizar Empresa: 3
+          description: ''
+  /api/admin-saas/logs/ultimos_30_dias/:
+    get:
+      operationId: admin_saas_logs_ultimos_30_dias_retrieve
+      description: Logs dos últimos 30 dias
+      tags:
+      - '[DONO SAAS] Auditoria'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                example:
+                - id: 1
+                  acao: aprovar_empresa
+                  descricao: Empresa Tech Solutions aprovada
+                  empresa: Tech Solutions
+                  criado_em: '2026-06-05T14:30:00Z'
+          description: ''
+  /api/admin-saas/solicitacoes/:
+    get:
+      operationId: admin_saas_solicitacoes_list
+      description: |-
+        [DONO SAAS] Gerenciar solicitações de empresas
+
+        Endpoints para o Dono SaaS aprovar ou rejeitar empresas que se cadastraram.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - '[DONO SAAS] Solicitações'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSolicitacaoEmpresaList'
+          description: ''
+    post:
+      operationId: admin_saas_solicitacoes_create
+      description: |-
+        [DONO SAAS] Gerenciar solicitações de empresas
+
+        Endpoints para o Dono SaaS aprovar ou rejeitar empresas que se cadastraram.
+      tags:
+      - '[DONO SAAS] Solicitações'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitacaoEmpresa'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SolicitacaoEmpresa'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SolicitacaoEmpresa'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitacaoEmpresa'
+          description: ''
+  /api/admin-saas/solicitacoes/{id}/:
+    get:
+      operationId: admin_saas_solicitacoes_retrieve
+      description: |-
+        [DONO SAAS] Gerenciar solicitações de empresas
+
+        Endpoints para o Dono SaaS aprovar ou rejeitar empresas que se cadastraram.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este solicitacao empresa.
+        required: true
+      tags:
+      - '[DONO SAAS] Solicitações'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitacaoEmpresa'
+          description: ''
+    put:
+      operationId: admin_saas_solicitacoes_update
+      description: |-
+        [DONO SAAS] Gerenciar solicitações de empresas
+
+        Endpoints para o Dono SaaS aprovar ou rejeitar empresas que se cadastraram.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este solicitacao empresa.
+        required: true
+      tags:
+      - '[DONO SAAS] Solicitações'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitacaoEmpresa'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SolicitacaoEmpresa'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SolicitacaoEmpresa'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitacaoEmpresa'
+          description: ''
+    patch:
+      operationId: admin_saas_solicitacoes_partial_update
+      description: |-
+        [DONO SAAS] Gerenciar solicitações de empresas
+
+        Endpoints para o Dono SaaS aprovar ou rejeitar empresas que se cadastraram.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este solicitacao empresa.
+        required: true
+      tags:
+      - '[DONO SAAS] Solicitações'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSolicitacaoEmpresa'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSolicitacaoEmpresa'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSolicitacaoEmpresa'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitacaoEmpresa'
+          description: ''
+    delete:
+      operationId: admin_saas_solicitacoes_destroy
+      description: |-
+        [DONO SAAS] Gerenciar solicitações de empresas
+
+        Endpoints para o Dono SaaS aprovar ou rejeitar empresas que se cadastraram.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este solicitacao empresa.
+        required: true
+      tags:
+      - '[DONO SAAS] Solicitações'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/admin-saas/solicitacoes/aprovar/:
+    post:
+      operationId: admin_saas_solicitacoes_aprovar_create
+      description: Aprovar solicitação de empresa
+      tags:
+      - '[DONO SAAS] Solicitações'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                solicitacao_id:
+                  type: integer
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitacaoEmpresa'
+          description: ''
+  /api/admin-saas/solicitacoes/pendentes/:
+    get:
+      operationId: admin_saas_solicitacoes_pendentes_retrieve
+      description: Listar solicitações pendentes
+      tags:
+      - '[DONO SAAS] Solicitações'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  total: 2
+                  solicitacoes:
+                  - id: 1
+                    nome_empresa: Tech Solutions
+                    nif: '123456789'
+                    email_empresa: contato@techsolutions.com
+                    status: pendente
+                    criado_em: '2026-06-01T10:30:00Z'
+          description: ''
+  /api/admin-saas/solicitacoes/rejeitar/:
+    post:
+      operationId: admin_saas_solicitacoes_rejeitar_create
+      description: Rejeitar solicitação de empresa
+      tags:
+      - '[DONO SAAS] Solicitações'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                solicitacao_id:
+                  type: integer
+                motivo:
+                  type: string
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitacaoEmpresa'
+          description: ''
+  /api/admin-saas/solicitacoes/resumo/:
+    get:
+      operationId: admin_saas_solicitacoes_resumo_retrieve
+      description: Resumo geral de solicitações
+      tags:
+      - '[DONO SAAS] Solicitações'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  pendentes: 2
+                  aprovadas: 5
+                  rejeitadas: 1
+                  total: 8
+          description: ''
+  /api/admin/aprovar_colaborador/:
+    post:
+      operationId: admin_aprovar_colaborador_create
+      description: Aprovar solicitação de colaborador e atribuir departamento/cargo/posto
+      tags:
+      - '[ADMINISTRADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Colaborador aprovado com sucesso
+                  nome: João Silva
+                  departamento: Desenvolvimento
+                  cargo: Desenvolvedor Python
+                  posto: Filial São Paulo
+                  empresa: Tech Solutions
+          description: ''
+  /api/admin/atribuir_departamento/:
+    post:
+      operationId: admin_atribuir_departamento_create
+      description: Atribuir departamento ao supervisor
+      tags:
+      - '[ADMINISTRADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Departamento atribuído ao supervisor
+                  supervisor: Maria Santos
+                  departamento: Desenvolvimento
+                  total_colaboradores: 8
+          description: ''
+  /api/admin/atualizar_empresa/:
+    post:
+      operationId: admin_atualizar_empresa_create
+      description: Atualizar informações da empresa
+      tags:
+      - '[ADMINISTRADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Empresa atualizada com sucesso
+                  nome: Tech Solutions LTDA
+                  email: contato@techsolutions.com
+          description: ''
+  /api/admin/configurar_horarios_globais/:
+    post:
+      operationId: admin_configurar_horarios_globais_create
+      description: Configurar horários globais da empresa (entrada, saída, almoço)
+      tags:
+      - '[ADMINISTRADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                horario_entrada:
+                  type: string
+                  description: Horário de entrada (HH:MM:SS)
+                horario_saida:
+                  type: string
+                  description: Horário de saída (HH:MM:SS)
+                horario_almoco_inicio:
+                  type: string
+                  description: Início do almoço (HH:MM:SS)
+                horario_almoco_fim:
+                  type: string
+                  description: Fim do almoço (HH:MM:SS)
+              required:
+              - horario_entrada
+              - horario_saida
+              - horario_almoco_inicio
+              - horario_almoco_fim
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Horários globais configurados com sucesso
+                  horario_entrada: 08:00:00
+                  horario_saida: '17:00:00'
+                  horario_almoco_inicio: '12:00:00'
+                  horario_almoco_fim: '13:00:00'
+                  mensagem: Aplica-se a todos os postos que não têm horários específicos
+          description: ''
+  /api/admin/configurar_horarios_posto/:
+    post:
+      operationId: admin_configurar_horarios_posto_create
+      description: Configurar horários específicos para um POSTO (opcional)
+      tags:
+      - '[ADMINISTRADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                posto_id:
+                  type: integer
+                  description: ID do posto de trabalho
+                horario_entrada:
+                  type: string
+                  description: Horário de entrada (HH:MM:SS)
+                horario_saida:
+                  type: string
+                  description: Horário de saída (HH:MM:SS)
+                horario_almoco_inicio:
+                  type: string
+                  description: Início do almoço (HH:MM:SS)
+                horario_almoco_fim:
+                  type: string
+                  description: Fim do almoço (HH:MM:SS)
+              required:
+              - posto_id
+              - horario_entrada
+              - horario_saida
+              - horario_almoco_inicio
+              - horario_almoco_fim
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Horários do posto configurados com sucesso
+                  posto: Filial São Paulo
+                  horario_entrada: 06:00:00
+                  horario_saida: '14:00:00'
+                  horario_almoco_inicio: '11:30:00'
+                  horario_almoco_fim: '12:30:00'
+          description: ''
+  /api/admin/criar_departamento/:
+    post:
+      operationId: admin_criar_departamento_create
+      description: Criar novo departamento
+      tags:
+      - '[ADMINISTRADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Departamento criado com sucesso
+                  departamento_id: 1
+                  nome: Desenvolvimento
+                  descricao: Equipe de desenvolvimento Python
+          description: ''
+  /api/admin/criar_posto/:
+    post:
+      operationId: admin_criar_posto_create
+      description: Criar novo posto/local de trabalho
+      tags:
+      - '[ADMINISTRADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Posto criado com sucesso
+                  posto_id: 1
+                  nome: Filial São Paulo
+                  endereco: Av. Paulista, 1000
+                  latitude: -23.5505
+                  longitude: -46.6333
+                  raio_geofencing: 150
+          description: ''
+  /api/admin/criar_rh/:
+    post:
+      operationId: admin_criar_rh_create
+      description: Criar novo usuário de Recursos Humanos (RH) da empresa
+      tags:
+      - '[ADMINISTRADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: Nome de usuário único
+                email:
+                  type: string
+                  description: Email do RH
+                nome:
+                  type: string
+                  description: Nome completo
+                senha:
+                  type: string
+                  description: Senha do RH
+              required:
+              - username
+              - email
+              - nome
+              - senha
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: RH criado com sucesso
+                  rh_id: 5
+                  username: rita.recursos
+                  email: rh@example.com
+                  nome: Rita Recursos
+                  funcao: Recursos Humanos
+          description: ''
+  /api/admin/criar_supervisor/:
+    post:
+      operationId: admin_criar_supervisor_create
+      description: Criar novo supervisor e opcionalmente atribuir departamento
+      tags:
+      - '[ADMINISTRADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: Nome de usuário único
+                email:
+                  type: string
+                  description: Email do supervisor
+                nome:
+                  type: string
+                  description: Nome completo
+                senha:
+                  type: string
+                  description: Senha do supervisor
+                departamento_id:
+                  type: integer
+                  description: ID do departamento a atribuir (opcional)
+              required:
+              - username
+              - email
+              - nome
+              - senha
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Supervisor criado com sucesso
+                  supervisor_id: 2
+                  username: maria.santos
+                  email: maria@example.com
+                  nome: Maria Santos
+                  departamento_atribuido: Desenvolvimento
+          description: ''
+  /api/admin/criar_turno/:
+    post:
+      operationId: admin_criar_turno_create
+      description: Criar novo turno de trabalho
+      tags:
+      - '[ADMINISTRADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                  description: 'Nome do turno (ex: Matutino, Vespertino)'
+                descricao:
+                  type: string
+                  description: Descrição do turno (opcional)
+                horario_entrada:
+                  type: string
+                  description: Horário de entrada (HH:MM:SS)
+                horario_saida:
+                  type: string
+                  description: Horário de saída (HH:MM:SS)
+                horario_almoco_inicio:
+                  type: string
+                  description: Início do almoço (HH:MM:SS)
+                horario_almoco_fim:
+                  type: string
+                  description: Fim do almoço (HH:MM:SS)
+              required:
+              - nome
+              - horario_entrada
+              - horario_saida
+              - horario_almoco_inicio
+              - horario_almoco_fim
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Turno criado com sucesso
+                  turno_id: 1
+                  nome: Matutino
+                  horario_entrada: 06:00:00
+                  horario_saida: '14:00:00'
+                  horario_almoco_inicio: '10:00:00'
+                  horario_almoco_fim: '11:00:00'
+          description: ''
+  /api/admin/listar_departamentos/:
+    get:
+      operationId: admin_listar_departamentos_retrieve
+      description: Listar todos os departamentos da empresa
+      tags:
+      - '[ADMINISTRADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                example:
+                - id: 1
+                  nome: Desenvolvimento
+                  descricao: Equipe de desenvolvimento Python
+                  responsavel: Maria Santos
+                  total_colaboradores: 8
+          description: ''
+  /api/admin/listar_postos/:
+    get:
+      operationId: admin_listar_postos_retrieve
+      description: Listar todos os postos da empresa
+      tags:
+      - '[ADMINISTRADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                example:
+                - id: 1
+                  nome: Filial São Paulo
+                  endereco: Av. Paulista, 1000
+                  cidade: São Paulo
+                  estado: SP
+                  latitude: -23.5505
+                  longitude: -46.6333
+                  raio_geofencing: 150
+                  tensao: 220V
+                  ativo: true
+          description: ''
+  /api/admin/listar_supervisores/:
+    get:
+      operationId: admin_listar_supervisores_retrieve
+      description: Listar supervisores da empresa
+      tags:
+      - '[ADMINISTRADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                example:
+                - id: 2
+                  nome: Maria Santos
+                  email: maria@example.com
+                  departamento: Desenvolvimento
+                  total_colaboradores: 8
+                  status: ativo
+          description: ''
+  /api/admin/listar_turnos/:
+    get:
+      operationId: admin_listar_turnos_retrieve
+      description: Listar todos os turnos da empresa
+      tags:
+      - '[ADMINISTRADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                example:
+                - id: 1
+                  nome: Matutino
+                  descricao: Turno da manhã
+                  horario_entrada: 06:00:00
+                  horario_saida: '14:00:00'
+                  horario_almoco_inicio: '10:00:00'
+                  horario_almoco_fim: '11:00:00'
+                  total_colaboradores: 12
+          description: ''
+  /api/admin/minha_empresa/:
+    get:
+      operationId: admin_minha_empresa_retrieve
+      description: Ver informações completas da empresa
+      tags:
+      - '[ADMINISTRADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  id: 1
+                  nome: Tech Solutions LTDA
+                  nif: '123456789'
+                  email: contato@techsolutions.com
+                  telefone: '11999999999'
+                  endereco: Rua Principal, 123
+                  cidade: São Paulo
+                  estado: SP
+                  total_supervisores: 3
+                  total_colaboradores: 25
+                  status: ativa
+          description: ''
+  /api/admin/rejeitar_colaborador/:
+    post:
+      operationId: admin_rejeitar_colaborador_create
+      description: Rejeitar solicitação de colaborador
+      tags:
+      - '[ADMINISTRADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Solicitação rejeitada
+                  nome: João Silva
+                  motivo: Não atendemos nessa área
+          description: ''
+  /api/admin/solicitacoes_colaboradores/:
+    get:
+      operationId: admin_solicitacoes_colaboradores_retrieve
+      description: Listar solicitações pendentes de colaboradores
+      tags:
+      - '[ADMINISTRADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  total: 3
+                  solicitacoes:
+                  - id: 1
+                    nome_completo: João Silva
+                    email: joao@gmail.com
+                    status: pendente
+                    criado_em: '2026-06-07T10:30:00Z'
+          description: ''
+  /api/admin/visualizar_horarios_globais/:
+    get:
+      operationId: admin_visualizar_horarios_globais_retrieve
+      description: Ver horários globais da empresa
+      tags:
+      - '[ADMINISTRADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  horario_entrada: 08:00:00
+                  horario_saida: '17:00:00'
+                  horario_almoco_inicio: '12:00:00'
+                  horario_almoco_fim: '13:00:00'
+          description: ''
+  /api/admin/visualizar_horarios_posto/:
+    get:
+      operationId: admin_visualizar_horarios_posto_retrieve
+      description: Ver horários de um POSTO específico
+      tags:
+      - '[ADMINISTRADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  posto: Filial São Paulo
+                  horario_entrada: 06:00:00
+                  horario_saida: '14:00:00'
+                  horario_almoco_inicio: '11:30:00'
+                  horario_almoco_fim: '12:30:00'
+                  origem: Específica do posto
+          description: ''
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Fazer login com email e senha
+      tags:
+      - '[AUTENTICAÇÃO]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  access: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  refresh: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  id: 1
+                  username: joao.silva
+                  email: joao@example.com
+                  nome: João
+                  sobrenome: Silva
+                  role:
+                    tipo_role: admin
+                    tipo_role_display: Administrador
+                    empresa_id: 1
+                    empresa_nome: Tech Solutions
+                  autenticado: true
+                  mensagem: Bem-vindo, João!
+          description: ''
+  /api/auth/refresh/:
+    post:
+      operationId: auth_refresh_create
+      description: Renovar o token de acesso usando o refresh token
+      tags:
+      - '[AUTENTICAÇÃO]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Refresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Refresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Refresh'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  access: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  refresh: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+          description: ''
+  /api/colaborador/eliminar_gasto/:
+    post:
+      operationId: colaborador_eliminar_gasto_create
+      description: 'Apaga um gasto do próprio colaborador pelo `gasto_id`. FRONT:
+        botão de lixo em cada item da lista.'
+      summary: Eliminar um gasto meu
+      tags:
+      - '[MOBILE COLABORADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gasto_id:
+                  type: integer
+                  description: ID do gasto a eliminar
+              required:
+              - gasto_id
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Gasto eliminado
+          description: ''
+  /api/colaborador/fugas_de_dinheiro/:
+    get:
+      operationId: colaborador_fugas_de_dinheiro_retrieve
+      description: |-
+        Funcionalidade de EDUCAÇÃO FINANCEIRA. Pega nos pequenos gastos diários (ex: dinheiro do táxi) e mostra o impacto real ao projetá-los para o mês e para o ANO. Objetivo: consciencializar que 1.000/dia em táxi = 365.000/ano.
+
+        FRONT — sugestão de UI:
+        • Destaque a `maior_fuga` num cartão de alerta com a `dica`.
+        • Tabela/lista `por_categoria` com colunas: média diária, projeção mensal, projeção anual e % do salário.
+        • Mostrar `projecao_anual` total em grande (o "abre-olhos").
+        • `media_diaria` por categoria → ótimo para barras comparativas.
+
+        Notas: `dias_considerados` = dias decorridos do mês atual (ou dias do mês, se for um mês passado). Projeções = média_diária × 30 (mês) e × 365 (ano).
+      summary: "Fugas de dinheiro: projeção diário → mensal → anual \U0001F695"
+      parameters:
+      - in: query
+        name: ano
+        schema:
+          type: integer
+        description: 'Ano (ex: 2026). Default: ano atual'
+      - in: query
+        name: mes
+        schema:
+          type: integer
+        description: 'Mês (1-12). Default: mês atual'
+      tags:
+      - '[MOBILE COLABORADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  mes: 6
+                  ano: 2026
+                  dias_considerados: 17
+                  total: '34000.00'
+                  media_diaria: '2000.00'
+                  projecao_mensal: '60000.00'
+                  projecao_anual: '730000.00'
+                  maior_fuga:
+                    categoria: Transporte
+                    total: '17000.00'
+                    media_diaria: '1000.00'
+                    projecao_mensal: '30000.00'
+                    projecao_anual: '365000.00'
+                    percentual_salario: '8.50'
+                  dica: "\U0001F695 A maior fuga é Transporte: ~1000.00/dia dá 365000.00/ano.
+                    Reduzir 20% pouparia 73000.00/ano."
+                  por_categoria:
+                  - categoria: Transporte
+                    total: '17000.00'
+                    media_diaria: '1000.00'
+                    projecao_mensal: '30000.00'
+                    projecao_anual: '365000.00'
+                    percentual_salario: '8.50'
+                  - categoria: Lazer
+                    total: '17000.00'
+                    media_diaria: '1000.00'
+                    projecao_mensal: '30000.00'
+                    projecao_anual: '365000.00'
+                    percentual_salario: '8.50'
+          description: ''
+  /api/colaborador/iniciar_almoco/:
+    post:
+      operationId: colaborador_iniciar_almoco_create
+      description: Iniciar o almoço (start do cronômetro). Valida geofencing pelo
+        posto.
+      tags:
+      - '[MOBILE COLABORADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+              required:
+              - latitude
+              - longitude
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/colaborador/marcar_presenca/:
+    post:
+      operationId: colaborador_marcar_presenca_create
+      description: Marcar entrada/saída/almoço com localização (geofencing)
+      tags:
+      - '[MOBILE COLABORADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tipo:
+                  type: string
+                  enum:
+                  - entrada
+                  - saida
+                  - almoco_entrada
+                  - almoco_saida
+                  description: Tipo de registro
+                latitude:
+                  type: number
+                  description: 'Latitude da localização (ex: -23.561414)'
+                longitude:
+                  type: number
+                  description: 'Longitude da localização (ex: -46.656139)'
+              required:
+              - tipo
+              - latitude
+              - longitude
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/colaborador/marcar_presenca_fora/:
+    post:
+      operationId: colaborador_marcar_presenca_fora_create
+      description: |-
+        Marcar presença FORA do local (geofencing) com justificativa.
+
+        Cria um registo PENDENTE que precisa ser autorizado pelo supervisor.
+        Só funciona se a empresa permitir presença fora do geofencing.
+      tags:
+      - '[MOBILE COLABORADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tipo:
+                  type: string
+                  enum:
+                  - entrada
+                  - saida
+                  - almoco_entrada
+                  - almoco_saida
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+                motivo:
+                  type: string
+                  description: Justificativa obrigatória para marcar fora do local
+              required:
+              - tipo
+              - latitude
+              - longitude
+              - motivo
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/colaborador/marcar_tarefa_concluida/:
+    post:
+      operationId: colaborador_marcar_tarefa_concluida_create
+      description: Marcar tarefa como concluída
+      tags:
+      - '[MOBILE COLABORADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tarefa_id:
+                  type: integer
+                  description: ID da tarefa
+              required:
+              - tarefa_id
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/colaborador/meu_almoco/:
+    get:
+      operationId: colaborador_meu_almoco_retrieve
+      description: |-
+        Cronômetro de almoço: previsto vs real, duração e excesso.
+
+        Marcar 'almoco_saida' (sai para almoçar) e 'almoco_entrada' (volta).
+        Mostra se demorou mais que o permitido e quanto excedeu.
+      tags:
+      - '[MOBILE COLABORADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/colaborador/meu_calendario/:
+    get:
+      operationId: colaborador_meu_calendario_retrieve
+      description: Ver calendário de trabalho com horários
+      tags:
+      - '[MOBILE COLABORADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                example:
+                - data: '2026-06-08'
+                  dia_semana: Seg
+                  eh_dia_util: true
+                  horario_entrada: 08:00:00
+                  horario_saida: '17:00:00'
+                  almoco_inicio: '12:00:00'
+                  almoco_fim: '13:00:00'
+          description: ''
+  /api/colaborador/meu_horario/:
+    get:
+      operationId: colaborador_meu_horario_retrieve
+      description: Consultar meu horário de trabalho
+      tags:
+      - '[MOBILE COLABORADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  entrada: 08:00:00
+                  saida: '17:00:00'
+                  almoco_inicio: '12:00:00'
+                  almoco_fim: '13:00:00'
+                  cargo: Desenvolvedor Python
+                  departamento: Desenvolvimento
+                  empresa: Tech Solutions LTDA
+                  origem_horario: Escala administrativa (seg-sex)
+                  dias_trabalho: seg-sex
+          description: ''
+  /api/colaborador/meu_resumo/:
+    get:
+      operationId: colaborador_meu_resumo_retrieve
+      description: 'Ver resumo do mês: horas trabalhadas, atrasos, absências'
+      tags:
+      - '[MOBILE COLABORADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  mes: 6/2026
+                  total_dias_uteis: 22
+                  dias_presentes: 20
+                  dias_ausentes: 2
+                  horas_trabalhadas: 160.5
+                  horas_esperadas: 176
+          description: ''
+  /api/colaborador/meus_atrasos/:
+    get:
+      operationId: colaborador_meus_atrasos_retrieve
+      description: Listar meus atrasos
+      tags:
+      - '[MOBILE COLABORADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  total_atrasos: 2
+                  atrasos:
+                  - data: '2026-06-01'
+                    hora_entrada: 08:15:00
+                    minutos_atraso: 15
+                  - data: '2026-06-05'
+                    hora_entrada: 08:30:00
+                    minutos_atraso: 30
+          description: ''
+  /api/colaborador/meus_gastos/:
+    get:
+      operationId: colaborador_meus_gastos_retrieve
+      description: 'Devolve os gastos do mês escolhido. FRONT: ideal para um ecrã
+        de histórico — listar `gastos` (cada item com categoria_display, valor, data),
+        um gráfico de barras a partir de `por_categoria` e um gráfico de linha/calendário
+        a partir de `por_dia`. `total` é o somatório do mês.'
+      summary: Listar meus gastos do mês (por dia e por categoria)
+      parameters:
+      - in: query
+        name: ano
+        schema:
+          type: integer
+        description: 'Ano (ex: 2026). Default: ano atual'
+      - in: query
+        name: mes
+        schema:
+          type: integer
+        description: 'Mês (1-12). Default: mês atual'
+      tags:
+      - '[MOBILE COLABORADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  mes: 6
+                  ano: 2026
+                  total: '100000.00'
+                  gastos:
+                  - id: 12
+                    categoria: transporte
+                    categoria_display: Transporte
+                    valor: '1500.00'
+                    descricao: táxi
+                    data: '2026-06-17'
+                  por_categoria:
+                    Transporte: '45000.00'
+                    Alimentação: '55000.00'
+                  por_dia:
+                  - data: '2026-06-17'
+                    total: '1500.00'
+          description: ''
+  /api/colaborador/meus_recibos/:
+    get:
+      operationId: colaborador_meus_recibos_retrieve
+      description: Ver meus recibos de vencimento
+      tags:
+      - '[MOBILE COLABORADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/colaborador/minha_economia/:
+    get:
+      operationId: colaborador_minha_economia_retrieve
+      description: "Ecrã PRINCIPAL da Economia do Colaborador. Junta o salário (do
+        contrato ativo) com os gastos do mês e devolve a sobra, o percentual de economia
+        e uma análise automática com cor.\n\nFRONT — sugestão de UI:\n• Cartão grande
+        com `sobra` e `percentual_economia` (anel de progresso).\n• Badge colorido
+        com `cor` + `analise` (\U0001F7E2 poupa bem / \U0001F7E1 equilibrado / \U0001F534
+        gasta muito).\n• `estado` (poupa_bem|equilibrado|gasta_muito) serve para estilizar
+        sem depender do emoji.\n• Gráficos a partir de `gastos_por_categoria` e `gastos_por_dia`.\n\nRegra
+        da análise: % = sobra ÷ salário → \U0001F7E2 ≥20% · \U0001F7E1 5–20% · \U0001F534
+        <5%."
+      summary: "Resumo de economia: salário, gastos, sobra e análise (\U0001F7E2\U0001F7E1\U0001F534)"
+      parameters:
+      - in: query
+        name: ano
+        schema:
+          type: integer
+        description: 'Ano (ex: 2026). Default: ano atual'
+      - in: query
+        name: mes
+        schema:
+          type: integer
+        description: 'Mês (1-12). Default: mês atual'
+      tags:
+      - '[MOBILE COLABORADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  salario: '200000.00'
+                  total_gasto: '100000.00'
+                  sobra: '100000.00'
+                  percentual_economia: '50.00'
+                  poupando: true
+                  estado: poupa_bem
+                  cor: "\U0001F7E2"
+                  analise: Está a poupar bem
+                  mes: 6
+                  ano: 2026
+                  gastos_por_categoria:
+                    Transporte: '45000.00'
+                    Alimentação: '55000.00'
+                  gastos_por_dia:
+                  - data: '2026-06-17'
+                    total: '1500.00'
+          description: ''
+  /api/colaborador/minhas_declaracoes/:
+    get:
+      operationId: colaborador_minhas_declaracoes_retrieve
+      description: Ver declarações enviadas pelo RH
+      tags:
+      - '[MOBILE COLABORADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/colaborador/minhas_ferias/:
+    get:
+      operationId: colaborador_minhas_ferias_retrieve
+      description: Listar minhas férias e dias disponíveis
+      tags:
+      - '[MOBILE COLABORADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  dias_disponiveis: 30
+                  dias_usados: 10
+                  dias_restantes: 20
+                  ferias_agendadas:
+                  - inicio: '2026-07-01'
+                    fim: '2026-07-10'
+                    dias: 10
+                    status: aprovada
+          description: ''
+  /api/colaborador/minhas_tarefas/:
+    get:
+      operationId: colaborador_minhas_tarefas_retrieve
+      description: Listar minhas tarefas (cumbidas e pendentes)
+      tags:
+      - '[MOBILE COLABORADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  tarefas_pendentes: 2
+                  tarefas_concluidas: 1
+                  total_tarefas: 3
+                  tarefas:
+                  - id: 1
+                    titulo: Finalizar API de presença
+                    descricao: Implementar endpoints REST
+                    prazo: '2026-06-30'
+                    prioridade: alta
+                    status: em_progresso
+                    concluida: false
+                    atribuido_por: João (Supervisor)
+          description: ''
+  /api/colaborador/noticias/:
+    get:
+      operationId: colaborador_noticias_retrieve
+      description: |-
+        Devolve notícias de Angola em três categorias — política, desporto e economia — já AGRUPADAS, numa única chamada à API (poupa créditos). Cada notícia inclui imagem.
+
+        FRONT — sugestão de UI:
+        • Três secções/abas: Política, Desporto, Economia (chaves de `categorias`).
+        • Em cada uma, cards com `imagem`, `titulo`, `descricao` e `fonte`.
+        • Tocar no card abre o `link` no browser.
+
+        Notas: resposta cacheada ~1 hora e partilhada por todos (as chamadas servem a empresa toda). Alguns campos podem vir nulos consoante a fonte (ex: `imagem`).
+      summary: "Notícias de destaque: política, desporto e economia \U0001F4F0"
+      parameters:
+      - in: query
+        name: idioma
+        schema:
+          type: string
+        description: Idioma (default 'pt')
+      - in: query
+        name: pais
+        schema:
+          type: string
+        description: País (default 'ao' = Angola)
+      tags:
+      - '[MOBILE COLABORADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  total: 3
+                  categorias:
+                    politica:
+                    - titulo: Parlamento aprova orçamento
+                      descricao: '...'
+                      link: https://exemplo.ao/p1
+                      imagem: https://exemplo.ao/p1.jpg
+                      data: '2026-06-17 09:30:00'
+                      fonte: Jornal de Angola
+                    desporto:
+                    - titulo: Petro vence clássico
+                      descricao: '...'
+                      link: https://exemplo.ao/d1
+                      imagem: https://exemplo.ao/d1.jpg
+                      data: '2026-06-17 08:00:00'
+                      fonte: O País
+                    economia:
+                    - titulo: BNA revê taxa de juro
+                      descricao: '...'
+                      link: https://exemplo.ao/e1
+                      imagem: https://exemplo.ao/e1.jpg
+                      data: '2026-06-17 07:30:00'
+                      fonte: Expansão
+          description: ''
+  /api/colaborador/registar_gasto/:
+    post:
+      operationId: colaborador_registar_gasto_create
+      description: |-
+        Regista um gasto do colaborador numa das 6 categorias. FRONT: usar um seletor de categoria (chips/ícones), campo de valor e date-picker opcional (default: hoje). As categorias válidas são fixas — mostrar sempre estas 6.
+
+        Categorias: alimentacao, transporte, propina, casa, internet, lazer.
+      summary: Registar um gasto pessoal
+      tags:
+      - '[MOBILE COLABORADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                categoria:
+                  type: string
+                  enum:
+                  - alimentacao
+                  - transporte
+                  - propina
+                  - casa
+                  - internet
+                  - lazer
+                  description: Categoria do gasto (obrigatório)
+                valor:
+                  type: number
+                  description: 'Valor do gasto (obrigatório), ex: 1500'
+                data:
+                  type: string
+                  description: DD/MM/AAAA (opcional, default = hoje)
+                descricao:
+                  type: string
+                  description: 'Nota opcional, ex: "almoço fora"'
+              required:
+              - categoria
+              - valor
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Gasto registado
+                  id: 12
+                  categoria: transporte
+                  categoria_display: Transporte
+                  valor: '1500.00'
+                  data: '2026-06-17'
+          description: ''
+  /api/colaborador/solicitar_ferias/:
+    post:
+      operationId: colaborador_solicitar_ferias_create
+      description: Solicitar férias
+      tags:
+      - '[MOBILE COLABORADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data_inicio:
+                  type: string
+                  format: date
+                  description: Data de início (YYYY-MM-DD)
+                data_fim:
+                  type: string
+                  format: date
+                  description: Data de término (YYYY-MM-DD)
+                motivo:
+                  type: string
+                  description: Motivo ou observações
+              required:
+              - data_inicio
+              - data_fim
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/colaborador/status_contrato/:
+    get:
+      operationId: colaborador_status_contrato_retrieve
+      description: Visualizar status do contrato/vínculo trabalhista
+      tags:
+      - '[MOBILE COLABORADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/colaborador/terminar_almoco/:
+    post:
+      operationId: colaborador_terminar_almoco_create
+      description: Terminar o almoço (stop do cronômetro). Valida geofencing pelo
+        posto.
+      tags:
+      - '[MOBILE COLABORADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+              required:
+              - latitude
+              - longitude
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/configuracoes/:
+    get:
+      operationId: configuracoes_list
+      description: '[ADMIN] Configurações da Empresa'
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - configuracoes
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedConfiguracaoEmpresaList'
+          description: ''
+    post:
+      operationId: configuracoes_create
+      description: '[ADMIN] Configurações da Empresa'
+      tags:
+      - configuracoes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfiguracaoEmpresa'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConfiguracaoEmpresa'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConfiguracaoEmpresa'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracaoEmpresa'
+          description: ''
+  /api/configuracoes/{id}/:
+    get:
+      operationId: configuracoes_retrieve
+      description: '[ADMIN] Configurações da Empresa'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este configuracao empresa.
+        required: true
+      tags:
+      - configuracoes
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracaoEmpresa'
+          description: ''
+    put:
+      operationId: configuracoes_update
+      description: '[ADMIN] Configurações da Empresa'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este configuracao empresa.
+        required: true
+      tags:
+      - configuracoes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfiguracaoEmpresa'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConfiguracaoEmpresa'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConfiguracaoEmpresa'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracaoEmpresa'
+          description: ''
+    patch:
+      operationId: configuracoes_partial_update
+      description: '[ADMIN] Configurações da Empresa'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este configuracao empresa.
+        required: true
+      tags:
+      - configuracoes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConfiguracaoEmpresa'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedConfiguracaoEmpresa'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedConfiguracaoEmpresa'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracaoEmpresa'
+          description: ''
+    delete:
+      operationId: configuracoes_destroy
+      description: '[ADMIN] Configurações da Empresa'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este configuracao empresa.
+        required: true
+      tags:
+      - configuracoes
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/configuracoes/{id}/atualizar_horarios/:
+    post:
+      operationId: configuracoes_atualizar_horarios_create
+      description: Atualizar horários padrão da empresa
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este configuracao empresa.
+        required: true
+      tags:
+      - configuracoes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfiguracaoEmpresa'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConfiguracaoEmpresa'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConfiguracaoEmpresa'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracaoEmpresa'
+          description: ''
+  /api/departamentos/:
+    get:
+      operationId: departamentos_list
+      description: '[ADMIN] Departamentos da Empresa'
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - departamentos
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDepartamentoEmpresaList'
+          description: ''
+    post:
+      operationId: departamentos_create
+      description: '[ADMIN] Departamentos da Empresa'
+      tags:
+      - departamentos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartamentoEmpresa'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DepartamentoEmpresa'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DepartamentoEmpresa'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartamentoEmpresa'
+          description: ''
+  /api/departamentos/{id}/:
+    get:
+      operationId: departamentos_retrieve
+      description: '[ADMIN] Departamentos da Empresa'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este departamento empresa.
+        required: true
+      tags:
+      - departamentos
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartamentoEmpresa'
+          description: ''
+    put:
+      operationId: departamentos_update
+      description: '[ADMIN] Departamentos da Empresa'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este departamento empresa.
+        required: true
+      tags:
+      - departamentos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartamentoEmpresa'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DepartamentoEmpresa'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DepartamentoEmpresa'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartamentoEmpresa'
+          description: ''
+    patch:
+      operationId: departamentos_partial_update
+      description: '[ADMIN] Departamentos da Empresa'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este departamento empresa.
+        required: true
+      tags:
+      - departamentos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDepartamentoEmpresa'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDepartamentoEmpresa'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDepartamentoEmpresa'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartamentoEmpresa'
+          description: ''
+    delete:
+      operationId: departamentos_destroy
+      description: '[ADMIN] Departamentos da Empresa'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este departamento empresa.
+        required: true
+      tags:
+      - departamentos
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/empresas/:
+    get:
+      operationId: empresas_list
+      description: |-
+        [PÚBLICO] Cadastro de Empresa
+
+        Apenas visualização e cadastro público. Sem atualização ou exclusão.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - '[PÚBLICO] Cadastro de Empresa'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEmpresaList'
+          description: ''
+    post:
+      operationId: empresas_create
+      description: |-
+        [PÚBLICO] Cadastro de Empresa
+
+        Apenas visualização e cadastro público. Sem atualização ou exclusão.
+      tags:
+      - '[PÚBLICO] Cadastro de Empresa'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Empresa'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Empresa'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Empresa'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empresa'
+          description: ''
+  /api/empresas/{id}/:
+    get:
+      operationId: empresas_retrieve
+      description: |-
+        [PÚBLICO] Cadastro de Empresa
+
+        Apenas visualização e cadastro público. Sem atualização ou exclusão.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este empresa.
+        required: true
+      tags:
+      - '[PÚBLICO] Cadastro de Empresa'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmpresaDetail'
+          description: ''
+  /api/empresas/cadastro_publico/:
+    post:
+      operationId: empresas_cadastro_publico_create
+      description: Cadastro público de empresa (sem autenticação)
+      tags:
+      - '[PÚBLICO] Cadastro de Empresa'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                  description: Nome da empresa
+                nif:
+                  type: string
+                  description: NIF - Numero de Identificacao Fiscal
+                email:
+                  type: string
+                  format: email
+                  description: Email da empresa
+                telefone:
+                  type: string
+                  description: Telefone de contato
+                endereco:
+                  type: string
+                  description: Endereco completo
+                admin_username:
+                  type: string
+                  description: Username do admin
+                admin_email:
+                  type: string
+                  format: email
+                  description: Email do admin
+                admin_nome:
+                  type: string
+                  description: Nome do admin
+                admin_sobrenome:
+                  type: string
+                  description: Sobrenome do admin
+                admin_senha:
+                  type: string
+                  description: Senha do admin (opcional - gera automaticamente se
+                    vazio)
+              required:
+              - nome
+              - nif
+              - email
+              - telefone
+              - endereco
+              - admin_username
+              - admin_email
+              - admin_nome
+              - admin_sobrenome
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Empresa cadastrada com sucesso
+                  empresa_id: 1
+                  message: Aguardando aprovacao do Dono SaaS
+                  admin_username: admin_empresa
+                  admin_senha: senha_gerada_ou_fornecida
+                  admin_email: admin@empresa.com
+                  aviso: GUARDE A SENHA! Ela sera solicitada no primeiro login
+          description: ''
+  /api/empresas/meu_perfil/:
+    get:
+      operationId: empresas_meu_perfil_retrieve
+      description: Retorna dados do usuário logado
+      tags:
+      - '[PÚBLICO] Cadastro de Empresa'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  id: 1
+                  username: joao.silva
+                  email: joao@example.com
+                  nome: João
+                  sobrenome: Silva
+                  role:
+                    tipo_role: admin
+                    tipo_role_display: Administrador
+                    empresa_id: 1
+                    empresa_nome: Tech Solutions
+                  autenticado: true
+          description: ''
+  /api/empresas/minha_empresa/:
+    get:
+      operationId: empresas_minha_empresa_retrieve
+      description: Admin vê os detalhes de sua empresa
+      tags:
+      - '[PÚBLICO] Cadastro de Empresa'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  id: 1
+                  nome: Tech Solutions LTDA
+                  nif: '123456789'
+                  email: contato@techsolutions.com
+                  telefone: '11999999999'
+                  endereco: Rua Principal, 123
+                  cidade: São Paulo
+                  estado: SP
+                  latitude: -23.5505
+                  longitude: -46.6333
+                  raio_geofencing: 100
+                  status: ativa
+                  criado_em: '2026-01-15T08:00:00Z'
+          description: ''
+  /api/geofencing/atualizar_geofencing/:
+    post:
+      operationId: geofencing_atualizar_geofencing_create
+      description: Atualizar configuração de geofencing
+      tags:
+      - '[ADMIN] Configurações'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Geofencing atualizado com sucesso
+                  latitude: -23.5505
+                  longitude: -46.6333
+                  raio_geofencing: 150
+          description: ''
+  /api/register/register/:
+    post:
+      operationId: register_register_create
+      description: Registrar novo colaborador
+      tags:
+      - '[PÚBLICO] Registro de Colaborador'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Solicitação enviada com sucesso
+                  mensagem: Aguardando aprovação do administrador
+                  email: joao@example.com
+                  empresa: Tech Solutions
+          description: ''
+  /api/rh/calcular_folha/:
+    post:
+      operationId: rh_calcular_folha_create
+      description: |-
+        [MANUAL] Pré-visualizar folha de UM colaborador (NÃO grava).
+
+        Aceita período por (data_inicio/data_fim) — ex.: 01/jun a 20/jul — ou por
+        (mes/ano). Traz as faltas do período para o RH rever antes de gerar o recibo.
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                colaborador_id:
+                  type: integer
+                data_inicio:
+                  type: string
+                  format: date
+                  description: 'Início do período (YYYY-MM-DD). Ex: 2026-06-01'
+                data_fim:
+                  type: string
+                  format: date
+                  description: 'Fim do período (YYYY-MM-DD). Ex: 2026-07-20'
+                mes:
+                  type: integer
+                  description: 'Alternativa ao período: mês civil (1-12). Em período,
+                    vira a competência.'
+                ano:
+                  type: integer
+                  description: 'Alternativa ao período: ano (ex: 2026)'
+                acrescimo:
+                  type: number
+                  description: 'Ajuste manual: bónus/acréscimo (opcional)'
+                desconto:
+                  type: number
+                  description: 'Ajuste manual: desconto (opcional)'
+                descricao:
+                  type: string
+                  description: Descrição dos ajustes (opcional)
+              required:
+              - colaborador_id
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/configurar_almoco/:
+    get:
+      operationId: rh_configurar_almoco_retrieve
+      description: |-
+        Ver (GET) ou configurar (POST) a política de almoço da empresa.
+
+        Acessível por Admin, RH e Supervisor.
+        POST body: { "tolerancia_almoco_minutos": 10, "descontar_excesso_almoco": true }
+      tags:
+      - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: rh_configurar_almoco_create
+      description: |-
+        Ver (GET) ou configurar (POST) a política de almoço da empresa.
+
+        Acessível por Admin, RH e Supervisor.
+        POST body: { "tolerancia_almoco_minutos": 10, "descontar_excesso_almoco": true }
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tolerancia_almoco_minutos:
+                  type: integer
+                  description: Minutos de tolerância
+                descontar_excesso_almoco:
+                  type: boolean
+                  description: Se o excesso desconta no salário
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/criar_contrato/:
+    post:
+      operationId: rh_criar_contrato_create
+      description: Criar contrato para um colaborador (salário, duração)
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                colaborador_id:
+                  type: integer
+                  description: ID do colaborador
+                tipo_contrato:
+                  type: string
+                  enum:
+                  - efetivo
+                  - temporario
+                  - estagio
+                  - prestador
+                  - experiencia
+                funcao:
+                  type: string
+                  description: Função/cargo no contrato
+                salario:
+                  type: number
+                  description: Salário base mensal (use 0 se pagar por honorário/dia)
+                honorario_dia:
+                  type: number
+                  description: 'Honorário por dia trabalhado. Se > 0, substitui o
+                    salário: paga honorario_dia × dias trabalhados (cada falta injustificada
+                    vale 1 dia a menos)'
+                subsidio_alimentacao:
+                  type: number
+                  description: Subsídio de alimentação
+                subsidio_transporte:
+                  type: number
+                  description: Subsídio de transporte
+                subsidio_ferias:
+                  type: number
+                  description: Subsídio de férias
+                subsidio_natal:
+                  type: number
+                  description: Subsídio de Natal / 13º
+                outros_beneficios:
+                  type: string
+                  description: Outros benefícios (texto livre)
+                carga_horaria_semanal:
+                  type: integer
+                  description: 'Horas por semana (ex: 40)'
+                data_inicio:
+                  type: string
+                  format: date
+                  description: YYYY-MM-DD
+                data_fim:
+                  type: string
+                  format: date
+                  description: YYYY-MM-DD (vazio = sem termo)
+                observacao:
+                  type: string
+              required:
+              - colaborador_id
+              - salario
+              - data_inicio
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/criar_feriado/:
+    post:
+      operationId: rh_criar_feriado_create
+      description: Registar um feriado (nacional ou só da empresa)
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: string
+                  format: date
+                  description: YYYY-MM-DD
+                nome:
+                  type: string
+                  description: 'Ex: Dia da Independência'
+                tipo:
+                  type: string
+                  enum:
+                  - nacional
+                  - municipal
+                  - empresa
+                nacional:
+                  type: boolean
+                  description: true = vale para todas as empresas (não fica preso
+                    a esta empresa)
+                recorrente:
+                  type: boolean
+                  description: Repete todo ano no mesmo dia/mês
+              required:
+              - data
+              - nome
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/criar_ferias/:
+    post:
+      operationId: rh_criar_ferias_create
+      description: Criar férias para um colaborador (já aprovadas pelo RH)
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                colaborador_id:
+                  type: integer
+                data_inicio:
+                  type: string
+                  format: date
+                data_fim:
+                  type: string
+                  format: date
+                motivo:
+                  type: string
+              required:
+              - colaborador_id
+              - data_inicio
+              - data_fim
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/decimo_terceiro/:
+    post:
+      operationId: rh_decimo_terceiro_create
+      description: |-
+        [MANUAL] Pré-visualizar o 13º (subsídio de Natal) de UM colaborador.
+
+        Regras de Angola (Lei 7/15, art. 158): mínimo 50% do salário base,
+        proporcional aos meses trabalhados no ano, com desconto de INSS e IRT.
+        Não grava nada.
+      summary: Pré-visualizar 13º (subsídio de Natal) de UM colaborador
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                colaborador_id:
+                  type: integer
+                ano:
+                  type: integer
+                  description: 'Ano de referência (ex: 2026). Default: ano atual'
+                percentual:
+                  type: number
+                  description: 'Fração do salário base. Mínimo legal 0.50 (50%). Default:
+                    0.50'
+                meses_trabalhados:
+                  type: integer
+                  description: Opcional. Se vazio, calcula proporcional pelos meses
+                    do contrato no ano
+              required:
+              - colaborador_id
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/eliminar_falta/:
+    post:
+      operationId: rh_eliminar_falta_create
+      description: Eliminar uma falta
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                falta_id:
+                  type: integer
+              required:
+              - falta_id
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/eliminar_feriado/:
+    post:
+      operationId: rh_eliminar_feriado_create
+      description: Eliminar um feriado (não permite apagar feriado nacional por uma
+        empresa)
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                feriado_id:
+                  type: integer
+              required:
+              - feriado_id
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/enviar_declaracao/:
+    post:
+      operationId: rh_enviar_declaracao_create
+      description: Emitir/enviar uma declaração para um colaborador
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                colaborador_id:
+                  type: integer
+                tipo:
+                  type: string
+                  enum:
+                  - vinculo
+                  - remuneracao
+                  - trabalho
+                  - outro
+                titulo:
+                  type: string
+                conteudo:
+                  type: string
+              required:
+              - colaborador_id
+              - titulo
+              - conteudo
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/exportar_faltas/:
+    get:
+      operationId: rh_exportar_faltas_retrieve
+      description: |-
+        Exporta as faltas dos colaboradores em JSON para o ERP Primavera.
+
+        Filtros opcionais: ?colaborador_id=&mes=&ano= ou ?data_inicio=&data_fim=
+      summary: Exportar faltas (JSON) para o ERP Primavera
+      parameters:
+      - in: query
+        name: ano
+        schema:
+          type: integer
+        description: 'Filtra por ano (ex: 2026)'
+      - in: query
+        name: colaborador_id
+        schema:
+          type: integer
+        description: Filtra por colaborador
+      - in: query
+        name: data_fim
+        schema:
+          type: string
+        description: Filtra por data da falta <= (DD/MM/AAAA)
+      - in: query
+        name: data_inicio
+        schema:
+          type: string
+        description: Filtra por data da falta >= (DD/MM/AAAA)
+      - in: query
+        name: mes
+        schema:
+          type: integer
+        description: Filtra por mês (1-12)
+      tags:
+      - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/exportar_folha/:
+    get:
+      operationId: rh_exportar_folha_retrieve
+      description: |-
+        Exporta a folha de salário (recibos) em JSON para o ERP Primavera.
+
+        Filtros opcionais: ?mes=&ano=&colaborador_id=
+      summary: Exportar folha de salário (JSON) para o ERP Primavera
+      parameters:
+      - in: query
+        name: ano
+        schema:
+          type: integer
+        description: 'Filtra por ano (ex: 2026)'
+      - in: query
+        name: colaborador_id
+        schema:
+          type: integer
+        description: Filtra por colaborador
+      - in: query
+        name: data_fim
+        schema:
+          type: string
+        description: Filtra por data de geração <= (DD/MM/AAAA)
+      - in: query
+        name: data_inicio
+        schema:
+          type: string
+        description: Filtra por data de geração >= (DD/MM/AAAA)
+      - in: query
+        name: mes
+        schema:
+          type: integer
+        description: Filtra por mês (1-12)
+      tags:
+      - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/exportar_funcionarios/:
+    get:
+      operationId: rh_exportar_funcionarios_retrieve
+      description: |-
+        Exporta os funcionários da empresa em JSON (para o ERP Primavera).
+
+        Estrutura genérica e fácil de remapear quando houver o template oficial
+        do Primavera. Inclui dados do contrato ativo (admissão, salário).
+      summary: Exportar funcionários (JSON) para o ERP Primavera
+      parameters:
+      - in: query
+        name: data_fim
+        schema:
+          type: string
+        description: Filtra por data de registo <= (DD/MM/AAAA)
+      - in: query
+        name: data_inicio
+        schema:
+          type: string
+        description: Filtra por data de registo >= (DD/MM/AAAA)
+      tags:
+      - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/gerar_folha_automatica/:
+    post:
+      operationId: rh_gerar_folha_automatica_create
+      description: |-
+        [AUTOMÁTICO] Gerar recibos de TODOS os colaboradores ativos da empresa.
+
+        Mesmo período por (data_inicio/data_fim) ou (mes/ano). Sem ajustes manuais
+        (cada folha usa só salário/honorário + subsídios + faltas do período).
+        Quem não tem contrato ativo é ignorado e listado em 'ignorados'.
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data_inicio:
+                  type: string
+                  format: date
+                  description: Início do período (YYYY-MM-DD)
+                data_fim:
+                  type: string
+                  format: date
+                  description: Fim do período (YYYY-MM-DD)
+                mes:
+                  type: integer
+                  description: 'Alternativa: mês civil (1-12) / competência'
+                ano:
+                  type: integer
+                  description: 'Alternativa: ano (ex: 2026)'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/gerar_recibo/:
+    post:
+      operationId: rh_gerar_recibo_create
+      description: |-
+        [MANUAL] Gerar e GUARDAR o recibo de UM colaborador.
+
+        Aceita período por (data_inicio/data_fim) ou (mes/ano).
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                colaborador_id:
+                  type: integer
+                data_inicio:
+                  type: string
+                  format: date
+                  description: Início do período (YYYY-MM-DD)
+                data_fim:
+                  type: string
+                  format: date
+                  description: Fim do período (YYYY-MM-DD)
+                mes:
+                  type: integer
+                  description: 'Alternativa: mês civil (1-12) / competência'
+                ano:
+                  type: integer
+                  description: 'Alternativa: ano (ex: 2026)'
+                acrescimo:
+                  type: number
+                  description: 'Ajuste manual: bónus/acréscimo (opcional)'
+                desconto:
+                  type: number
+                  description: 'Ajuste manual: desconto (opcional)'
+                descricao:
+                  type: string
+                  description: Descrição dos ajustes (opcional)
+              required:
+              - colaborador_id
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/importar_folha/:
+    post:
+      operationId: rh_importar_folha_create
+      description: |-
+        Importa a folha de salário (recibos) de uma lista JSON do ERP Primavera.
+
+        Cria/atualiza o Recibo de cada colaborador por (colaborador_id, mes, ano).
+        Os valores vêm já calculados pelo ERP e são gravados como estão.
+      summary: Importar folha de salário (JSON) do ERP Primavera
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data_inicio:
+                  type: string
+                  description: Opcional (DD/MM/AAAA). Só importa competências >= esta
+                data_fim:
+                  type: string
+                  description: Opcional (DD/MM/AAAA). Só importa competências <= esta
+                folha:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      colaborador_id:
+                        type: integer
+                        description: Obrigatório
+                      mes:
+                        type: integer
+                        description: Obrigatório (1-12)
+                      ano:
+                        type: integer
+                        description: 'Obrigatório (ex: 2026)'
+                      salario_base:
+                        type: number
+                      total_subsidios:
+                        type: number
+                      salario_bruto:
+                        type: number
+                      desconto_inss:
+                        type: number
+                      desconto_irt:
+                        type: number
+                      salario_liquido:
+                        type: number
+                      dias_trabalhados:
+                        type: integer
+                      dias_falta:
+                        type: integer
+                    required:
+                    - colaborador_id
+                    - mes
+                    - ano
+              required:
+              - folha
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/importar_funcionarios/:
+    post:
+      operationId: rh_importar_funcionarios_create
+      description: |-
+        Importa funcionários a partir de uma lista JSON (do ERP Primavera).
+
+        Cada funcionário cria User + role 'colaborador' + Colaborador na empresa
+        do RH. Quem já existir (username/email) ou estiver incompleto é listado
+        em 'ignorados'. Senhas geradas automaticamente são devolvidas uma vez.
+      summary: Importar funcionários (JSON) do ERP Primavera
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data_inicio:
+                  type: string
+                  description: Opcional (DD/MM/AAAA). Só importa quem tem data_admissao
+                    >= esta
+                data_fim:
+                  type: string
+                  description: Opcional (DD/MM/AAAA). Só importa quem tem data_admissao
+                    <= esta
+                funcionarios:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      nome:
+                        type: string
+                        description: Nome completo (obrigatório)
+                      email:
+                        type: string
+                        description: Email (obrigatório, único)
+                      username:
+                        type: string
+                        description: Opcional. Se vazio, usa o email
+                      senha:
+                        type: string
+                        description: Opcional. Se vazio, gera automaticamente
+                      cargo:
+                        type: string
+                      departamento:
+                        type: string
+                      data_admissao:
+                        type: string
+                        description: Opcional (DD/MM/AAAA). Usado pelo filtro de intervalo
+                    required:
+                    - nome
+                    - email
+              required:
+              - funcionarios
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/listar_contratos/:
+    get:
+      operationId: rh_listar_contratos_retrieve
+      description: Listar contratos da empresa
+      tags:
+      - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/listar_declaracoes/:
+    get:
+      operationId: rh_listar_declaracoes_retrieve
+      description: Listar declarações emitidas pela empresa
+      tags:
+      - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/listar_faltas/:
+    get:
+      operationId: rh_listar_faltas_retrieve
+      description: Ver todas as faltas da empresa
+      tags:
+      - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/listar_feriados/:
+    get:
+      operationId: rh_listar_feriados_retrieve
+      description: Listar feriados que se aplicam à empresa (nacionais + da empresa)
+      tags:
+      - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/listar_ferias/:
+    get:
+      operationId: rh_listar_ferias_retrieve
+      description: Ver solicitações de férias da empresa (filtro opcional ?status=pendente)
+      tags:
+      - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/listar_funcionarios/:
+    get:
+      operationId: rh_listar_funcionarios_retrieve
+      description: Listar todos os funcionários da empresa (inclui supervisores)
+      tags:
+      - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/listar_recibos/:
+    get:
+      operationId: rh_listar_recibos_retrieve
+      description: 'Listar recibos da empresa (filtros: ?colaborador_id=&mes=&ano=)'
+      tags:
+      - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/processar_decimo_terceiro/:
+    post:
+      operationId: rh_processar_decimo_terceiro_create
+      description: |-
+        [AUTOMÁTICO] Processar o 13º de TODOS os colaboradores ativos.
+
+        Calcula o subsídio de Natal (mínimo 50% do salário base, proporcional
+        aos meses trabalhados, com INSS e IRT) para cada colaborador com contrato
+        ativo. Quem não tem contrato é listado em 'ignorados'. Devolve também o
+        total a pagar pela empresa. (Pré-visualização do processamento; não grava.)
+      summary: Processar 13º de TODOS os colaboradores ativos da empresa
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ano:
+                  type: integer
+                  description: 'Ano de referência (ex: 2026). Default: ano atual'
+                percentual:
+                  type: number
+                  description: 'Fração do salário base. Mínimo legal 0.50 (50%). Default:
+                    0.50'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/processar_ferias/:
+    post:
+      operationId: rh_processar_ferias_create
+      description: Aprovar ou rejeitar uma solicitação de férias
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ferias_id:
+                  type: integer
+                acao:
+                  type: string
+                  enum:
+                  - aprovar
+                  - rejeitar
+                motivo:
+                  type: string
+                  description: Motivo (se rejeitar)
+              required:
+              - ferias_id
+              - acao
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/renovar_contrato/:
+    post:
+      operationId: rh_renovar_contrato_create
+      description: Renovar contrato (nova data fim e salário opcional)
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contrato_id:
+                  type: integer
+                nova_data_fim:
+                  type: string
+                  format: date
+                  description: YYYY-MM-DD
+                novo_salario:
+                  type: number
+                  description: Opcional - novo salário
+              required:
+              - contrato_id
+              - nova_data_fim
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/validar_contrato/:
+    post:
+      operationId: rh_validar_contrato_create
+      description: Validar (ativar) um contrato
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contrato_id:
+                  type: integer
+              required:
+              - contrato_id
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/roles/:
+    get:
+      operationId: roles_list
+      description: '[ADMIN] Roles de Colaboradores'
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - roles
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedColaboradorRoleList'
+          description: ''
+    post:
+      operationId: roles_create
+      description: '[ADMIN] Roles de Colaboradores'
+      tags:
+      - roles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ColaboradorRole'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ColaboradorRole'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ColaboradorRole'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColaboradorRole'
+          description: ''
+  /api/roles/{id}/:
+    get:
+      operationId: roles_retrieve
+      description: '[ADMIN] Roles de Colaboradores'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este colaborador role.
+        required: true
+      tags:
+      - roles
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColaboradorRole'
+          description: ''
+    put:
+      operationId: roles_update
+      description: '[ADMIN] Roles de Colaboradores'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este colaborador role.
+        required: true
+      tags:
+      - roles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ColaboradorRole'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ColaboradorRole'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ColaboradorRole'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColaboradorRole'
+          description: ''
+    patch:
+      operationId: roles_partial_update
+      description: '[ADMIN] Roles de Colaboradores'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este colaborador role.
+        required: true
+      tags:
+      - roles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedColaboradorRole'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedColaboradorRole'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedColaboradorRole'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColaboradorRole'
+          description: ''
+    delete:
+      operationId: roles_destroy
+      description: '[ADMIN] Roles de Colaboradores'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este colaborador role.
+        required: true
+      tags:
+      - roles
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/supervisor/atribuir_escala/:
+    post:
+      operationId: supervisor_atribuir_escala_create
+      description: Supervisor atribui escala criada a vários colaboradores
+      tags:
+      - '[SUPERVISOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                colaborador_ids:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array de IDs dos colaboradores
+                escala_id:
+                  type: integer
+                  description: ID da escala criada (24/48, 48/48, etc)
+              required:
+              - colaborador_ids
+              - escala_id
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Escala atribuída para 3 colaboradores
+                  colaboradores:
+                  - João Silva
+                  - Maria Santos
+                  - Pedro Costa
+                  escala: Escala Bombeiros 24/48
+                  regime_trabalho: 24/48
+                  data_inicio: '2026-07-01'
+                  data_termino: '2026-07-31'
+                  dias_trabalho:
+                  - 1
+                  - 4
+                  - 7
+                  - 10
+                  - 13
+                  - 16
+                  - 19
+                  - 22
+                  - 25
+                  - 28
+                  - 31
+                  total_dias: 11
+          description: ''
+  /api/supervisor/atribuir_tarefas/:
+    post:
+      operationId: supervisor_atribuir_tarefas_create
+      description: Atribuir tarefa a um ou mais colaboradores
+      tags:
+      - '[SUPERVISOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                colaborador_ids:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array de IDs dos colaboradores
+                colaborador_id:
+                  type: integer
+                  description: ID de um único colaborador (alternativa)
+                titulo:
+                  type: string
+                  description: Título da tarefa
+                descricao:
+                  type: string
+                  description: Descrição da tarefa
+                prazo:
+                  type: string
+                  description: Data de prazo (YYYY-MM-DD)
+                prioridade:
+                  type: string
+                  enum:
+                  - baixa
+                  - média
+                  - alta
+                  description: Nível de prioridade
+              required:
+              - titulo
+              - prazo
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Tarefas atribuídas com sucesso
+                  colaboradores:
+                  - João Silva
+                  - Maria Santos
+                  titulo: Implementar nova feature
+                  total: 2
+          description: ''
+  /api/supervisor/atualizar_dias_trabalho/:
+    post:
+      operationId: supervisor_atualizar_dias_trabalho_create
+      description: Supervisor atualiza dias de trabalho de vários colaboradores (aceita
+        lista de IDs)
+      tags:
+      - '[SUPERVISOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                colaborador_ids:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array de IDs dos colaboradores
+                dias_trabalho:
+                  type: string
+                  enum:
+                  - seg-sex
+                  - seg-sab
+                  - todos
+                  - customizado
+                  description: Padrão de dias de trabalho
+                dias_customizados:
+                  type: string
+                  description: 'Se customizado: seg,ter,qua,qui,sex,sab,dom'
+              required:
+              - colaborador_ids
+              - dias_trabalho
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Dias de trabalho atualizados com sucesso
+                  colaboradores:
+                  - João Silva
+                  - Maria Santos
+                  dias_trabalho: seg-sab
+                  total: 2
+          description: ''
+  /api/supervisor/autorizar_presenca/:
+    post:
+      operationId: supervisor_autorizar_presenca_create
+      description: |-
+        Aprovar ou rejeitar uma presença marcada fora do local.
+
+        Body: { "presenca_id": 1, "acao": "aprovar"|"rejeitar", "observacao": "" }
+        Ao aprovar, a presença passa a contar no relatório do dia.
+      tags:
+      - '[SUPERVISOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                presenca_id:
+                  type: integer
+                acao:
+                  type: string
+                  enum:
+                  - aprovar
+                  - rejeitar
+                observacao:
+                  type: string
+                  description: Observação do supervisor (opcional)
+              required:
+              - presenca_id
+              - acao
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/supervisor/criar_calendario/:
+    post:
+      operationId: supervisor_criar_calendario_create
+      description: Criar escala com ciclo (24/48, 48/48) - calcula automaticamente
+        os dias de trabalho
+      tags:
+      - '[SUPERVISOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                  description: 'Nome da escala (ex: Escala Plantão)'
+                data_inicio:
+                  type: string
+                  description: Data de início (YYYY-MM-DD)
+                data_termino:
+                  type: string
+                  description: Data de término (YYYY-MM-DD)
+                regime_trabalho:
+                  type: string
+                  enum:
+                  - 24/48
+                  - 48/48
+                  - padrao
+                  - integral
+                  - meio-turno
+                  description: 'Regime: 24/48 (1T+2C), 48/48 (2T+2C), padrão (seg-sex)'
+                dia_inicio_ciclo:
+                  type: integer
+                  description: Dia da semana do primeiro dia (0=seg, 1=ter, ..., 6=dom)
+                turno_padrao_id:
+                  type: integer
+                  description: ID do turno padrão (opcional)
+              required:
+              - nome
+              - data_inicio
+              - data_termino
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                examples:
+                  24/48:
+                    value:
+                      status: Escala criada com sucesso
+                      escala_id: 1
+                      nome: Escala Bombeiros 24/48
+                      data_inicio: '2026-07-01'
+                      data_termino: '2026-07-31'
+                      regime_trabalho: 24/48
+                      dia_inicio_ciclo: 2
+                      dias_trabalho:
+                      - 1
+                      - 4
+                      - 7
+                      - 10
+                      - 13
+                      - 16
+                      - 19
+                      - 22
+                      - 25
+                      - 28
+                      - 31
+                      total_dias_trabalho: 11
+                      turno_padrao: Plantão 24h
+                      descricao: 1 dia trabalhando + 2 dias em casa
+                    description: 1T + 2C = ciclo de 3 dias
+                  48/48:
+                    value:
+                      status: Escala criada com sucesso
+                      escala_id: 2
+                      nome: Escala Polícia 48/48
+                      data_inicio: '2026-07-01'
+                      data_termino: '2026-07-31'
+                      regime_trabalho: 48/48
+                      dia_inicio_ciclo: 2
+                      dias_trabalho:
+                      - 1
+                      - 2
+                      - 5
+                      - 6
+                      - 9
+                      - 10
+                      - 13
+                      - 14
+                      - 17
+                      - 18
+                      - 21
+                      - 22
+                      - 25
+                      - 26
+                      - 29
+                      - 30
+                      total_dias_trabalho: 16
+                      turno_padrao: Plantão 48h
+                      descricao: 2 dias trabalhando + 2 dias em casa
+                    description: 2T + 2C = ciclo de 4 dias
+                  padrao:
+                    value:
+                      status: Escala criada com sucesso
+                      escala_id: 3
+                      nome: Escala Administrativa
+                      data_inicio: '2026-07-01'
+                      data_termino: '2026-07-31'
+                      regime_trabalho: padrao
+                      dia_inicio_ciclo: 0
+                      dias_trabalho:
+                      - 1
+                      - 2
+                      - 3
+                      - 4
+                      - 7
+                      - 8
+                      - 9
+                      - 10
+                      - 11
+                      - 14
+                      - 15
+                      - 16
+                      - 17
+                      - 18
+                      - 21
+                      - 22
+                      - 23
+                      - 24
+                      - 25
+                      - 28
+                      - 29
+                      - 30
+                      - 31
+                      total_dias_trabalho: 23
+                      turno_padrao: Matutino
+                      descricao: Segunda a sexta (administrativo)
+                    description: Seg-Sex (segunda a sexta)
+          description: ''
+  /api/supervisor/gerenciar_turno/:
+    post:
+      operationId: supervisor_gerenciar_turno_create
+      description: Gerenciar turno de trabalho
+      tags:
+      - '[SUPERVISOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Turno atualizado para 2 colaboradores
+                  colaboradores:
+                  - João Silva
+                  - Maria Santos
+                  novo_turno: vespertino
+          description: ''
+  /api/supervisor/listar_colaboradores/:
+    get:
+      operationId: supervisor_listar_colaboradores_retrieve
+      description: Listar colaboradores da equipe do supervisor (filtrado por departamento)
+      tags:
+      - '[SUPERVISOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                example:
+                - id: 1
+                  nome: João Silva
+                  cargo: Desenvolvedor
+                  departamento: TI
+                  turno: Matutino
+                  dias_trabalho: seg-sex
+                  status: ativo
+          description: ''
+  /api/supervisor/listar_escalas/:
+    get:
+      operationId: supervisor_listar_escalas_retrieve
+      description: Listar escalas criadas pelo supervisor
+      tags:
+      - '[SUPERVISOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                example:
+                - id: 1
+                  nome: Escala Bombeiros 24/48
+                  mes: 7
+                  ano: 2026
+                  tipo_escala: constante
+                  regime_trabalho: 24/48
+                  turno_padrao: Plantão 24h
+                  dias_mes: 1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31
+                  dias_semana_customizados: ''
+                  total_dias: 16
+                  criado_em: '2026-06-07T10:30:00Z'
+                - id: 2
+                  nome: Escala Integral
+                  mes: 7
+                  ano: 2026
+                  tipo_escala: seg-sex
+                  regime_trabalho: integral
+                  turno_padrao: Matutino
+                  dias_mes: 3,4,5,10,11,12,17,18,19,24,25,26,31
+                  dias_semana_customizados: ''
+                  total_dias: 13
+                  criado_em: '2026-06-07T12:00:00Z'
+          description: ''
+  /api/supervisor/marcar_falta_colaborador/:
+    post:
+      operationId: supervisor_marcar_falta_colaborador_create
+      description: Registrar falta inteligente de colaborador(es)
+      tags:
+      - '[SUPERVISOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                colaborador_ids:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array de IDs dos colaboradores
+                colaborador_id:
+                  type: integer
+                  description: ID de um único colaborador (alternativa a colaborador_ids)
+                data:
+                  type: string
+                  description: Data da falta (YYYY-MM-DD)
+                tipo_falta:
+                  type: string
+                  description: 'Tipo: ausencia_injustificada (padrão) ou justificada'
+              required:
+              - data
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Faltas registradas
+                  colaboradores:
+                  - João Silva
+                  - Maria Santos
+                  data: '2026-06-07'
+                  total: 2
+          description: ''
+  /api/supervisor/presencas_pendentes/:
+    get:
+      operationId: supervisor_presencas_pendentes_retrieve
+      description: Listar presenças marcadas FORA do local, pendentes de autorização.
+      tags:
+      - '[SUPERVISOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/supervisor/relatorio_faltas/:
+    get:
+      operationId: supervisor_relatorio_faltas_retrieve
+      description: Relatório de faltas do mês (filtrado por departamento do supervisor)
+      tags:
+      - '[SUPERVISOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  mes: 6
+                  ano: 2026
+                  total_faltas: 5
+                  faltas:
+                  - colaborador: João Silva
+                    data: '2026-06-01'
+                    tipo: ausencia_injustificada
+          description: ''
+  /api/supervisor/visualizar_plano_trabalho/:
+    get:
+      operationId: supervisor_visualizar_plano_trabalho_retrieve
+      description: Visualizar plano de trabalho EXTREMAMENTE INTELIGENTE considerando
+        faltas
+      tags:
+      - '[SUPERVISOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  colaborador: João Silva
+                  escala: Escala Bombeiros 24/48
+                  regime_trabalho: 24/48
+                  data_inicio: '2026-07-01'
+                  data_termino: '2026-07-31'
+                  total_dias_trabalho: 11
+                  total_dias_descanso: 20
+                  descricao_regime: 1 dia trabalhando + 2 dias em casa
+                  calendario:
+                  - data: '2026-07-01'
+                    dia: 1
+                    dia_semana: Qua
+                    status: T
+                    descricao: Trabalho
+                  - data: '2026-07-02'
+                    dia: 2
+                    dia_semana: Qui
+                    status: C
+                    descricao: Descanso
+                  - data: '2026-07-03'
+                    dia: 3
+                    dia_semana: Sex
+                    status: C
+                    descricao: Descanso
+                  - data: '2026-07-04'
+                    dia: 4
+                    dia_semana: Sab
+                    status: T
+                    descricao: Trabalho
+          description: ''
+components:
+  schemas:
+    AcaoEnum:
+      enum:
+      - aprovar_empresa
+      - rejeitar_empresa
+      - suspender_empresa
+      - ativar_empresa
+      - visualizar_relatorio
+      - exportar_dados
+      type: string
+      description: |-
+        * `aprovar_empresa` - Aprovar Empresa
+        * `rejeitar_empresa` - Rejeitar Empresa
+        * `suspender_empresa` - Suspender Empresa
+        * `ativar_empresa` - Ativar Empresa
+        * `visualizar_relatorio` - Visualizar Relatório
+        * `exportar_dados` - Exportar Dados
+    ColaboradorRole:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        tipo_role:
+          $ref: '#/components/schemas/TipoRoleEnum'
+        tipo_role_display:
+          type: string
+          readOnly: true
+        ativo:
+          type: boolean
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - criado_em
+      - id
+      - tipo_role
+      - tipo_role_display
+      - user
+    ConfiguracaoEmpresa:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        empresa:
+          type: integer
+        horario_entrada_padrao:
+          type: string
+          format: time
+        horario_saida_padrao:
+          type: string
+          format: time
+        horario_almoco_inicio:
+          type: string
+          format: time
+        horario_almoco_fim:
+          type: string
+          format: time
+        permitir_presenca_fora_geofencing:
+          type: boolean
+        requer_foto_entrada:
+          type: boolean
+        requer_foto_saida:
+          type: boolean
+        notificar_atraso:
+          type: boolean
+        notificar_ausencia:
+          type: boolean
+        dias_uteis:
+          type: string
+          description: 0=domingo, 1=segunda, ..., 6=sabado
+          maxLength: 10
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - criado_em
+      - empresa
+      - id
+    DepartamentoEmpresa:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        empresa:
+          type: integer
+        nome:
+          type: string
+          maxLength: 100
+        descricao:
+          type: string
+        responsavel:
+          type: integer
+          nullable: true
+        responsavel_nome:
+          type: string
+          readOnly: true
+        ativo:
+          type: boolean
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - criado_em
+      - empresa
+      - id
+      - nome
+      - responsavel_nome
+    Empresa:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nome:
+          type: string
+          maxLength: 255
+        nif:
+          type: string
+          description: Numero de Identificacao Fiscal
+          maxLength: 20
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        telefone:
+          type: string
+          maxLength: 20
+        endereco:
+          type: string
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+        raio_geofencing:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          description: Raio em metros
+        status:
+          $ref: '#/components/schemas/Status401Enum'
+        status_display:
+          type: string
+          readOnly: true
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+        atualizado_em:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - atualizado_em
+      - criado_em
+      - email
+      - endereco
+      - id
+      - nif
+      - nome
+      - status_display
+      - telefone
+    EmpresaDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nome:
+          type: string
+          maxLength: 255
+        nif:
+          type: string
+          description: Numero de Identificacao Fiscal
+          maxLength: 20
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        telefone:
+          type: string
+          maxLength: 20
+        endereco:
+          type: string
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+        raio_geofencing:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          description: Raio em metros
+        status:
+          $ref: '#/components/schemas/Status401Enum'
+        status_display:
+          type: string
+          readOnly: true
+        admin_user:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        colaboradores_count:
+          type: string
+          readOnly: true
+        configuracao:
+          allOf:
+          - $ref: '#/components/schemas/ConfiguracaoEmpresa'
+          readOnly: true
+        departamentos:
+          type: array
+          items:
+            $ref: '#/components/schemas/DepartamentoEmpresa'
+          readOnly: true
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - admin_user
+      - colaboradores_count
+      - configuracao
+      - criado_em
+      - departamentos
+      - email
+      - endereco
+      - id
+      - nif
+      - nome
+      - status_display
+      - telefone
+    LogAcaoAdmin:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        dono_saas:
+          type: integer
+        dono_nome:
+          type: string
+          readOnly: true
+        acao:
+          $ref: '#/components/schemas/AcaoEnum'
+        acao_display:
+          type: string
+          readOnly: true
+        empresa:
+          type: integer
+          nullable: true
+        empresa_nome:
+          type: string
+          readOnly: true
+        descricao:
+          type: string
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - acao
+      - acao_display
+      - criado_em
+      - dono_nome
+      - dono_saas
+      - empresa_nome
+      - id
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email do usuário
+        password:
+          type: string
+          writeOnly: true
+          description: Senha do usuário
+      required:
+      - email
+      - password
+    PaginatedColaboradorRoleList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ColaboradorRole'
+    PaginatedConfiguracaoEmpresaList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConfiguracaoEmpresa'
+    PaginatedDepartamentoEmpresaList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DepartamentoEmpresa'
+    PaginatedEmpresaList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Empresa'
+    PaginatedLogAcaoAdminList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LogAcaoAdmin'
+    PaginatedSolicitacaoEmpresaList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SolicitacaoEmpresa'
+    PatchedColaboradorRole:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        tipo_role:
+          $ref: '#/components/schemas/TipoRoleEnum'
+        tipo_role_display:
+          type: string
+          readOnly: true
+        ativo:
+          type: boolean
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedConfiguracaoEmpresa:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        empresa:
+          type: integer
+        horario_entrada_padrao:
+          type: string
+          format: time
+        horario_saida_padrao:
+          type: string
+          format: time
+        horario_almoco_inicio:
+          type: string
+          format: time
+        horario_almoco_fim:
+          type: string
+          format: time
+        permitir_presenca_fora_geofencing:
+          type: boolean
+        requer_foto_entrada:
+          type: boolean
+        requer_foto_saida:
+          type: boolean
+        notificar_atraso:
+          type: boolean
+        notificar_ausencia:
+          type: boolean
+        dias_uteis:
+          type: string
+          description: 0=domingo, 1=segunda, ..., 6=sabado
+          maxLength: 10
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedDepartamentoEmpresa:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        empresa:
+          type: integer
+        nome:
+          type: string
+          maxLength: 100
+        descricao:
+          type: string
+        responsavel:
+          type: integer
+          nullable: true
+        responsavel_nome:
+          type: string
+          readOnly: true
+        ativo:
+          type: boolean
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedSolicitacaoEmpresa:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        empresa:
+          allOf:
+          - $ref: '#/components/schemas/EmpresaDetail'
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/SolicitacaoEmpresaStatusEnum'
+        status_display:
+          type: string
+          readOnly: true
+        motivo_rejeicao:
+          type: string
+          description: Motivo da rejeição se aplicável
+        admin_responsavel:
+          type: integer
+          nullable: true
+        admin_nome:
+          type: string
+          readOnly: true
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+        processado_em:
+          type: string
+          format: date-time
+          nullable: true
+    Refresh:
+      type: object
+      properties:
+        refresh:
+          type: string
+          description: Token de refresh
+      required:
+      - refresh
+    SolicitacaoEmpresa:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        empresa:
+          allOf:
+          - $ref: '#/components/schemas/EmpresaDetail'
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/SolicitacaoEmpresaStatusEnum'
+        status_display:
+          type: string
+          readOnly: true
+        motivo_rejeicao:
+          type: string
+          description: Motivo da rejeição se aplicável
+        admin_responsavel:
+          type: integer
+          nullable: true
+        admin_nome:
+          type: string
+          readOnly: true
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+        processado_em:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - admin_nome
+      - criado_em
+      - empresa
+      - id
+      - status_display
+    SolicitacaoEmpresaStatusEnum:
+      enum:
+      - pendente
+      - aprovada
+      - rejeitada
+      type: string
+      description: |-
+        * `pendente` - Pendente
+        * `aprovada` - Aprovada
+        * `rejeitada` - Rejeitada
+    Status401Enum:
+      enum:
+      - pendente
+      - ativa
+      - inativa
+      type: string
+      description: |-
+        * `pendente` - Pendente
+        * `ativa` - Ativa
+        * `inativa` - Inativa
+    TipoRoleEnum:
+      enum:
+      - dono_saas
+      - admin
+      - rh
+      - supervisor
+      - chefe_departamento
+      - colaborador
+      type: string
+      description: |-
+        * `dono_saas` - Dono do SaaS
+        * `admin` - Admin da Empresa
+        * `rh` - Recursos Humanos
+        * `supervisor` - Supervisor
+        * `chefe_departamento` - Chefe de Departamento
+        * `colaborador` - Colaborador
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          title: Usuário
+          description: Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_
+            apenas.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Endereço de email
+          maxLength: 254
+        first_name:
+          type: string
+          title: Primeiro nome
+          maxLength: 150
+        last_name:
+          type: string
+          title: Último nome
+          maxLength: 150
+      required:
+      - id
+      - username
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
