@@ -22,6 +22,7 @@ const SupervisorsPage   = lazy(() => import('./components/pages/SupervisorsPage'
 const CompaniesPage     = lazy(() => import('./components/pages/CompaniesPage').then(m => ({ default: m.CompaniesPage })));
 const SettingsPage      = lazy(() => import('./components/pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
 const ProfilePage       = lazy(() => import('./components/pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const PublicCompanyRegisterPage = lazy(() => import('./components/pages/PublicCompanyRegisterPage').then(m => ({ default: m.PublicCompanyRegisterPage })));
 
 // RH exclusive
 const ContractsPage        = lazy(() => import('./components/pages/ContractsPage').then(m => ({ default: m.ContractsPage })));
@@ -72,6 +73,8 @@ function AppRoutes() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/cadastro-empresa" element={<PublicCompanyRegisterPage />} />
+          <Route path="/registro-empresa" element={<PublicCompanyRegisterPage />} />
           <Route element={<AppLayout />}>
             {/* Dashboard (role-aware) */}
             <Route index element={<DashboardPage />} />

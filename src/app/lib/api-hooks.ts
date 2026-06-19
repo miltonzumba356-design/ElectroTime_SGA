@@ -31,6 +31,7 @@ export const QK = {
   workPlan:          ['work-plan'],
   saasRequests:      (page: number) => ['saas-requests', page],
   saasRequestsPending: ['saas-requests-pending'],
+  saasRequestsSummary: ['saas-requests-summary'],
   saasLogs:          (page: number) => ['saas-logs', page],
   saasLogsLast30:    ['saas-logs-30d'],
   saasLogsByAction:  ['saas-logs-by-action'],
@@ -459,6 +460,10 @@ export function useSaasRequests(page = 1) {
 
 export function useSaasPendingRequests() {
   return useQuery({ queryKey: QK.saasRequestsPending, queryFn: saasApi.listPendingRequests });
+}
+
+export function useSaasRequestsSummary() {
+  return useQuery({ queryKey: QK.saasRequestsSummary, queryFn: saasApi.requestsSummary });
 }
 
 export function useApproveCompanyRequest() {
