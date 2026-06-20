@@ -33,6 +33,11 @@ export const QK = {
   saasRequest:       (id: number) => ['saas-request', id],
   saasRequestsPending: ['saas-requests-pending'],
   saasRequestsSummary: ['saas-requests-summary'],
+  saasDashboard:     ['saas-dashboard'],
+  saasPlans:         (page: number) => ['saas-plans', page],
+  saasSubscriptions: (page: number) => ['saas-subscriptions', page],
+  saasInvoices:      (page: number) => ['saas-invoices', page],
+  saasUsers:         (params?: { page?: number; empresa?: string; role?: string }) => ['saas-users', params ?? {}],
   saasLogs:          (page: number) => ['saas-logs', page],
   saasLogsLast30:    ['saas-logs-30d'],
   saasLogsByAction:  ['saas-logs-by-action'],
@@ -455,6 +460,111 @@ export function useManageTurno() {
 }
 
 // ─── SaaS Owner ───────────────────────────────────────────────────
+export function useSaasDashboard() {
+  return useQuery({ queryKey: QK.saasDashboard, queryFn: saasApi.dashboard });
+}
+
+export function useSaasPlans(page = 1) {
+  return useQuery({ queryKey: QK.saasPlans(page), queryFn: () => saasApi.listPlans(page) });
+}
+
+export function useCreateSaasPlan() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: saasApi.createPlan,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['saas-plans'] }),
+  });
+}
+
+export function usePatchSaasPlan() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: number; body: Record<string, unknown> }) => saasApi.patchPlan(id, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['saas-plans'] }),
+  });
+}
+
+export function useDeleteSaasPlan() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: saasApi.deletePlan,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['saas-plans'] }),
+  });
+}
+
+export function useSaasSubscriptions(page = 1) {
+  return useQuery({ queryKey: QK.saasSubscriptions(page), queryFn: () => saasApi.listSubscriptions(page) });
+}
+
+export function useCreateSaasSubscription() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: saasApi.createSubscription,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['saas-subscriptions'] });
+      qc.invalidateQueries({ queryKey: ['saas-dashboard'] });
+    },
+  });
+}
+
+export function usePatchSaasSubscription() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: number; body: Record<string, unknown> }) => saasApi.patchSubscription(id, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['saas-subscriptions'] }),
+  });
+}
+
+export function useSaasSubscriptionAction(action: 'cancel' | 'generateInvoice' | 'reactivate' | 'suspend') {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: number; body?: Record<string, unknown> }) => {
+      if (action === 'cancel') return saasApi.cancelSubscription(id, body);
+      if (action === 'generateInvoice') return saasApi.generateInvoice(id, body);
+      if (action === 'reactivate') return saasApi.reactivateSubscription(id, body);
+      return saasApi.suspendSubscription(id, body);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['saas-subscriptions'] });
+      qc.invalidateQueries({ queryKey: ['saas-invoices'] });
+      qc.invalidateQueries({ queryKey: ['saas-dashboard'] });
+    },
+  });
+}
+
+export function useSaasInvoices(page = 1) {
+  return useQuery({ queryKey: QK.saasInvoices(page), queryFn: () => saasApi.listInvoices(page) });
+}
+
+export function useMarkSaasInvoicePaid() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: number; body?: Record<string, unknown> }) => saasApi.markInvoicePaid(id, body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['saas-invoices'] });
+      qc.invalidateQueries({ queryKey: ['saas-dashboard'] });
+    },
+  });
+}
+
+export function useSaasUsers(params?: { page?: number; empresa?: string; role?: string }) {
+  return useQuery({ queryKey: QK.saasUsers(params), queryFn: () => saasApi.listUsers(params) });
+}
+
+export function usePatchSaasUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: number; body: Record<string, unknown> }) => saasApi.patchUser(id, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['saas-users'] }),
+  });
+}
+
+export function useResetSaasUserPassword() {
+  return useMutation({
+    mutationFn: ({ id, nova_senha }: { id: number; nova_senha: string }) => saasApi.resetUserPassword(id, nova_senha),
+  });
+}
+
 export function useSaasRequests(page = 1) {
   return useQuery({ queryKey: QK.saasRequests(page), queryFn: () => saasApi.listRequests(page) });
 }

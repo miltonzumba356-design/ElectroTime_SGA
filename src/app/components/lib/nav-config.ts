@@ -5,7 +5,7 @@ import {
   CalendarDays, Clock, ClipboardCheck, FileText, BarChart3,
   Settings, User, Factory, BookOpen, FileSignature,
   DollarSign, CalendarX, CalendarOff, Stamp, CheckSquare,
-  AlertCircle, UserPlus, ShieldCheck, Inbox,
+  AlertCircle, UserPlus, ShieldCheck, Inbox, CreditCard, ReceiptText,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -57,6 +57,20 @@ export const ROLE_NAV: Record<UserRole, RoleNavConfig> = {
         { to: '/companies', icon: Factory, label: 'Empresas' },
         { to: '/saas-requests', icon: Inbox, label: 'Solicitações' },
         { to: '/audit', icon: BookOpen, label: 'Auditoria' },
+      ],
+    },
+    {
+      title: 'Comercial',
+      items: [
+        { to: '/saas-plans', icon: CreditCard, label: 'Planos' },
+        { to: '/saas-subscriptions', icon: FileSignature, label: 'Assinaturas' },
+        { to: '/saas-invoices', icon: ReceiptText, label: 'Faturas' },
+      ],
+    },
+    {
+      title: 'Acesso',
+      items: [
+        { to: '/saas-users', icon: Users, label: 'Utilizadores' },
       ],
     },
     {

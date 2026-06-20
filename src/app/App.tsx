@@ -42,6 +42,10 @@ const UserManagementPage   = lazy(() => import('./components/pages/UserManagemen
 // SaaS Owner exclusive
 const AuditPage         = lazy(() => import('./components/pages/AuditPage').then(m => ({ default: m.AuditPage })));
 const SaasRequestsPage  = lazy(() => import('./components/pages/SaasRequestsPage').then(m => ({ default: m.SaasRequestsPage })));
+const SaasPlansPage     = lazy(() => import('./components/pages/SaasPlansPage').then(m => ({ default: m.SaasPlansPage })));
+const SaasSubscriptionsPage = lazy(() => import('./components/pages/SaasSubscriptionsPage').then(m => ({ default: m.SaasSubscriptionsPage })));
+const SaasInvoicesPage  = lazy(() => import('./components/pages/SaasInvoicesPage').then(m => ({ default: m.SaasInvoicesPage })));
+const SaasUsersPage     = lazy(() => import('./components/pages/SaasUsersPage').then(m => ({ default: m.SaasUsersPage })));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 1000 * 60 * 5, retry: 1 } },
@@ -116,6 +120,10 @@ function AppRoutes() {
             <Route path="companies" element={<CompaniesPage />} />
             <Route path="audit" element={<AuditPage />} />
             <Route path="saas-requests" element={<SaasRequestsPage />} />
+            <Route path="saas-plans" element={<SaasPlansPage />} />
+            <Route path="saas-subscriptions" element={<SaasSubscriptionsPage />} />
+            <Route path="saas-invoices" element={<SaasInvoicesPage />} />
+            <Route path="saas-users" element={<SaasUsersPage />} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

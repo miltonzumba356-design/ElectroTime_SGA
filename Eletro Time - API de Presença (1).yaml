@@ -4,6 +4,428 @@ info:
   version: 1.0.0
   description: API REST para controle de presença com geofencing
 paths:
+  /api/admin-saas/assinaturas/:
+    get:
+      operationId: admin_saas_assinaturas_list
+      description: '[DONO SAAS] Gerir assinaturas das empresas.'
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - '[DONO SAAS]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAssinaturaList'
+          description: ''
+    post:
+      operationId: admin_saas_assinaturas_create
+      description: '[DONO SAAS] Gerir assinaturas das empresas.'
+      tags:
+      - '[DONO SAAS]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assinatura'
+          description: ''
+  /api/admin-saas/assinaturas/{id}/:
+    get:
+      operationId: admin_saas_assinaturas_retrieve
+      description: '[DONO SAAS] Gerir assinaturas das empresas.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este assinatura.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assinatura'
+          description: ''
+    put:
+      operationId: admin_saas_assinaturas_update
+      description: '[DONO SAAS] Gerir assinaturas das empresas.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este assinatura.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assinatura'
+          description: ''
+    patch:
+      operationId: admin_saas_assinaturas_partial_update
+      description: '[DONO SAAS] Gerir assinaturas das empresas.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este assinatura.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAssinatura'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAssinatura'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAssinatura'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assinatura'
+          description: ''
+    delete:
+      operationId: admin_saas_assinaturas_destroy
+      description: '[DONO SAAS] Gerir assinaturas das empresas.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este assinatura.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/admin-saas/assinaturas/{id}/cancelar/:
+    post:
+      operationId: admin_saas_assinaturas_cancelar_create
+      description: Cancelar a assinatura.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este assinatura.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assinatura'
+          description: ''
+  /api/admin-saas/assinaturas/{id}/gerar_fatura/:
+    post:
+      operationId: admin_saas_assinaturas_gerar_fatura_create
+      description: Gerar uma fatura para esta assinatura (vencimento em 30 dias).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este assinatura.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assinatura'
+          description: ''
+  /api/admin-saas/assinaturas/{id}/reativar/:
+    post:
+      operationId: admin_saas_assinaturas_reativar_create
+      description: Reativar a assinatura (e ativar a empresa).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este assinatura.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assinatura'
+          description: ''
+  /api/admin-saas/assinaturas/{id}/suspender/:
+    post:
+      operationId: admin_saas_assinaturas_suspender_create
+      description: Suspender a assinatura (e desativar a empresa).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este assinatura.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Assinatura'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assinatura'
+          description: ''
+  /api/admin-saas/dashboard/:
+    get:
+      operationId: admin_saas_dashboard_list
+      description: '[DONO SAAS] Métricas globais da plataforma.'
+      tags:
+      - '[DONO SAAS]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  example:
+                    empresas:
+                      total: 7
+                      ativas: 5
+                      pendentes: 1
+                      inativas: 1
+                    colaboradores:
+                      total: 42
+                      ativos: 40
+                    presencas_hoje: 35
+                    assinaturas:
+                      trial: 2
+                      ativa: 3
+                      suspensa: 1
+                      cancelada: 0
+                    receita:
+                      mrr: 150000.0
+                      faturas_pendentes: 2
+                      valor_pendente: 30000.0
+                      recebido_mes: 120000.0
+                    crescimento_empresas:
+                    - mes: 2026-01
+                      novas: 1
+                    - mes: 2026-02
+                      novas: 2
+          description: ''
+  /api/admin-saas/faturas/:
+    get:
+      operationId: admin_saas_faturas_list
+      description: '[DONO SAAS] Consultar faturas e marcar pagamento.'
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - '[DONO SAAS]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFaturaList'
+          description: ''
+  /api/admin-saas/faturas/{id}/:
+    get:
+      operationId: admin_saas_faturas_retrieve
+      description: '[DONO SAAS] Consultar faturas e marcar pagamento.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este fatura.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Fatura'
+          description: ''
+  /api/admin-saas/faturas/{id}/marcar_paga/:
+    post:
+      operationId: admin_saas_faturas_marcar_paga_create
+      description: Marcar a fatura como paga.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este fatura.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Fatura'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Fatura'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Fatura'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Fatura'
+          description: ''
   /api/admin-saas/logs/:
     get:
       operationId: admin_saas_logs_list
@@ -98,13 +520,10 @@ paths:
                   empresa: Tech Solutions
                   criado_em: '2026-06-05T14:30:00Z'
           description: ''
-  /api/admin-saas/solicitacoes/:
+  /api/admin-saas/planos/:
     get:
-      operationId: admin_saas_solicitacoes_list
-      description: |-
-        [DONO SAAS] Gerenciar solicitações de empresas
-
-        Endpoints para o Dono SaaS aprovar ou rejeitar empresas que se cadastraram.
+      operationId: admin_saas_planos_list
+      description: '[DONO SAAS] Gerir planos de assinatura.'
       parameters:
       - name: page
         required: false
@@ -113,7 +532,169 @@ paths:
         schema:
           type: integer
       tags:
-      - '[DONO SAAS] Solicitações'
+      - '[DONO SAAS]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPlanoList'
+          description: ''
+    post:
+      operationId: admin_saas_planos_create
+      description: '[DONO SAAS] Gerir planos de assinatura.'
+      tags:
+      - '[DONO SAAS]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Plano'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Plano'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Plano'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plano'
+          description: ''
+  /api/admin-saas/planos/{id}/:
+    get:
+      operationId: admin_saas_planos_retrieve
+      description: '[DONO SAAS] Gerir planos de assinatura.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este plano.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plano'
+          description: ''
+    put:
+      operationId: admin_saas_planos_update
+      description: '[DONO SAAS] Gerir planos de assinatura.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este plano.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Plano'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Plano'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Plano'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plano'
+          description: ''
+    patch:
+      operationId: admin_saas_planos_partial_update
+      description: '[DONO SAAS] Gerir planos de assinatura.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este plano.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPlano'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPlano'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPlano'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plano'
+          description: ''
+    delete:
+      operationId: admin_saas_planos_destroy
+      description: '[DONO SAAS] Gerir planos de assinatura.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este plano.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/admin-saas/solicitacoes/:
+    get:
+      operationId: admin_saas_solicitacoes_list
+      description: |-
+        [DONO SAAS] Gerenciar solicitações de empresas
+
+        Read-only: as solicitações são criadas automaticamente quando uma empresa
+        nasce pendente. O Dono SaaS apenas lista e aprova/rejeita (ações abaixo).
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - '[DONO SAAS]'
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -124,42 +705,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedSolicitacaoEmpresaList'
           description: ''
-    post:
-      operationId: admin_saas_solicitacoes_create
-      description: |-
-        [DONO SAAS] Gerenciar solicitações de empresas
-
-        Endpoints para o Dono SaaS aprovar ou rejeitar empresas que se cadastraram.
-      tags:
-      - '[DONO SAAS] Solicitações'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SolicitacaoEmpresa'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/SolicitacaoEmpresa'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/SolicitacaoEmpresa'
-      security:
-      - jwtAuth: []
-      - cookieAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SolicitacaoEmpresa'
-          description: ''
   /api/admin-saas/solicitacoes/{id}/:
     get:
       operationId: admin_saas_solicitacoes_retrieve
       description: |-
         [DONO SAAS] Gerenciar solicitações de empresas
 
-        Endpoints para o Dono SaaS aprovar ou rejeitar empresas que se cadastraram.
+        Read-only: as solicitações são criadas automaticamente quando uma empresa
+        nasce pendente. O Dono SaaS apenas lista e aprova/rejeita (ações abaixo).
       parameters:
       - in: path
         name: id
@@ -168,7 +721,7 @@ paths:
         description: Um valor inteiro único que identifica este solicitacao empresa.
         required: true
       tags:
-      - '[DONO SAAS] Solicitações'
+      - '[DONO SAAS]'
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -179,105 +732,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/SolicitacaoEmpresa'
           description: ''
-    put:
-      operationId: admin_saas_solicitacoes_update
-      description: |-
-        [DONO SAAS] Gerenciar solicitações de empresas
-
-        Endpoints para o Dono SaaS aprovar ou rejeitar empresas que se cadastraram.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: Um valor inteiro único que identifica este solicitacao empresa.
-        required: true
-      tags:
-      - '[DONO SAAS] Solicitações'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SolicitacaoEmpresa'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/SolicitacaoEmpresa'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/SolicitacaoEmpresa'
-      security:
-      - jwtAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SolicitacaoEmpresa'
-          description: ''
-    patch:
-      operationId: admin_saas_solicitacoes_partial_update
-      description: |-
-        [DONO SAAS] Gerenciar solicitações de empresas
-
-        Endpoints para o Dono SaaS aprovar ou rejeitar empresas que se cadastraram.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: Um valor inteiro único que identifica este solicitacao empresa.
-        required: true
-      tags:
-      - '[DONO SAAS] Solicitações'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedSolicitacaoEmpresa'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedSolicitacaoEmpresa'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedSolicitacaoEmpresa'
-      security:
-      - jwtAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SolicitacaoEmpresa'
-          description: ''
-    delete:
-      operationId: admin_saas_solicitacoes_destroy
-      description: |-
-        [DONO SAAS] Gerenciar solicitações de empresas
-
-        Endpoints para o Dono SaaS aprovar ou rejeitar empresas que se cadastraram.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: Um valor inteiro único que identifica este solicitacao empresa.
-        required: true
-      tags:
-      - '[DONO SAAS] Solicitações'
-      security:
-      - jwtAuth: []
-      - cookieAuth: []
-      responses:
-        '204':
-          description: No response body
   /api/admin-saas/solicitacoes/aprovar/:
     post:
       operationId: admin_saas_solicitacoes_aprovar_create
       description: Aprovar solicitação de empresa
       tags:
-      - '[DONO SAAS] Solicitações'
+      - '[DONO SAAS]'
       requestBody:
         content:
           application/json:
@@ -285,7 +745,8 @@ paths:
               type: object
               properties:
                 solicitacao_id:
-                  type: integer
+                  type: string
+                  description: aceita uuid ou id
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -301,7 +762,7 @@ paths:
       operationId: admin_saas_solicitacoes_pendentes_retrieve
       description: Listar solicitações pendentes
       tags:
-      - '[DONO SAAS] Solicitações'
+      - '[DONO SAAS]'
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -326,7 +787,7 @@ paths:
       operationId: admin_saas_solicitacoes_rejeitar_create
       description: Rejeitar solicitação de empresa
       tags:
-      - '[DONO SAAS] Solicitações'
+      - '[DONO SAAS]'
       requestBody:
         content:
           application/json:
@@ -334,7 +795,8 @@ paths:
               type: object
               properties:
                 solicitacao_id:
-                  type: integer
+                  type: string
+                  description: aceita uuid ou id
                 motivo:
                   type: string
       security:
@@ -352,7 +814,7 @@ paths:
       operationId: admin_saas_solicitacoes_resumo_retrieve
       description: Resumo geral de solicitações
       tags:
-      - '[DONO SAAS] Solicitações'
+      - '[DONO SAAS]'
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -368,10 +830,150 @@ paths:
                   rejeitadas: 1
                   total: 8
           description: ''
+  /api/admin-saas/usuarios/:
+    get:
+      operationId: admin_saas_usuarios_list
+      description: |-
+        [DONO SAAS] Utilizadores
+
+        Ver e editar TODOS os utilizadores (admins de empresa, colaboradores, RH...).
+        Filtra por empresa e por role. Edição via PATCH (nome/email/ativo) e
+        redefinição de senha por ação dedicada. Não cria nem apaga utilizadores aqui.
+      parameters:
+      - in: query
+        name: empresa
+        schema:
+          type: string
+        description: Filtra por empresa (aceita id ou uuid)
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      - in: query
+        name: role
+        schema:
+          type: string
+        description: Filtra por tipo de role (admin, colaborador, rh, supervisor,
+          ...)
+      tags:
+      - '[DONO SAAS]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUsuarioAdminList'
+          description: ''
+  /api/admin-saas/usuarios/{id}/:
+    get:
+      operationId: admin_saas_usuarios_retrieve
+      description: |-
+        [DONO SAAS] Utilizadores
+
+        Ver e editar TODOS os utilizadores (admins de empresa, colaboradores, RH...).
+        Filtra por empresa e por role. Edição via PATCH (nome/email/ativo) e
+        redefinição de senha por ação dedicada. Não cria nem apaga utilizadores aqui.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este usuário.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioAdmin'
+          description: ''
+    patch:
+      operationId: admin_saas_usuarios_partial_update
+      description: |-
+        [DONO SAAS] Utilizadores
+
+        Ver e editar TODOS os utilizadores (admins de empresa, colaboradores, RH...).
+        Filtra por empresa e por role. Edição via PATCH (nome/email/ativo) e
+        redefinição de senha por ação dedicada. Não cria nem apaga utilizadores aqui.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este usuário.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUsuarioAdmin'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUsuarioAdmin'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUsuarioAdmin'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioAdmin'
+          description: ''
+  /api/admin-saas/usuarios/{id}/redefinir_senha/:
+    post:
+      operationId: admin_saas_usuarios_redefinir_senha_create
+      description: Redefinir a senha de qualquer utilizador.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este usuário.
+        required: true
+      tags:
+      - '[DONO SAAS]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nova_senha:
+                  type: string
+                  description: Mínimo 6 caracteres
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioAdmin'
+          description: ''
   /api/admin/aprovar_colaborador/:
     post:
       operationId: admin_aprovar_colaborador_create
-      description: Aprovar solicitação de colaborador e atribuir departamento/cargo/posto
+      description: |-
+        Aprovar solicitação de colaborador e atribuir departamento/cargo/posto.
+
+        Aceita `empresa_id` para aprovar em qualquer empresa administrada por si.
       tags:
       - '[ADMINISTRADOR]'
       security:
@@ -395,8 +997,28 @@ paths:
     post:
       operationId: admin_atribuir_departamento_create
       description: Atribuir departamento ao supervisor
+      summary: Atribuir departamento a um supervisor (na empresa ativa ou via empresa_id)
       tags:
       - '[ADMINISTRADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                supervisor_id:
+                  type: integer
+                  description: ID do supervisor (responsável)
+                departamento_id:
+                  type: string
+                  description: ID do departamento
+                empresa_id:
+                  type: string
+                  description: Empresa alvo — aceita uuid ou id (opcional; tem de
+                    ser sua). Sem isto, usa a empresa ativa.
+              required:
+              - supervisor_id
+              - departamento_id
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -491,7 +1113,7 @@ paths:
               type: object
               properties:
                 posto_id:
-                  type: integer
+                  type: string
                   description: ID do posto de trabalho
                 horario_entrada:
                   type: string
@@ -532,8 +1154,27 @@ paths:
     post:
       operationId: admin_criar_departamento_create
       description: Criar novo departamento
+      summary: Criar departamento (na empresa ativa ou via empresa_id)
       tags:
       - '[ADMINISTRADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                  description: Nome do departamento
+                descricao:
+                  type: string
+                  description: Descrição (opcional)
+                empresa_id:
+                  type: string
+                  description: Empresa onde criar — aceita uuid ou id (opcional; tem
+                    de ser sua). Sem isto, usa a empresa ativa.
+              required:
+              - nome
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -549,12 +1190,88 @@ paths:
                   nome: Desenvolvimento
                   descricao: Equipe de desenvolvimento Python
           description: ''
+  /api/admin/criar_empresa/:
+    post:
+      operationId: admin_criar_empresa_create
+      description: Regista uma nova empresa ligada a este admin (não cria um admin
+        novo). A empresa entra com status PENDENTE e vai para a fila de aprovação
+        do Dono SaaS. Só depois de aprovada o admin pode selecioná-la e operar nela.
+      summary: Adicionar empresa (entra pendente, aguarda Dono SaaS)
+      tags:
+      - '[ADMINISTRADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                  description: Nome da empresa
+                nif:
+                  type: string
+                  description: NIF (único)
+                email:
+                  type: string
+                  description: Email da empresa (opcional)
+                telefone:
+                  type: string
+                  description: Telefone (opcional)
+                endereco:
+                  type: string
+                  description: Endereço (opcional)
+              required:
+              - nome
+              - nif
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Empresa criada e ligada a si
+                  empresa_id: 9
+                  nome: Filial Sul
+                  nif: NIF-FILIAL
+                  dica: Use selecionar_empresa para passar a operar nesta empresa
+          description: ''
   /api/admin/criar_posto/:
     post:
       operationId: admin_criar_posto_create
       description: Criar novo posto/local de trabalho
+      summary: Criar posto/local (na empresa ativa ou via empresa_id)
       tags:
       - '[ADMINISTRADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                endereco:
+                  type: string
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+                raio_geofencing:
+                  type: integer
+                  description: Raio em metros
+                tensao:
+                  type: string
+                  description: Opcional
+                empresa_id:
+                  type: string
+                  description: Empresa onde criar — aceita uuid ou id (opcional; tem
+                    de ser sua). Sem isto, usa a empresa ativa.
+              required:
+              - nome
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -576,7 +1293,10 @@ paths:
   /api/admin/criar_rh/:
     post:
       operationId: admin_criar_rh_create
-      description: Criar novo usuário de Recursos Humanos (RH) da empresa
+      description: |-
+        Criar novo usuário de Recursos Humanos (RH).
+
+        Aceita `empresa_id` para criar em qualquer empresa administrada por si.
       tags:
       - '[ADMINISTRADOR]'
       requestBody:
@@ -597,6 +1317,10 @@ paths:
                 senha:
                   type: string
                   description: Senha do RH
+                empresa_id:
+                  type: string
+                  description: Empresa onde criar — aceita uuid ou id (opcional; tem
+                    de ser sua). Sem isto, usa a empresa ativa.
               required:
               - username
               - email
@@ -622,7 +1346,10 @@ paths:
   /api/admin/criar_supervisor/:
     post:
       operationId: admin_criar_supervisor_create
-      description: Criar novo supervisor e opcionalmente atribuir departamento
+      description: |-
+        Criar novo supervisor e opcionalmente atribuir departamento.
+
+        Aceita `empresa_id` para criar em qualquer empresa administrada por si.
       tags:
       - '[ADMINISTRADOR]'
       requestBody:
@@ -644,8 +1371,12 @@ paths:
                   type: string
                   description: Senha do supervisor
                 departamento_id:
-                  type: integer
+                  type: string
                   description: ID do departamento a atribuir (opcional)
+                empresa_id:
+                  type: string
+                  description: Empresa onde criar — aceita uuid ou id (opcional; tem
+                    de ser sua). Sem isto, usa a empresa ativa.
               required:
               - username
               - email
@@ -698,6 +1429,10 @@ paths:
                 horario_almoco_fim:
                   type: string
                   description: Fim do almoço (HH:MM:SS)
+                empresa_id:
+                  type: string
+                  description: Empresa onde criar — aceita uuid ou id (opcional; tem
+                    de ser sua). Sem isto, usa a empresa ativa.
               required:
               - nome
               - horario_entrada
@@ -847,6 +1582,39 @@ paths:
                   total_colaboradores: 25
                   status: ativa
           description: ''
+  /api/admin/minhas_empresas/:
+    get:
+      operationId: admin_minhas_empresas_retrieve
+      description: Devolve todas as empresas que este admin administra e indica qual
+        está ativa (`empresa_ativa_id`). Um admin pode administrar várias empresas;
+        a empresa ativa é a que recebe as ações por omissão.
+      summary: Listar as empresas que administro
+      tags:
+      - '[ADMINISTRADOR]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  total: 2
+                  empresa_ativa_id: 1
+                  empresas:
+                  - id: 1
+                    nome: Tech Solutions LTDA
+                    nif: '123456789'
+                    status: ativa
+                    ativa: true
+                  - id: 9
+                    nome: Filial Sul
+                    nif: NIF-FILIAL
+                    status: ativa
+                    ativa: false
+          description: ''
   /api/admin/rejeitar_colaborador/:
     post:
       operationId: admin_rejeitar_colaborador_create
@@ -866,6 +1634,49 @@ paths:
                   status: Solicitação rejeitada
                   nome: João Silva
                   motivo: Não atendemos nessa área
+          description: ''
+  /api/admin/selecionar_empresa/:
+    post:
+      operationId: admin_selecionar_empresa_create
+      description: Define qual das minhas empresas fica ATIVA. A partir daí, tudo
+        o que o admin fizer (criar supervisor/RH, postos, turnos, etc.) passa a ser
+        nessa empresa — exceto se enviar `empresa_id` no pedido.
+      summary: Escolher a empresa ativa
+      tags:
+      - '[ADMINISTRADOR]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                empresa_id:
+                  type: string
+                  description: ID da empresa a tornar ativa (tem de ser administrada
+                    por si)
+              required:
+              - empresa_id
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: Empresa ativa alterada
+                  empresa_id: 9
+                  nome: Filial Sul
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Empresa não encontrada ou não é administrada por si
           description: ''
   /api/admin/solicitacoes_colaboradores/:
     get:
@@ -1011,6 +1822,104 @@ paths:
                   access: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
                   refresh: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
           description: ''
+  /api/biometrico/importar_ficheiro/:
+    post:
+      operationId: biometrico_importar_ficheiro_create
+      description: Importa marcações de um FICHEIRO CSV/TXT exportado pelo aparelho.
+      tags:
+      - '[INTEGRAÇÃO] Biométrico'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                chave:
+                  type: string
+                  description: Chave de API do leitor
+                ficheiro:
+                  type: string
+                  format: binary
+                  description: CSV/TXT exportado pelo aparelho
+              required:
+              - chave
+              - ficheiro
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/biometrico/registrar/:
+    post:
+      operationId: biometrico_registrar_create
+      description: Importa marcações em LOTE via JSON (para um middleware).
+      tags:
+      - '[INTEGRAÇÃO] Biométrico'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                chave:
+                  type: string
+                  description: Chave de API do leitor (config da empresa)
+                registros:
+                  type: array
+                  description: Lote de marcações. Só entrada/saída — almoço é ignorado.
+                  items:
+                    type: object
+                    properties:
+                      codigo_biometrico:
+                        type: string
+                      tipo:
+                        type: string
+                        enum:
+                        - entrada
+                        - saida
+                      data_hora:
+                        type: string
+                        format: date-time
+              required:
+              - chave
+              - registros
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/chefe/minha_equipa/:
+    get:
+      operationId: chefe_minha_equipa_retrieve
+      description: |-
+        Devolve os colaboradores dos departamentos de que o utilizador é responsável. Restrito a quem tem o role chefe_departamento.
+
+        FRONT: lista da equipa com nome, cargo e departamento.
+      summary: Ver a minha equipa (colaboradores do meu departamento)
+      tags:
+      - '[CHEFE DE DEPARTAMENTO]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  total: 1
+                  equipa:
+                  - id: 5
+                    nome: João Silva
+                    cargo: Vendedor
+                    departamento: Vendas
+                    ativo: true
+          description: ''
   /api/colaborador/eliminar_gasto/:
     post:
       operationId: colaborador_eliminar_gasto_create
@@ -1026,7 +1935,7 @@ paths:
               type: object
               properties:
                 gasto_id:
-                  type: integer
+                  type: string
                   description: ID do gasto a eliminar
               required:
               - gasto_id
@@ -1225,7 +2134,7 @@ paths:
               type: object
               properties:
                 tarefa_id:
-                  type: integer
+                  type: string
                   description: ID da tarefa
               required:
               - tarefa_id
@@ -1763,16 +2672,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConfiguracaoEmpresa'
           description: ''
-  /api/configuracoes/{id}/:
+  /api/configuracoes/{uuid}/:
     get:
       operationId: configuracoes_retrieve
       description: '[ADMIN] Configurações da Empresa'
       parameters:
       - in: path
-        name: id
+        name: uuid
         schema:
-          type: integer
-        description: Um valor inteiro único que identifica este configuracao empresa.
+          type: string
+          format: uuid
         required: true
       tags:
       - configuracoes
@@ -1791,10 +2700,10 @@ paths:
       description: '[ADMIN] Configurações da Empresa'
       parameters:
       - in: path
-        name: id
+        name: uuid
         schema:
-          type: integer
-        description: Um valor inteiro único que identifica este configuracao empresa.
+          type: string
+          format: uuid
         required: true
       tags:
       - configuracoes
@@ -1825,10 +2734,10 @@ paths:
       description: '[ADMIN] Configurações da Empresa'
       parameters:
       - in: path
-        name: id
+        name: uuid
         schema:
-          type: integer
-        description: Um valor inteiro único que identifica este configuracao empresa.
+          type: string
+          format: uuid
         required: true
       tags:
       - configuracoes
@@ -1858,10 +2767,10 @@ paths:
       description: '[ADMIN] Configurações da Empresa'
       parameters:
       - in: path
-        name: id
+        name: uuid
         schema:
-          type: integer
-        description: Um valor inteiro único que identifica este configuracao empresa.
+          type: string
+          format: uuid
         required: true
       tags:
       - configuracoes
@@ -1871,16 +2780,16 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/configuracoes/{id}/atualizar_horarios/:
+  /api/configuracoes/{uuid}/atualizar_horarios/:
     post:
       operationId: configuracoes_atualizar_horarios_create
       description: Atualizar horários padrão da empresa
       parameters:
       - in: path
-        name: id
+        name: uuid
         schema:
-          type: integer
-        description: Um valor inteiro único que identifica este configuracao empresa.
+          type: string
+          format: uuid
         required: true
       tags:
       - configuracoes
@@ -1956,16 +2865,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/DepartamentoEmpresa'
           description: ''
-  /api/departamentos/{id}/:
+  /api/departamentos/{uuid}/:
     get:
       operationId: departamentos_retrieve
       description: '[ADMIN] Departamentos da Empresa'
       parameters:
       - in: path
-        name: id
+        name: uuid
         schema:
-          type: integer
-        description: Um valor inteiro único que identifica este departamento empresa.
+          type: string
+          format: uuid
         required: true
       tags:
       - departamentos
@@ -1984,10 +2893,10 @@ paths:
       description: '[ADMIN] Departamentos da Empresa'
       parameters:
       - in: path
-        name: id
+        name: uuid
         schema:
-          type: integer
-        description: Um valor inteiro único que identifica este departamento empresa.
+          type: string
+          format: uuid
         required: true
       tags:
       - departamentos
@@ -2018,10 +2927,10 @@ paths:
       description: '[ADMIN] Departamentos da Empresa'
       parameters:
       - in: path
-        name: id
+        name: uuid
         schema:
-          type: integer
-        description: Um valor inteiro único que identifica este departamento empresa.
+          type: string
+          format: uuid
         required: true
       tags:
       - departamentos
@@ -2051,10 +2960,10 @@ paths:
       description: '[ADMIN] Departamentos da Empresa'
       parameters:
       - in: path
-        name: id
+        name: uuid
         schema:
-          type: integer
-        description: Um valor inteiro único que identifica este departamento empresa.
+          type: string
+          format: uuid
         required: true
       tags:
       - departamentos
@@ -2120,7 +3029,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Empresa'
           description: ''
-  /api/empresas/{id}/:
+  /api/empresas/{uuid}/:
     get:
       operationId: empresas_retrieve
       description: |-
@@ -2129,10 +3038,10 @@ paths:
         Apenas visualização e cadastro público. Sem atualização ou exclusão.
       parameters:
       - in: path
-        name: id
+        name: uuid
         schema:
-          type: integer
-        description: Um valor inteiro único que identifica este empresa.
+          type: string
+          format: uuid
         required: true
       tags:
       - '[PÚBLICO] Cadastro de Empresa'
@@ -2338,7 +3247,7 @@ paths:
               type: object
               properties:
                 colaborador_id:
-                  type: integer
+                  type: string
                 data_inicio:
                   type: string
                   format: date
@@ -2414,6 +3323,54 @@ paths:
       responses:
         '200':
           description: No response body
+  /api/rh/configurar_biometrico/:
+    get:
+      operationId: rh_configurar_biometrico_retrieve
+      description: |-
+        Gerir a integração biométrica (Admin/RH/Supervisor).
+
+        GET  -> devolve a chave de API (gera uma se ainda não existir) e os códigos mapeados.
+        POST -> { "regenerar": true }  -> gera nova chave
+                { "colaborador_id": 1, "codigo_biometrico": "1001" } -> mapeia um colaborador
+      tags:
+      - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: rh_configurar_biometrico_create
+      description: |-
+        Gerir a integração biométrica (Admin/RH/Supervisor).
+
+        GET  -> devolve a chave de API (gera uma se ainda não existir) e os códigos mapeados.
+        POST -> { "regenerar": true }  -> gera nova chave
+                { "colaborador_id": 1, "codigo_biometrico": "1001" } -> mapeia um colaborador
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                regenerar:
+                  type: boolean
+                  description: Gera uma nova chave de API
+                colaborador_id:
+                  type: string
+                  description: Colaborador a mapear
+                codigo_biometrico:
+                  type: string
+                  description: ID dele no leitor
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/rh/criar_contrato/:
     post:
       operationId: rh_criar_contrato_create
@@ -2427,7 +3384,7 @@ paths:
               type: object
               properties:
                 colaborador_id:
-                  type: integer
+                  type: string
                   description: ID do colaborador
                 tipo_contrato:
                   type: string
@@ -2540,7 +3497,7 @@ paths:
               type: object
               properties:
                 colaborador_id:
-                  type: integer
+                  type: string
                 data_inicio:
                   type: string
                   format: date
@@ -2578,7 +3535,7 @@ paths:
               type: object
               properties:
                 colaborador_id:
-                  type: integer
+                  type: string
                 ano:
                   type: integer
                   description: 'Ano de referência (ex: 2026). Default: ano atual'
@@ -2611,7 +3568,7 @@ paths:
               type: object
               properties:
                 falta_id:
-                  type: integer
+                  type: string
               required:
               - falta_id
       security:
@@ -2634,7 +3591,7 @@ paths:
               type: object
               properties:
                 feriado_id:
-                  type: integer
+                  type: string
               required:
               - feriado_id
       security:
@@ -2656,7 +3613,7 @@ paths:
               type: object
               properties:
                 colaborador_id:
-                  type: integer
+                  type: string
                 tipo:
                   type: string
                   enum:
@@ -2843,7 +3800,7 @@ paths:
               type: object
               properties:
                 colaborador_id:
-                  type: integer
+                  type: string
                 data_inicio:
                   type: string
                   format: date
@@ -2904,7 +3861,7 @@ paths:
                     type: object
                     properties:
                       colaborador_id:
-                        type: integer
+                        type: string
                         description: Obrigatório
                       mes:
                         type: integer
@@ -3130,7 +4087,7 @@ paths:
               type: object
               properties:
                 ferias_id:
-                  type: integer
+                  type: string
                 acao:
                   type: string
                   enum:
@@ -3161,7 +4118,7 @@ paths:
               type: object
               properties:
                 contrato_id:
-                  type: integer
+                  type: string
                 nova_data_fim:
                   type: string
                   format: date
@@ -3191,7 +4148,7 @@ paths:
               type: object
               properties:
                 contrato_id:
-                  type: integer
+                  type: string
               required:
               - contrato_id
       security:
@@ -3250,16 +4207,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/ColaboradorRole'
           description: ''
-  /api/roles/{id}/:
+  /api/roles/{uuid}/:
     get:
       operationId: roles_retrieve
       description: '[ADMIN] Roles de Colaboradores'
       parameters:
       - in: path
-        name: id
+        name: uuid
         schema:
-          type: integer
-        description: Um valor inteiro único que identifica este colaborador role.
+          type: string
+          format: uuid
         required: true
       tags:
       - roles
@@ -3278,10 +4235,10 @@ paths:
       description: '[ADMIN] Roles de Colaboradores'
       parameters:
       - in: path
-        name: id
+        name: uuid
         schema:
-          type: integer
-        description: Um valor inteiro único que identifica este colaborador role.
+          type: string
+          format: uuid
         required: true
       tags:
       - roles
@@ -3312,10 +4269,10 @@ paths:
       description: '[ADMIN] Roles de Colaboradores'
       parameters:
       - in: path
-        name: id
+        name: uuid
         schema:
-          type: integer
-        description: Um valor inteiro único que identifica este colaborador role.
+          type: string
+          format: uuid
         required: true
       tags:
       - roles
@@ -3345,10 +4302,10 @@ paths:
       description: '[ADMIN] Roles de Colaboradores'
       parameters:
       - in: path
-        name: id
+        name: uuid
         schema:
-          type: integer
-        description: Um valor inteiro único que identifica este colaborador role.
+          type: string
+          format: uuid
         required: true
       tags:
       - roles
@@ -3519,10 +4476,10 @@ paths:
                 colaborador_ids:
                   type: array
                   items:
-                    type: integer
+                    type: string
                   description: Array de IDs dos colaboradores
                 escala_id:
-                  type: integer
+                  type: string
                   description: ID da escala criada (24/48, 48/48, etc)
               required:
               - colaborador_ids
@@ -3575,10 +4532,10 @@ paths:
                 colaborador_ids:
                   type: array
                   items:
-                    type: integer
+                    type: string
                   description: Array de IDs dos colaboradores
                 colaborador_id:
-                  type: integer
+                  type: string
                   description: ID de um único colaborador (alternativa)
                 titulo:
                   type: string
@@ -3632,7 +4589,7 @@ paths:
                 colaborador_ids:
                   type: array
                   items:
-                    type: integer
+                    type: string
                   description: Array de IDs dos colaboradores
                 dias_trabalho:
                   type: string
@@ -3682,7 +4639,7 @@ paths:
               type: object
               properties:
                 presenca_id:
-                  type: integer
+                  type: string
                 acao:
                   type: string
                   enum:
@@ -3735,7 +4692,7 @@ paths:
                   type: integer
                   description: Dia da semana do primeiro dia (0=seg, 1=ter, ..., 6=dom)
                 turno_padrao_id:
-                  type: integer
+                  type: string
                   description: ID do turno padrão (opcional)
               required:
               - nome
@@ -3944,10 +4901,10 @@ paths:
                 colaborador_ids:
                   type: array
                   items:
-                    type: integer
+                    type: string
                   description: Array de IDs dos colaboradores
                 colaborador_id:
-                  type: integer
+                  type: string
                   description: ID de um único colaborador (alternativa a colaborador_ids)
                 data:
                   type: string
@@ -4057,6 +5014,163 @@ paths:
                     status: T
                     descricao: Trabalho
           description: ''
+  /api/suporte/tickets/:
+    get:
+      operationId: suporte_tickets_list
+      description: |-
+        [SUPORTE] Tickets de suporte (2 níveis)
+
+        - Colaborador/RH/Supervisor/Chefe abrem para o ADMIN da empresa.
+        - Admin da empresa abre para o DONO SAAS.
+
+        Cada um vê os tickets que abriu; o destinatário vê e responde os que lhe
+        são dirigidos. O destino é definido automaticamente pelo papel.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - '[SUPORTE]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTicketSuporteList'
+          description: ''
+    post:
+      operationId: suporte_tickets_create
+      description: |-
+        [SUPORTE] Tickets de suporte (2 níveis)
+
+        - Colaborador/RH/Supervisor/Chefe abrem para o ADMIN da empresa.
+        - Admin da empresa abre para o DONO SAAS.
+
+        Cada um vê os tickets que abriu; o destinatário vê e responde os que lhe
+        são dirigidos. O destino é definido automaticamente pelo papel.
+      tags:
+      - '[SUPORTE]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketSuporte'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TicketSuporte'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TicketSuporte'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketSuporte'
+          description: ''
+  /api/suporte/tickets/{id}/:
+    get:
+      operationId: suporte_tickets_retrieve
+      description: |-
+        [SUPORTE] Tickets de suporte (2 níveis)
+
+        - Colaborador/RH/Supervisor/Chefe abrem para o ADMIN da empresa.
+        - Admin da empresa abre para o DONO SAAS.
+
+        Cada um vê os tickets que abriu; o destinatário vê e responde os que lhe
+        são dirigidos. O destino é definido automaticamente pelo papel.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este Ticket de Suporte.
+        required: true
+      tags:
+      - '[SUPORTE]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketSuporte'
+          description: ''
+  /api/suporte/tickets/{id}/definir_status/:
+    post:
+      operationId: suporte_tickets_definir_status_create
+      description: Atualizar o status do ticket (destinatário ou solicitante).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este Ticket de Suporte.
+        required: true
+      tags:
+      - '[SUPORTE]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  description: aberto, em_andamento, respondido, resolvido, fechado
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketSuporte'
+          description: ''
+  /api/suporte/tickets/{id}/responder/:
+    post:
+      operationId: suporte_tickets_responder_create
+      description: Responder ao ticket (apenas o destinatário).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este Ticket de Suporte.
+        required: true
+      tags:
+      - '[SUPORTE]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resposta:
+                  type: string
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketSuporte'
+          description: ''
 components:
   schemas:
     AcaoEnum:
@@ -4067,6 +5181,11 @@ components:
       - ativar_empresa
       - visualizar_relatorio
       - exportar_dados
+      - gerir_plano
+      - gerir_assinatura
+      - gerar_fatura
+      - gerir_usuario
+      - redefinir_senha
       type: string
       description: |-
         * `aprovar_empresa` - Aprovar Empresa
@@ -4075,11 +5194,82 @@ components:
         * `ativar_empresa` - Ativar Empresa
         * `visualizar_relatorio` - Visualizar Relatório
         * `exportar_dados` - Exportar Dados
+        * `gerir_plano` - Gerir Plano
+        * `gerir_assinatura` - Gerir Assinatura
+        * `gerar_fatura` - Gerar Fatura
+        * `gerir_usuario` - Gerir Utilizador
+        * `redefinir_senha` - Redefinir Senha
+    Assinatura:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        empresa:
+          type: integer
+        empresa_nome:
+          type: string
+          readOnly: true
+        plano:
+          type: integer
+        plano_nome:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/AssinaturaStatusEnum'
+        status_display:
+          type: string
+          readOnly: true
+        inicio:
+          type: string
+          format: date
+        proximo_vencimento:
+          type: string
+          format: date
+          nullable: true
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+        atualizado_em:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - atualizado_em
+      - criado_em
+      - empresa
+      - empresa_nome
+      - id
+      - plano
+      - plano_nome
+      - status_display
+      - uuid
+    AssinaturaStatusEnum:
+      enum:
+      - trial
+      - ativa
+      - suspensa
+      - cancelada
+      type: string
+      description: |-
+        * `trial` - Período de Teste
+        * `ativa` - Ativa
+        * `suspensa` - Suspensa
+        * `cancelada` - Cancelada
     ColaboradorRole:
       type: object
       properties:
         id:
           type: integer
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
           readOnly: true
         user:
           allOf:
@@ -4102,11 +5292,16 @@ components:
       - tipo_role
       - tipo_role_display
       - user
+      - uuid
     ConfiguracaoEmpresa:
       type: object
       properties:
         id:
           type: integer
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
           readOnly: true
         empresa:
           type: integer
@@ -4144,11 +5339,16 @@ components:
       - criado_em
       - empresa
       - id
+      - uuid
     DepartamentoEmpresa:
       type: object
       properties:
         id:
           type: integer
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
           readOnly: true
         empresa:
           type: integer
@@ -4175,11 +5375,24 @@ components:
       - id
       - nome
       - responsavel_nome
+      - uuid
+    DestinoEnum:
+      enum:
+      - admin_empresa
+      - dono_saas
+      type: string
+      description: |-
+        * `admin_empresa` - Admin da Empresa
+        * `dono_saas` - Dono SaaS
     Empresa:
       type: object
       properties:
         id:
           type: integer
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
           readOnly: true
         nome:
           type: string
@@ -4209,9 +5422,8 @@ components:
           nullable: true
         raio_geofencing:
           type: integer
-          maximum: 9223372036854775807
-          minimum: -9223372036854775808
-          format: int64
+          maximum: 2147483647
+          minimum: -2147483648
           description: Raio em metros
         status:
           $ref: '#/components/schemas/Status401Enum'
@@ -4236,11 +5448,16 @@ components:
       - nome
       - status_display
       - telefone
+      - uuid
     EmpresaDetail:
       type: object
       properties:
         id:
           type: integer
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
           readOnly: true
         nome:
           type: string
@@ -4270,9 +5487,8 @@ components:
           nullable: true
         raio_geofencing:
           type: integer
-          maximum: 9223372036854775807
-          minimum: -9223372036854775808
-          format: int64
+          maximum: 2147483647
+          minimum: -2147483648
           description: Raio em metros
         status:
           $ref: '#/components/schemas/Status401Enum'
@@ -4312,6 +5528,73 @@ components:
       - nome
       - status_display
       - telefone
+      - uuid
+    Fatura:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        assinatura:
+          type: integer
+        empresa:
+          type: integer
+          readOnly: true
+        empresa_nome:
+          type: string
+          readOnly: true
+        valor:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        status:
+          $ref: '#/components/schemas/FaturaStatusEnum'
+        status_display:
+          type: string
+          readOnly: true
+        referencia:
+          type: string
+          description: 'Referência de pagamento (ex: Multicaixa)'
+          maxLength: 64
+        vencimento:
+          type: string
+          format: date
+        pago_em:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - assinatura
+      - criado_em
+      - empresa
+      - empresa_nome
+      - id
+      - pago_em
+      - status_display
+      - uuid
+      - valor
+      - vencimento
+    FaturaStatusEnum:
+      enum:
+      - pendente
+      - paga
+      - vencida
+      - cancelada
+      type: string
+      description: |-
+        * `pendente` - Pendente
+        * `paga` - Paga
+        * `vencida` - Vencida
+        * `cancelada` - Cancelada
     LogAcaoAdmin:
       type: object
       properties:
@@ -4362,6 +5645,29 @@ components:
       required:
       - email
       - password
+    PaginatedAssinaturaList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assinatura'
     PaginatedColaboradorRoleList:
       type: object
       required:
@@ -4454,6 +5760,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Empresa'
+    PaginatedFaturaList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Fatura'
     PaginatedLogAcaoAdminList:
       type: object
       required:
@@ -4477,6 +5806,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LogAcaoAdmin'
+    PaginatedPlanoList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Plano'
     PaginatedSolicitacaoEmpresaList:
       type: object
       required:
@@ -4500,11 +5852,101 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SolicitacaoEmpresa'
+    PaginatedTicketSuporteList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TicketSuporte'
+    PaginatedUsuarioAdminList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UsuarioAdmin'
+    PatchedAssinatura:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        empresa:
+          type: integer
+        empresa_nome:
+          type: string
+          readOnly: true
+        plano:
+          type: integer
+        plano_nome:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/AssinaturaStatusEnum'
+        status_display:
+          type: string
+          readOnly: true
+        inicio:
+          type: string
+          format: date
+        proximo_vencimento:
+          type: string
+          format: date
+          nullable: true
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+        atualizado_em:
+          type: string
+          format: date-time
+          readOnly: true
     PatchedColaboradorRole:
       type: object
       properties:
         id:
           type: integer
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
           readOnly: true
         user:
           allOf:
@@ -4526,6 +5968,10 @@ components:
       properties:
         id:
           type: integer
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
           readOnly: true
         empresa:
           type: integer
@@ -4565,6 +6011,10 @@ components:
         id:
           type: integer
           readOnly: true
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
         empresa:
           type: integer
         nome:
@@ -4584,38 +6034,186 @@ components:
           type: string
           format: date-time
           readOnly: true
-    PatchedSolicitacaoEmpresa:
+    PatchedPlano:
       type: object
       properties:
         id:
           type: integer
           readOnly: true
-        empresa:
-          allOf:
-          - $ref: '#/components/schemas/EmpresaDetail'
-          readOnly: true
-        status:
-          $ref: '#/components/schemas/SolicitacaoEmpresaStatusEnum'
-        status_display:
+        uuid:
           type: string
+          format: uuid
           readOnly: true
-        motivo_rejeicao:
+        nome:
           type: string
-          description: Motivo da rejeição se aplicável
-        admin_responsavel:
+          maxLength: 100
+        slug:
+          type: string
+          description: 'Identificador único: free, pro, enterprise'
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        descricao:
+          type: string
+        preco_mensal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          description: Preço mensal em Kz (0 = grátis)
+        max_colaboradores:
           type: integer
-          nullable: true
-        admin_nome:
-          type: string
-          readOnly: true
+          maximum: 2147483647
+          minimum: -2147483648
+          description: Limite de colaboradores (0 = ilimitado)
+        permite_biometrico:
+          type: boolean
+        permite_geofencing:
+          type: boolean
+        permite_relatorios:
+          type: boolean
+        permite_exportacao:
+          type: boolean
+        ativo:
+          type: boolean
+        ordem:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: Ordem de exibição
         criado_em:
           type: string
           format: date-time
           readOnly: true
-        processado_em:
+        atualizado_em:
           type: string
           format: date-time
+          readOnly: true
+    PatchedUsuarioAdmin:
+      type: object
+      description: |-
+        Visão do Dono SaaS sobre qualquer utilizador (admin/colaborador/etc).
+
+        Edição via PATCH: nome, email e is_active. A senha é alterada por endpoint
+        próprio (redefinir_senha). username é read-only.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          title: Usuário
+          description: Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_
+            apenas.
+        email:
+          type: string
+          format: email
+          title: Endereço de email
+          maxLength: 254
+        first_name:
+          type: string
+          title: Primeiro nome
+          maxLength: 150
+        last_name:
+          type: string
+          title: Último nome
+          maxLength: 150
+        is_active:
+          type: boolean
+          title: Ativo
+          description: Indica que o usuário será tratado como ativo. Ao invés de excluir
+            contas de usuário, desmarque isso.
+        tipo_role:
+          type: string
           nullable: true
+          readOnly: true
+        tipo_role_display:
+          type: string
+          nullable: true
+          readOnly: true
+        empresa_id:
+          type: integer
+          nullable: true
+          readOnly: true
+        empresa_nome:
+          type: string
+          nullable: true
+          readOnly: true
+        cargo:
+          type: string
+          nullable: true
+          readOnly: true
+    Plano:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        nome:
+          type: string
+          maxLength: 100
+        slug:
+          type: string
+          description: 'Identificador único: free, pro, enterprise'
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        descricao:
+          type: string
+        preco_mensal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          description: Preço mensal em Kz (0 = grátis)
+        max_colaboradores:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: Limite de colaboradores (0 = ilimitado)
+        permite_biometrico:
+          type: boolean
+        permite_geofencing:
+          type: boolean
+        permite_relatorios:
+          type: boolean
+        permite_exportacao:
+          type: boolean
+        ativo:
+          type: boolean
+        ordem:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: Ordem de exibição
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+        atualizado_em:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - atualizado_em
+      - criado_em
+      - id
+      - nome
+      - slug
+      - uuid
+    PrioridadeEnum:
+      enum:
+      - baixa
+      - normal
+      - alta
+      - urgente
+      type: string
+      description: |-
+        * `baixa` - Baixa
+        * `normal` - Normal
+        * `alta` - Alta
+        * `urgente` - Urgente
     Refresh:
       type: object
       properties:
@@ -4682,6 +6280,110 @@ components:
         * `pendente` - Pendente
         * `ativa` - Ativa
         * `inativa` - Inativa
+    TicketSuporte:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        solicitante:
+          type: integer
+          readOnly: true
+        solicitante_nome:
+          type: string
+          readOnly: true
+        empresa:
+          type: integer
+          readOnly: true
+          nullable: true
+        empresa_nome:
+          type: string
+          readOnly: true
+        destino:
+          allOf:
+          - $ref: '#/components/schemas/DestinoEnum'
+          readOnly: true
+        destino_display:
+          type: string
+          readOnly: true
+        assunto:
+          type: string
+          maxLength: 200
+        mensagem:
+          type: string
+        prioridade:
+          $ref: '#/components/schemas/PrioridadeEnum'
+        prioridade_display:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/TicketSuporteStatusEnum'
+          readOnly: true
+        status_display:
+          type: string
+          readOnly: true
+        resposta:
+          type: string
+          readOnly: true
+        respondido_por:
+          type: integer
+          readOnly: true
+          nullable: true
+        respondido_por_nome:
+          type: string
+          readOnly: true
+        respondido_em:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+        atualizado_em:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - assunto
+      - atualizado_em
+      - criado_em
+      - destino
+      - destino_display
+      - empresa
+      - empresa_nome
+      - id
+      - mensagem
+      - prioridade_display
+      - respondido_em
+      - respondido_por
+      - respondido_por_nome
+      - resposta
+      - solicitante
+      - solicitante_nome
+      - status
+      - status_display
+      - uuid
+    TicketSuporteStatusEnum:
+      enum:
+      - aberto
+      - em_andamento
+      - respondido
+      - resolvido
+      - fechado
+      type: string
+      description: |-
+        * `aberto` - Aberto
+        * `em_andamento` - Em Andamento
+        * `respondido` - Respondido
+        * `resolvido` - Resolvido
+        * `fechado` - Fechado
     TipoRoleEnum:
       enum:
       - dono_saas
@@ -4726,6 +6428,69 @@ components:
           maxLength: 150
       required:
       - id
+      - username
+    UsuarioAdmin:
+      type: object
+      description: |-
+        Visão do Dono SaaS sobre qualquer utilizador (admin/colaborador/etc).
+
+        Edição via PATCH: nome, email e is_active. A senha é alterada por endpoint
+        próprio (redefinir_senha). username é read-only.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          title: Usuário
+          description: Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_
+            apenas.
+        email:
+          type: string
+          format: email
+          title: Endereço de email
+          maxLength: 254
+        first_name:
+          type: string
+          title: Primeiro nome
+          maxLength: 150
+        last_name:
+          type: string
+          title: Último nome
+          maxLength: 150
+        is_active:
+          type: boolean
+          title: Ativo
+          description: Indica que o usuário será tratado como ativo. Ao invés de excluir
+            contas de usuário, desmarque isso.
+        tipo_role:
+          type: string
+          nullable: true
+          readOnly: true
+        tipo_role_display:
+          type: string
+          nullable: true
+          readOnly: true
+        empresa_id:
+          type: integer
+          nullable: true
+          readOnly: true
+        empresa_nome:
+          type: string
+          nullable: true
+          readOnly: true
+        cargo:
+          type: string
+          nullable: true
+          readOnly: true
+      required:
+      - cargo
+      - empresa_id
+      - empresa_nome
+      - id
+      - tipo_role
+      - tipo_role_display
       - username
   securitySchemes:
     cookieAuth:

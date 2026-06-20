@@ -401,6 +401,78 @@ export const supervisorApi = {
 
 // ─── SaaS Owner endpoints ──────────────────────────────────────────
 export const saasApi = {
+  dashboard: () =>
+    api.get('/api/admin-saas/dashboard/').then(r => r.data),
+
+  listPlans: (page = 1) =>
+    api.get('/api/admin-saas/planos/', { params: { page } }).then(r => r.data),
+
+  getPlan: (id: number) =>
+    api.get(`/api/admin-saas/planos/${id}/`).then(r => r.data),
+
+  createPlan: (body: Record<string, unknown>) =>
+    api.post('/api/admin-saas/planos/', body).then(r => r.data),
+
+  updatePlan: (id: number, body: Record<string, unknown>) =>
+    api.put(`/api/admin-saas/planos/${id}/`, body).then(r => r.data),
+
+  patchPlan: (id: number, body: Record<string, unknown>) =>
+    api.patch(`/api/admin-saas/planos/${id}/`, body).then(r => r.data),
+
+  deletePlan: (id: number) =>
+    api.delete(`/api/admin-saas/planos/${id}/`).then(r => r.data),
+
+  listSubscriptions: (page = 1) =>
+    api.get('/api/admin-saas/assinaturas/', { params: { page } }).then(r => r.data),
+
+  getSubscription: (id: number) =>
+    api.get(`/api/admin-saas/assinaturas/${id}/`).then(r => r.data),
+
+  createSubscription: (body: Record<string, unknown>) =>
+    api.post('/api/admin-saas/assinaturas/', body).then(r => r.data),
+
+  updateSubscription: (id: number, body: Record<string, unknown>) =>
+    api.put(`/api/admin-saas/assinaturas/${id}/`, body).then(r => r.data),
+
+  patchSubscription: (id: number, body: Record<string, unknown>) =>
+    api.patch(`/api/admin-saas/assinaturas/${id}/`, body).then(r => r.data),
+
+  deleteSubscription: (id: number) =>
+    api.delete(`/api/admin-saas/assinaturas/${id}/`).then(r => r.data),
+
+  cancelSubscription: (id: number, body: Record<string, unknown> = {}) =>
+    api.post(`/api/admin-saas/assinaturas/${id}/cancelar/`, body).then(r => r.data),
+
+  generateInvoice: (id: number, body: Record<string, unknown> = {}) =>
+    api.post(`/api/admin-saas/assinaturas/${id}/gerar_fatura/`, body).then(r => r.data),
+
+  reactivateSubscription: (id: number, body: Record<string, unknown> = {}) =>
+    api.post(`/api/admin-saas/assinaturas/${id}/reativar/`, body).then(r => r.data),
+
+  suspendSubscription: (id: number, body: Record<string, unknown> = {}) =>
+    api.post(`/api/admin-saas/assinaturas/${id}/suspender/`, body).then(r => r.data),
+
+  listInvoices: (page = 1) =>
+    api.get('/api/admin-saas/faturas/', { params: { page } }).then(r => r.data),
+
+  getInvoice: (id: number) =>
+    api.get(`/api/admin-saas/faturas/${id}/`).then(r => r.data),
+
+  markInvoicePaid: (id: number, body: Record<string, unknown> = {}) =>
+    api.post(`/api/admin-saas/faturas/${id}/marcar_paga/`, body).then(r => r.data),
+
+  listUsers: (params?: { page?: number; empresa?: string; role?: string }) =>
+    api.get('/api/admin-saas/usuarios/', { params }).then(r => r.data),
+
+  getUser: (id: number) =>
+    api.get(`/api/admin-saas/usuarios/${id}/`).then(r => r.data),
+
+  patchUser: (id: number, body: Record<string, unknown>) =>
+    api.patch(`/api/admin-saas/usuarios/${id}/`, body).then(r => r.data),
+
+  resetUserPassword: (id: number, nova_senha: string) =>
+    api.post(`/api/admin-saas/usuarios/${id}/redefinir_senha/`, { nova_senha }).then(r => r.data),
+
   listRequests: (page = 1) =>
     api.get('/api/admin-saas/solicitacoes/', { params: { page } }).then(r => r.data),
 

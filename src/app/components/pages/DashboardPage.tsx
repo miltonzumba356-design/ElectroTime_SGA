@@ -25,6 +25,7 @@ import {
   usePendingPresences,
   usePosts,
   useSaasLogsLast30Days,
+  useSaasDashboard,
   useSaasPendingRequests,
   useSaasRequestsSummary,
   useSchedules,
@@ -168,6 +169,7 @@ function ChartBlock({ data, children }: { data: ChartDatum[]; children: ReactNod
 }
 
 function SaasOwnerDashboard() {
+  const { data: dashboardRaw, isLoading: loadingDashboard } = useSaasDashboard();
   const { data: companiesRaw, isLoading: loadingCompanies } = useCompanies();
   const { data: pendingRaw, isLoading: loadingPending } = useSaasPendingRequests();
   const { data: summaryRaw } = useSaasRequestsSummary();
@@ -177,12 +179,26 @@ function SaasOwnerDashboard() {
   const pending = normalizeList((pendingRaw as any)?.solicitacoes ?? pendingRaw, (r: any) => r);
   const logs = normalizeList(logsRaw, (l: any) => l);
   const summary = (summaryRaw ?? {}) as any;
+  const dashboard = Array.isArray(dashboardRaw) ? (dashboardRaw[0] ?? {}) : ((dashboardRaw ?? {}) as any);
+  const dashboardCompanies = dashboard.empresas ?? {};
+  const dashboardSubscriptions = dashboard.assinaturas ?? {};
+  const dashboardRevenue = dashboard.receita ?? {};
+  const companyGrowth = normalizeList(dashboard.crescimento_empresas ?? [], (item: any) => ({
+    name: item.mes ?? item.name ?? '-',
+    value: Number(item.novas ?? item.value ?? 0),
+    fill: CHART_COLORS.sky,
+  }));
   const requestStatusData = compactChartData([
     { name: 'Pendentes', value: Number(summary.pendentes ?? pending.length), fill: CHART_COLORS.amber },
     { name: 'Aprovadas', value: Number(summary.aprovadas ?? 0), fill: CHART_COLORS.emerald },
     { name: 'Rejeitadas', value: Number(summary.rejeitadas ?? 0), fill: CHART_COLORS.rose },
   ]);
-  const companyPlanData = distributionFrom(companies, [
+  const companyPlanData = dashboard.assinaturas ? compactChartData([
+    { name: 'Trial', value: Number(dashboardSubscriptions.trial ?? 0), fill: CHART_COLORS.sky },
+    { name: 'Ativa', value: Number(dashboardSubscriptions.ativa ?? 0), fill: CHART_COLORS.emerald },
+    { name: 'Suspensa', value: Number(dashboardSubscriptions.suspensa ?? 0), fill: CHART_COLORS.amber },
+    { name: 'Cancelada', value: Number(dashboardSubscriptions.cancelada ?? 0), fill: CHART_COLORS.rose },
+  ]) : distributionFrom(companies, [
     { name: 'Basic', value: (c: any) => c.plan === 'basic' || c.plano === 'basic', fill: CHART_COLORS.sky },
     { name: 'Professional', value: (c: any) => c.plan === 'professional' || c.plano === 'professional', fill: CHART_COLORS.violet },
     { name: 'Enterprise', value: (c: any) => c.plan === 'enterprise' || c.plano === 'enterprise', fill: CHART_COLORS.emerald },
@@ -192,18 +208,19 @@ function SaasOwnerDashboard() {
     <DashboardShell
       title="Dashboard SaaS"
       description="Solicitacoes de empresas, base de clientes e auditoria da plataforma"
-      loading={loadingCompanies || loadingPending}
+      loading={loadingDashboard || loadingCompanies || loadingPending}
       stats={[
-        { title: 'Empresas cadastradas', value: countFrom(companiesRaw, companies.length), icon: <Building2 className="h-5 w-5" />, color: 'blue' },
+        { title: 'Empresas cadastradas', value: dashboardCompanies.total ?? countFrom(companiesRaw, companies.length), icon: <Building2 className="h-5 w-5" />, color: 'blue' },
         { title: 'Solicitacoes pendentes', value: summary.pendentes ?? pending.length, icon: <AlertCircle className="h-5 w-5" />, color: 'yellow' },
-        { title: 'Aprovadas', value: summary.aprovadas ?? 0, icon: <CheckCircle2 className="h-5 w-5" />, color: 'green' },
-        { title: 'Rejeitadas', value: summary.rejeitadas ?? 0, icon: <XCircle className="h-5 w-5" />, color: 'red' },
+        { title: 'MRR', value: moneyKz(dashboardRevenue.mrr ?? 0), icon: <DollarSign className="h-5 w-5" />, color: 'green' },
+        { title: 'Valor pendente', value: moneyKz(dashboardRevenue.valor_pendente ?? 0), icon: <XCircle className="h-5 w-5" />, color: 'red' },
       ]}
     >
       <div className="grid gap-4 xl:grid-cols-[1fr_0.9fr]">
         <BarChartPanel title="Estado das solicitacoes" data={requestStatusData} />
-        <DonutChartPanel title="Planos das empresas" data={companyPlanData} />
+        <DonutChartPanel title={dashboard.assinaturas ? 'Assinaturas' : 'Planos das empresas'} data={companyPlanData} />
       </div>
+      {companyGrowth.length > 0 && <AreaChartPanel title="Crescimento de empresas" data={companyGrowth} />}
       <div className="grid gap-4 lg:grid-cols-2">
         <DashboardPanel title="Solicitacoes pendentes" actionHref="#/companies" actionLabel="Gerir empresas">
           <SimpleList
