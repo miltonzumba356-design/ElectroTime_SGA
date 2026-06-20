@@ -168,6 +168,10 @@ function ChartBlock({ data, children }: { data: ChartDatum[]; children: ReactNod
   );
 }
 
+function moneyKz(value: number) {
+  return `${Number(value ?? 0).toLocaleString('pt-AO')} Kz`;
+}
+
 function SaasOwnerDashboard() {
   const { data: dashboardRaw, isLoading: loadingDashboard } = useSaasDashboard();
   const { data: companiesRaw, isLoading: loadingCompanies } = useCompanies();
