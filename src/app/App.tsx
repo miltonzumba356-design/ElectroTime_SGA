@@ -40,7 +40,8 @@ const GeofencingConfigPage = lazy(() => import('./components/pages/GeofencingCon
 const UserManagementPage   = lazy(() => import('./components/pages/UserManagementPage').then(m => ({ default: m.UserManagementPage })));
 
 // SaaS Owner exclusive
-const AuditPage = lazy(() => import('./components/pages/AuditPage').then(m => ({ default: m.AuditPage })));
+const AuditPage         = lazy(() => import('./components/pages/AuditPage').then(m => ({ default: m.AuditPage })));
+const SaasRequestsPage  = lazy(() => import('./components/pages/SaasRequestsPage').then(m => ({ default: m.SaasRequestsPage })));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 1000 * 60 * 5, retry: 1 } },
@@ -114,6 +115,7 @@ function AppRoutes() {
             {/* SaaS Owner exclusive */}
             <Route path="companies" element={<CompaniesPage />} />
             <Route path="audit" element={<AuditPage />} />
+            <Route path="saas-requests" element={<SaasRequestsPage />} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
