@@ -30,6 +30,7 @@ export const QK = {
   schedulesList:     ['schedules'],
   workPlan:          ['work-plan'],
   saasRequests:      (page: number) => ['saas-requests', page],
+  saasRequest:       (id: number) => ['saas-request', id],
   saasRequestsPending: ['saas-requests-pending'],
   saasRequestsSummary: ['saas-requests-summary'],
   saasLogs:          (page: number) => ['saas-logs', page],
@@ -456,6 +457,54 @@ export function useManageTurno() {
 // ─── SaaS Owner ───────────────────────────────────────────────────
 export function useSaasRequests(page = 1) {
   return useQuery({ queryKey: QK.saasRequests(page), queryFn: () => saasApi.listRequests(page) });
+}
+
+export function useSaasRequest(id: number) {
+  return useQuery({
+    queryKey: QK.saasRequest(id),
+    queryFn: () => saasApi.getRequest(id),
+    enabled: !!id,
+  });
+}
+
+export function useCreateSaasRequest() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: saasApi.createRequest,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['saas-requests'] }),
+  });
+}
+
+export function useUpdateSaasRequest() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: number; body: Record<string, unknown> }) =>
+      saasApi.updateRequest(id, body),
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: ['saas-requests'] });
+      qc.invalidateQueries({ queryKey: QK.saasRequest(id) });
+    },
+  });
+}
+
+export function usePatchSaasRequest() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: number; body: Record<string, unknown> }) =>
+      saasApi.patchRequest(id, body),
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: ['saas-requests'] });
+      qc.invalidateQueries({ queryKey: QK.saasRequest(id) });
+    },
+  });
+}
+
+export function useDeleteSaasRequest() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => saasApi.deleteRequest(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['saas-requests'] }),
+  });
 }
 
 export function useSaasPendingRequests() {

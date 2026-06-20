@@ -404,8 +404,20 @@ export const saasApi = {
   listRequests: (page = 1) =>
     api.get('/api/admin-saas/solicitacoes/', { params: { page } }).then(r => r.data),
 
+  createRequest: (body: Record<string, unknown>) =>
+    api.post('/api/admin-saas/solicitacoes/', body).then(r => r.data),
+
   getRequest: (id: number) =>
     api.get(`/api/admin-saas/solicitacoes/${id}/`).then(r => r.data),
+
+  updateRequest: (id: number, body: Record<string, unknown>) =>
+    api.put(`/api/admin-saas/solicitacoes/${id}/`, body).then(r => r.data),
+
+  patchRequest: (id: number, body: Record<string, unknown>) =>
+    api.patch(`/api/admin-saas/solicitacoes/${id}/`, body).then(r => r.data),
+
+  deleteRequest: (id: number) =>
+    api.delete(`/api/admin-saas/solicitacoes/${id}/`).then(r => r.data),
 
   approveRequest: (solicitacao_id: number) =>
     api.post('/api/admin-saas/solicitacoes/aprovar/', { solicitacao_id }).then(r => r.data),

@@ -268,6 +268,22 @@ export interface DeptChartData {
   color: string;
 }
 
+// ---- SaaS Request (Solicitação admin-saas) ----
+export type SaasRequestStatus = 'pending' | 'approved' | 'rejected';
+
+export interface SaasRequest {
+  id: string;
+  company_name: string;
+  nif?: string;
+  email?: string;
+  phone?: string;
+  plan?: string;
+  status: SaasRequestStatus;
+  rejection_reason?: string;
+  created_at: string;
+  reviewed_at?: string;
+}
+
 // ---- Pagination ----
 export interface PaginationMeta {
   total: number;

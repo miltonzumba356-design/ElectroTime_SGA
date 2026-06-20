@@ -322,6 +322,23 @@ export const PayrollSchema = z.object({
 });
 export type PayrollAPI = z.infer<typeof PayrollSchema>;
 
+// ── SaaS Request (Solicitação admin-saas) ────────────────────────
+
+export const SaasRequestSchema = z.object({
+  id: z.number().int(),
+  nome_empresa: z.string().optional().nullable(),
+  nif: z.string().optional().nullable(),
+  email: z.string().email().optional().nullable(),
+  telefone: z.string().optional().nullable(),
+  plano: z.string().optional().nullable(),
+  status: z.string(),
+  motivo_rejeicao: z.string().optional().nullable(),
+  aprovado_em: ISODateTime.optional().nullable(),
+  criado_em: ISODateTime.optional(),
+});
+export type SaasRequestAPI = z.infer<typeof SaasRequestSchema>;
+export const PaginatedSaasRequestSchema = paginatedSchema(SaasRequestSchema);
+
 // ── Safe validator helper ─────────────────────────────────────────
 
 export function safeValidate<T>(
