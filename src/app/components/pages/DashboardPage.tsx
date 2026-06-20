@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import {
   AlertCircle, Building2, CalendarDays, CheckCircle2, ClipboardCheck,
-  ClipboardList, Clock, FileSignature, Landmark, MapPin, Shield,
+  ClipboardList, Clock, DollarSign, FileSignature, Landmark, MapPin, Shield,
   TimerReset, UserCheck, UserPlus, Users, XCircle,
 } from 'lucide-react';
 import { StatsCard } from '../shared/StatsCard';
