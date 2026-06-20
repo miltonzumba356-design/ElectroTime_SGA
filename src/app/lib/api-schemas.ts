@@ -339,6 +339,121 @@ export const SaasRequestSchema = z.object({
 export type SaasRequestAPI = z.infer<typeof SaasRequestSchema>;
 export const PaginatedSaasRequestSchema = paginatedSchema(SaasRequestSchema);
 
+// ── Plano (SaaS Plan) ────────────────────────────────────────────
+
+export const PlanoSchema = z.object({
+  id: z.number().int(),
+  uuid: z.string().uuid(),
+  nome: z.string().min(1),
+  slug: z.string().min(1),
+  descricao: z.string().optional().nullable(),
+  preco_mensal: z.string(),
+  max_colaboradores: z.number().int(),
+  permite_biometrico: z.boolean().optional().default(false),
+  permite_geofencing: z.boolean().optional().default(false),
+  permite_relatorios: z.boolean().optional().default(false),
+  permite_exportacao: z.boolean().optional().default(false),
+  ativo: z.boolean().optional().default(true),
+  ordem: z.number().int().optional().default(0),
+  criado_em: ISODateTime,
+  atualizado_em: ISODateTime,
+});
+export type PlanoAPI = z.infer<typeof PlanoSchema>;
+export const PaginatedPlanoSchema = paginatedSchema(PlanoSchema);
+
+// ── Assinatura (Subscription) ─────────────────────────────────────
+
+export const AssinaturaStatusEnum = z.enum(['trial', 'ativa', 'suspensa', 'cancelada']);
+
+export const AssinaturaSchema = z.object({
+  id: z.number().int(),
+  uuid: z.string().uuid(),
+  empresa: z.number().int(),
+  empresa_nome: z.string(),
+  plano: z.number().int(),
+  plano_nome: z.string(),
+  status: AssinaturaStatusEnum,
+  status_display: z.string(),
+  inicio: DateString,
+  proximo_vencimento: DateString.nullable().optional(),
+  criado_em: ISODateTime,
+  atualizado_em: ISODateTime,
+});
+export type AssinaturaAPI = z.infer<typeof AssinaturaSchema>;
+export const PaginatedAssinaturaSchema = paginatedSchema(AssinaturaSchema);
+
+// ── Fatura (Invoice) ──────────────────────────────────────────────
+
+export const FaturaStatusEnum = z.enum(['pendente', 'paga', 'vencida', 'cancelada']);
+
+export const FaturaSchema = z.object({
+  id: z.number().int(),
+  uuid: z.string().uuid(),
+  assinatura: z.number().int(),
+  empresa: z.number().int(),
+  empresa_nome: z.string(),
+  valor: z.string(),
+  status: FaturaStatusEnum,
+  status_display: z.string(),
+  referencia: z.string().optional().nullable(),
+  vencimento: DateString,
+  pago_em: ISODateTime.nullable(),
+  criado_em: ISODateTime,
+});
+export type FaturaAPI = z.infer<typeof FaturaSchema>;
+export const PaginatedFaturaSchema = paginatedSchema(FaturaSchema);
+
+// ── UsuarioAdmin (SaaS user view) ─────────────────────────────────
+
+export const UsuarioAdminSchema = z.object({
+  id: z.number().int(),
+  username: z.string(),
+  email: z.string().email().optional().nullable(),
+  first_name: z.string().optional().nullable(),
+  last_name: z.string().optional().nullable(),
+  is_active: z.boolean().optional().default(true),
+  tipo_role: z.string().nullable().optional(),
+  tipo_role_display: z.string().nullable().optional(),
+  empresa_id: z.number().int().nullable().optional(),
+  empresa_nome: z.string().nullable().optional(),
+  cargo: z.string().nullable().optional(),
+});
+export type UsuarioAdminAPI = z.infer<typeof UsuarioAdminSchema>;
+export const PaginatedUsuarioAdminSchema = paginatedSchema(UsuarioAdminSchema);
+
+// ── SaaS Dashboard ────────────────────────────────────────────────
+
+export const SaasDashboardSchema = z.object({
+  empresas: z.object({
+    total: z.number().int(),
+    ativas: z.number().int().optional().default(0),
+    pendentes: z.number().int().optional().default(0),
+    inativas: z.number().int().optional().default(0),
+  }),
+  colaboradores: z.object({
+    total: z.number().int(),
+    ativos: z.number().int().optional(),
+  }).optional(),
+  presencas_hoje: z.number().int().optional(),
+  assinaturas: z.object({
+    trial: z.number().int().optional().default(0),
+    ativa: z.number().int().optional().default(0),
+    suspensa: z.number().int().optional().default(0),
+    cancelada: z.number().int().optional().default(0),
+  }).optional(),
+  receita: z.object({
+    mrr: z.number().optional(),
+    faturas_pendentes: z.number().int().optional(),
+    valor_pendente: z.number().optional(),
+    recebido_mes: z.number().optional(),
+  }).optional(),
+  crescimento_empresas: z.array(z.object({
+    mes: z.string(),
+    novas: z.number().int(),
+  })).optional(),
+});
+export type SaasDashboardAPI = z.infer<typeof SaasDashboardSchema>;
+
 // ── Safe validator helper ─────────────────────────────────────────
 
 export function safeValidate<T>(
