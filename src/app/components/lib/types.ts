@@ -40,6 +40,9 @@ export interface Company {
   zip_code: string;
   phone: string;
   email: string;
+  latitude?: number;
+  longitude?: number;
+  radius_meters?: number;
   logo?: string;
   active: boolean;
   plan: PlanType;
@@ -85,6 +88,9 @@ export interface Post {
   company_id: string;
   location: string;
   description?: string;
+  latitude?: number;
+  longitude?: number;
+  radius_meters?: number;
   employee_count: number;
   active: boolean;
   created_at: string;
@@ -184,6 +190,27 @@ export interface Attendance {
   justified: boolean;
   justification?: string;
   notes?: string;
+}
+
+// ---- Presence authorization (Geofencing) ----
+export interface PresenceAuth {
+  id: string;
+  company_id: string;
+  employee_id: string;
+  employee_name?: string;
+  department_name?: string;
+  date: string;
+  entry_time?: string;
+  latitude?: number;
+  longitude?: number;
+  post_id?: string;
+  distance_from_post_meters?: number;
+  location_name?: string;
+  reason?: string;
+  status: 'pending' | 'authorized' | 'rejected';
+  supervisor_name?: string;
+  reviewed_at?: string;
+  created_at: string;
 }
 
 // ---- Request (Solicitação) ----

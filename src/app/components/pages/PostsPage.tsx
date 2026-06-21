@@ -7,6 +7,7 @@ import { PageHeader } from '../shared/PageHeader';
 import { DataTable, type Column } from '../shared/DataTable';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { ActiveBadge } from '../shared/StatusBadge';
+import { GeoMap } from '../shared/GeoMap';
 import type { Post } from '../lib/types';
 import { cn } from '../lib/utils';
 import { usePosts, useCreatePost } from '../lib/api-hooks';
@@ -50,7 +51,14 @@ export function PostsPage() {
 
   const onSave = async (post: Post) => {
     try {
-      await createMut.mutateAsync({ nome: post.name, endereco: post.location, ativo: post.active });
+      await createMut.mutateAsync({
+        nome: post.name,
+        endereco: post.location,
+        latitude: post.latitude,
+        longitude: post.longitude,
+        raio_geofencing: post.radius_meters,
+        ativo: post.active,
+      });
       toast.success(editTarget ? 'Posto atualizado.' : 'Posto criado com sucesso.');
     } catch {
       toast.error('Erro ao salvar posto.');
@@ -109,6 +117,9 @@ function PostDrawer({ post, onClose, onSave }: { post: Post | null; onClose: () 
       created_at: post?.created_at ?? new Date().toISOString(),
       active: Boolean(data.active),
       ...data,
+      latitude: Number(data.latitude) || undefined,
+      longitude: Number(data.longitude) || undefined,
+      radius_meters: Number(data.radius_meters) || undefined,
     });
     setSaving(false);
   };
@@ -126,9 +137,17 @@ function PostDrawer({ post, onClose, onSave }: { post: Post | null; onClose: () 
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col overflow-y-auto">
           <div className="flex-1 space-y-4 px-6 py-5">
-            <F label="Nome"><input {...register('name')} defaultValue={post?.name} placeholder="Linha de Produção A" className={ic()} /></F>
+            <F label="Nome"><input {...register('name')} defaultValue={post?.name} placeholder="Subestação Luanda" className={ic()} /></F>
             <F label="Código"><input {...register('code')} defaultValue={post?.code} placeholder="LP-A" className={ic()} /></F>
-            <F label="Localização"><input {...register('location')} defaultValue={post?.location} placeholder="Galpão A" className={ic()} /></F>
+            <F label="Localização"><input {...register('location')} defaultValue={post?.location} placeholder="Talatona, Luanda" className={ic()} /></F>
+            <div className="grid grid-cols-2 gap-3">
+              <F label="Latitude"><input {...register('latitude')} defaultValue={post?.latitude} type="number" step="0.0001" placeholder="-8.8399" className={ic()} /></F>
+              <F label="Longitude"><input {...register('longitude')} defaultValue={post?.longitude} type="number" step="0.0001" placeholder="13.2894" className={ic()} /></F>
+            </div>
+            <F label="Raio de geofencing">
+              <input {...register('radius_meters')} defaultValue={post?.radius_meters ?? 200} type="number" min="50" max="5000" className={ic()} />
+            </F>
+            <GeoMap latitude={post?.latitude} longitude={post?.longitude} radiusMeters={post?.radius_meters ?? 200} label={post?.name ?? 'Posto'} address={post?.location} heightClassName="h-40" />
             <F label="Descrição">
               <textarea {...register('description')} defaultValue={post?.description} rows={3} placeholder="Descrição do posto..."
                 className={cn(ic(), 'h-auto resize-none py-2')} />

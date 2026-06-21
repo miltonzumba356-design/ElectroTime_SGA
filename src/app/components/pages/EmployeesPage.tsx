@@ -16,7 +16,7 @@ import { useEmployees, useAdminDepartments, useTurnos, useRoles } from '../lib/a
 import { adaptEmployee, normalizeList } from '../lib/api-adapters';
 
 const CONTRACT_LABELS: Record<string, string> = {
-  clt: 'CLT', pj: 'PJ', intern: 'Estágio', temp: 'Temporário',
+  clt: 'Efetivo', pj: 'Prestador', intern: 'Estágio', temp: 'Temporário',
 };
 
 export function EmployeesPage() {
@@ -313,7 +313,7 @@ function EmployeeDrawer({
                   <FormField label="Nome completo" error={errors.name?.message}>
                     <input {...register('name', { required: 'Obrigatório' })}
                       defaultValue={employee?.name}
-                      placeholder="João da Silva"
+                      placeholder="Manuel António"
                       className={inputCls(!!errors.name)} />
                   </FormField>
                   <div className="grid grid-cols-2 gap-3">
@@ -321,21 +321,21 @@ function EmployeeDrawer({
                       <input {...register('email', { required: 'Obrigatório' })}
                         defaultValue={employee?.email}
                         type="email"
-                        placeholder="joao@empresa.com"
+                        placeholder="manuel@empresa.ao"
                         className={inputCls(!!errors.email)} />
                     </FormField>
                     <FormField label="Telefone">
                       <input {...register('phone')}
                         defaultValue={employee?.phone}
-                        placeholder="(11) 99999-9999"
+                        placeholder="+244 9XX XXX XXX"
                         className={inputCls(false)} />
                     </FormField>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    <FormField label="CPF" error={errors.cpf?.message}>
+                    <FormField label="BI" error={errors.cpf?.message}>
                       <input {...register('cpf', { required: 'Obrigatório' })}
                         defaultValue={employee?.cpf}
-                        placeholder="000.000.000-00"
+                        placeholder="000000000LA000"
                         className={inputCls(!!errors.cpf)} />
                     </FormField>
                     <FormField label="Data de Nascimento">
@@ -364,8 +364,8 @@ function EmployeeDrawer({
                     </FormField>
                     <FormField label="Tipo de Contrato">
                       <select {...register('contract_type')} defaultValue={employee?.contract_type ?? 'clt'} className={inputCls(false)}>
-                        <option value="clt">CLT</option>
-                        <option value="pj">PJ</option>
+                        <option value="clt">Efetivo</option>
+                        <option value="pj">Prestador de serviço</option>
                         <option value="intern">Estágio</option>
                         <option value="temp">Temporário</option>
                       </select>
@@ -455,7 +455,7 @@ function EmployeeViewModal({ employee, onClose }: { employee: Employee; onClose:
             {[
               ['E-mail', employee.email],
               ['Telefone', employee.phone],
-              ['CPF', employee.cpf],
+              ['BI', employee.cpf],
               ['Admissão', formatDate(employee.hire_date)],
               ['Departamento', employee.department_name ?? '—'],
               ['Horário', employee.timetable_name ?? '—'],

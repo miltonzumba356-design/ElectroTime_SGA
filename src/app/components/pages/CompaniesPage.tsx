@@ -10,7 +10,7 @@ import { ActiveBadge, Badge } from '../shared/StatusBadge';
 import type { Company, PlanType } from '../lib/types';
 import { useCompanies } from '../lib/api-hooks';
 import { normalizeList } from '../lib/api-adapters';
-import { formatCNPJ, formatPhone, formatDate, cn } from '../lib/utils';
+import { formatNIF, formatDate } from '../lib/utils';
 
 const PLAN_LABELS: Record<PlanType, string> = {
   basic: 'Basic',
@@ -23,6 +23,27 @@ const PLAN_VARIANTS: Record<PlanType, any> = {
   professional: 'info',
   enterprise: 'default',
 };
+
+const ANGOLA_PROVINCES = [
+  'Bengo',
+  'Benguela',
+  'Bié',
+  'Cabinda',
+  'Cuando Cubango',
+  'Cuanza Norte',
+  'Cuanza Sul',
+  'Cunene',
+  'Huambo',
+  'Huíla',
+  'Luanda',
+  'Lunda Norte',
+  'Lunda Sul',
+  'Malanje',
+  'Moxico',
+  'Namibe',
+  'Uíge',
+  'Zaire',
+];
 
 export function CompaniesPage() {
   const { data: rawCompanies } = useCompanies();
@@ -55,13 +76,13 @@ export function CompaniesPage() {
           </div>
           <div>
             <p className="text-sm font-medium text-foreground">{r.name}</p>
-            <p className="text-xs text-muted-foreground">{formatCNPJ(r.cnpj)}</p>
+            <p className="text-xs text-muted-foreground">{formatNIF(r.cnpj)}</p>
           </div>
         </div>
       )
     },
     { key: 'city', header: 'Localização', sortable: true,
-      cell: r => <span className="text-sm">{r.city}, {r.state}</span>
+      cell: r => <span className="text-sm">{[r.city, r.state].filter(Boolean).join(', ')}</span>
     },
     { key: 'email', header: 'E-mail', cell: r => <span className="text-sm text-muted-foreground">{r.email}</span> },
     { key: 'plan', header: 'Plano', cell: r => <Badge label={PLAN_LABELS[r.plan]} variant={PLAN_VARIANTS[r.plan]} /> },
@@ -142,19 +163,19 @@ function CompanyDrawer({ company, onClose, onSave }: { company: Company | null; 
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col overflow-y-auto">
           <div className="flex-1 space-y-4 px-6 py-5">
-            <F l="Razão Social"><input {...register('name')} defaultValue={company?.name} placeholder="Empresa Ltda" className={ic()} /></F>
+            <F l="Razão Social"><input {...register('name')} defaultValue={company?.name} placeholder="Empresa Lda." className={ic()} /></F>
             <F l="Nome Fantasia"><input {...register('trade_name')} defaultValue={company?.trade_name} placeholder="Empresa" className={ic()} /></F>
-            <F l="CNPJ"><input {...register('cnpj')} defaultValue={company?.cnpj} placeholder="00.000.000/0001-00" className={ic()} /></F>
+            <F l="NIF"><input {...register('cnpj')} defaultValue={company?.cnpj} placeholder="Número de Identificação Fiscal" className={ic()} /></F>
             <div className="grid grid-cols-2 gap-3">
               <F l="E-mail"><input {...register('email')} defaultValue={company?.email} type="email" className={ic()} /></F>
               <F l="Telefone"><input {...register('phone')} defaultValue={company?.phone} className={ic()} /></F>
             </div>
-            <F l="Endereço"><input {...register('address')} defaultValue={company?.address} className={ic()} /></F>
+            <F l="Endereço"><input {...register('address')} defaultValue={company?.address} placeholder="Rua, bairro" className={ic()} /></F>
             <div className="grid grid-cols-2 gap-3">
-              <F l="Cidade"><input {...register('city')} defaultValue={company?.city} className={ic()} /></F>
-              <F l="Estado">
-                <select {...register('state')} defaultValue={company?.state ?? 'SP'} className={ic()}>
-                  {['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'].map(s => (
+              <F l="Município"><input {...register('city')} defaultValue={company?.city} placeholder="Luanda" className={ic()} /></F>
+              <F l="Província">
+                <select {...register('state')} defaultValue={company?.state ?? 'Luanda'} className={ic()}>
+                  {ANGOLA_PROVINCES.map(s => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>

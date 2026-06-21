@@ -7,6 +7,7 @@ import { PageHeader } from '../shared/PageHeader';
 import { StatsCard } from '../shared/StatsCard';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { ActiveBadge } from '../shared/StatusBadge';
+import { GeoMap } from '../shared/GeoMap';
 import { cn } from '../lib/utils';
 import { useUpdateGeofencing } from '../lib/api-hooks';
 
@@ -123,6 +124,17 @@ export function GeofencingConfigPage() {
               </div>
             </div>
 
+            <div className="mt-4">
+              <GeoMap
+                latitude={zone.lat}
+                longitude={zone.lng}
+                radiusMeters={zone.radius_meters}
+                label={zone.name}
+                address={zone.address}
+                heightClassName="h-44"
+              />
+            </div>
+
             {/* Visual radius indicator */}
             <div className="mt-4 flex items-center gap-3">
               <div className="relative flex h-12 w-12 items-center justify-center">
@@ -135,7 +147,7 @@ export function GeofencingConfigPage() {
                 <p className="text-lg font-bold text-foreground">{zone.radius_meters}m</p>
               </div>
               <div className="ml-auto text-right">
-                <p className="text-xs text-muted-foreground">Coordenadas</p>
+                <p className="text-xs text-muted-foreground">Ponto GPS</p>
                 <p className="text-xs font-mono text-foreground">{zone.lat.toFixed(4)}, {zone.lng.toFixed(4)}</p>
               </div>
             </div>
@@ -189,12 +201,13 @@ function GeoZoneDrawer({ zone, onClose, onSave }: { zone: GeoZone | null; onClos
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col overflow-y-auto">
           <div className="flex-1 space-y-4 px-6 py-5">
-            <F l="Nome da Zona"><input {...register('name')} defaultValue={zone?.name} placeholder="Sede Principal" className={ic} /></F>
-            <F l="Endereço"><input {...register('address')} defaultValue={zone?.address} placeholder="Rua, número — Cidade, Estado" className={ic} /></F>
+            <F l="Nome da Zona"><input {...register('name')} defaultValue={zone?.name} placeholder="Sede Luanda" className={ic} /></F>
+            <F l="Endereço"><input {...register('address')} defaultValue={zone?.address} placeholder="Rua, município, província" className={ic} /></F>
             <div className="grid grid-cols-2 gap-3">
-              <F l="Latitude"><input {...register('lat')} defaultValue={zone?.lat} type="number" step="0.0001" placeholder="-23.5613" className={ic} /></F>
-              <F l="Longitude"><input {...register('lng')} defaultValue={zone?.lng} type="number" step="0.0001" placeholder="-46.6558" className={ic} /></F>
+              <F l="Latitude"><input {...register('lat')} defaultValue={zone?.lat} type="number" step="0.0001" placeholder="-8.8399" className={ic} /></F>
+              <F l="Longitude"><input {...register('lng')} defaultValue={zone?.lng} type="number" step="0.0001" placeholder="13.2894" className={ic} /></F>
             </div>
+            <GeoMap latitude={zone?.lat} longitude={zone?.lng} radiusMeters={zone?.radius_meters ?? 200} label={zone?.name ?? 'Nova zona'} heightClassName="h-40" />
             <F l="Raio (metros)">
               <input {...register('radius_meters')} defaultValue={zone?.radius_meters ?? 200} type="number" min="50" max="5000" className={ic} />
               <p className="mt-1 text-xs text-muted-foreground">Colaboradores a mais de {'{raio}'}m serão sinalizados para autorização.</p>

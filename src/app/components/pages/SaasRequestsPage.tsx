@@ -9,6 +9,7 @@ import { PageHeader } from '../shared/PageHeader';
 import { StatsCard } from '../shared/StatsCard';
 import { DataTable, type Column } from '../shared/DataTable';
 import { Badge } from '../shared/StatusBadge';
+import { GeoMap } from '../shared/GeoMap';
 import { normalizeList } from '../lib/api-adapters';
 import { formatDate, cn } from '../lib/utils';
 import {
@@ -400,7 +401,7 @@ function RequestDetailDrawer({ id, onClose, onApprove, onReject }: DrawerProps) 
               <Section icon={Building2} title="Empresa">
                 <Grid2>
                   <F label="Razão Social"     value={empresa?.nome} />
-                  <F label="NIF / CNPJ"       value={empresa?.nif} />
+                  <F label="NIF"              value={empresa?.nif} />
                   <F label="E-mail"           value={empresa?.email} />
                   <F label="Telefone"         value={empresa?.telefone} />
                   <F label="Colaboradores"    value={empresa?.colaboradores_count} />
@@ -417,10 +418,15 @@ function RequestDetailDrawer({ id, onClose, onApprove, onReject }: DrawerProps) 
                   </div>
                 )}
                 {(empresa?.latitude || empresa?.longitude) && (
-                  <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>Lat: {empresa.latitude}</span>
-                    <span>Lng: {empresa.longitude}</span>
-                    {empresa.raio_geofencing && <span>Raio: {empresa.raio_geofencing}m</span>}
+                  <div className="mt-3">
+                    <GeoMap
+                      latitude={empresa.latitude}
+                      longitude={empresa.longitude}
+                      radiusMeters={empresa.raio_geofencing}
+                      label={empresa?.nome ?? 'Empresa'}
+                      address={empresa?.endereco}
+                      heightClassName="h-44"
+                    />
                   </div>
                 )}
               </Section>

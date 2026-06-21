@@ -1,11 +1,11 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import dayjs from 'dayjs';
-import 'dayjs/locale/pt-br';
+import 'dayjs/locale/pt';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(relativeTime);
-dayjs.locale('pt-br');
+dayjs.locale('pt');
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -23,12 +23,20 @@ export function formatRelative(date: string | Date) {
   return dayjs(date).fromNow();
 }
 
+export function formatBI(bi: string): string {
+  return bi;
+}
+
 export function formatCPF(cpf: string): string {
-  return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  return formatBI(cpf);
+}
+
+export function formatNIF(nif: string): string {
+  return nif;
 }
 
 export function formatCNPJ(cnpj: string): string {
-  return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+  return formatNIF(cnpj);
 }
 
 export function formatPhone(phone: string): string {
@@ -40,9 +48,9 @@ export function formatPhone(phone: string): string {
 }
 
 export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('pt-BR', {
+  return new Intl.NumberFormat('pt-AO', {
     style: 'currency',
-    currency: 'BRL',
+    currency: 'AOA',
   }).format(value);
 }
 

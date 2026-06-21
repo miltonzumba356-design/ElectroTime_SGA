@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { PageHeader } from '../shared/PageHeader';
 import { StatsCard } from '../shared/StatsCard';
 import { Badge } from '../shared/StatusBadge';
+import { GeoMap } from '../shared/GeoMap';
 import type { PresenceAuth } from '../lib/types';
 import { usePendingPresences, useAuthorizePresence } from '../lib/api-hooks';
 import { normalizeList } from '../lib/api-adapters';
@@ -234,6 +235,15 @@ export function GeofencingAuthPage() {
                       <p className="font-medium text-foreground mt-0.5">{val}</p>
                     </div>
                   ))}
+                </div>
+                <div>
+                  <GeoMap
+                    latitude={viewTarget.latitude}
+                    longitude={viewTarget.longitude}
+                    label={viewTarget.employee_name ?? 'Presença fora do perímetro'}
+                    address={viewTarget.location_name}
+                    heightClassName="h-48"
+                  />
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-1.5">Justificativa do colaborador</p>

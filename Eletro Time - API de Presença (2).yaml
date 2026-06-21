@@ -1746,6 +1746,144 @@ paths:
                   horario_almoco_fim: '12:30:00'
                   origem: Específica do posto
           description: ''
+  /api/assistente/ferramentas/:
+    get:
+      operationId: assistente_ferramentas_retrieve
+      description: Lista as ferramentas que o assistente pode usar. Todas são de CONSULTA
+        (read-only) — nenhuma edita nem paga.
+      summary: Catálogo de ferramentas read-only disponíveis
+      tags:
+      - '[ASSISTENTE]'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  ferramentas:
+                  - nome: consultar_folha
+                    descricao: Folha de um funcionário num mês; opção de simular outro
+                      salário.
+                    params:
+                      nome: str
+                      mes: int?
+                      ano: int?
+                      simular_salario: num?
+                  - nome: relatorio_funcionario
+                    descricao: Relatório completo de um funcionário (contrato, folha,
+                      faltas, subsídios).
+                    params:
+                      nome: str
+                      ano: int?
+                  - nome: consultar_faltas
+                    descricao: Faltas de um funcionário OU ranking de quem mais faltou.
+                      Filtra por tipo.
+                    params:
+                      nome: str?
+                      mes: int?
+                      ano: int?
+                      tipo: str?
+                  - nome: consultar_contratos
+                    descricao: Contratos por estado, tipo, ou prestes a expirar.
+                    params:
+                      estado: str?
+                      tipo: str?
+                      a_expirar_meses: int?
+                  - nome: consultar_subsidios
+                    descricao: 'Subsídio de um funcionário: tipo ''natal'' (13º) ou
+                      ''ferias''.'
+                    params:
+                      tipo: str
+                      nome: str
+                      ano: int?
+                  - nome: resumo_empresa
+                    descricao: 'Visão geral: nº funcionários, faltas do mês, total
+                      da folha, contratos a expirar.'
+                    params:
+                      mes: int?
+                      ano: int?
+          description: ''
+  /api/assistente/perguntar/:
+    post:
+      operationId: assistente_perguntar_create
+      description: |-
+        Executa UMA ferramenta read-only, sempre limitada à empresa do utilizador autenticado. Dois modos de entrada:
+
+        1. **Estruturado** (recomendado / usado pela IA): enviar `ferramenta` + `params`.
+        2. **Pergunta livre**: enviar `pergunta` — um router por palavras-chave escolhe a ferramenta.
+
+        A `resposta` (frase com números) é construída pelo código (sempre exata, valores em Kz). Os `dados` trazem o detalhe completo para o frontend renderizar. Uma ferramenta fora da lista branca é recusada (400).
+      summary: Perguntar ao assistente (devolve dados read-only + resposta)
+      tags:
+      - '[ASSISTENTE]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pergunta:
+                  type: string
+                  description: Pergunta em linguagem natural (modo livre)
+                  example: quanto recebe o João em 06/2026?
+                ferramenta:
+                  type: string
+                  description: Nome exato da ferramenta (modo estruturado)
+                  example: consultar_folha
+                params:
+                  type: object
+                  description: Parâmetros da ferramenta
+                  example:
+                    nome: João
+                    mes: 6
+                    ano: 2026
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Resultado da ferramenta + frase pronta.
+                example:
+                  ferramenta: consultar_folha
+                  dados:
+                    colaborador: João Silva
+                    mes: 6
+                    ano: 2026
+                    folha:
+                      salario_base: '250000.00'
+                      salario_bruto: '250000.00'
+                      desconto_inss: '7500.00'
+                      materia_coletavel: '242500.00'
+                      desconto_irt: '38900.00'
+                      salario_liquido: '203600.00'
+                      operacional: false
+                  resposta: O João Silva recebe 203.600,00 Kz líquidos em 6/2026 —
+                    bruto 250.000,00 Kz, INSS −7.500,00 Kz, IRT −38.900,00 Kz.
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  erro: 'Ferramenta não permitida: apagar_folha'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  erro: Utilizador sem empresa associada
+          description: ''
   /api/auth/login/:
     post:
       operationId: auth_login_create
@@ -3443,6 +3581,50 @@ paths:
       responses:
         '200':
           description: No response body
+  /api/rh/criar_documento/:
+    post:
+      operationId: rh_criar_documento_create
+      description: '[RH] Registar um documento do colaborador com data de validade.'
+      summary: Registar um documento do colaborador (com data de validade)
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                colaborador_id:
+                  type: string
+                tipo:
+                  type: string
+                  enum:
+                  - bi
+                  - passaporte
+                  - registo_criminal
+                  - atestado_medico
+                  - certificado
+                  - titulo_residencia
+                  - outro
+                numero:
+                  type: string
+                data_emissao:
+                  type: string
+                  description: DD/MM/AAAA ou YYYY-MM-DD
+                data_validade:
+                  type: string
+                  description: DD/MM/AAAA ou YYYY-MM-DD
+                observacao:
+                  type: string
+              required:
+              - colaborador_id
+              - data_validade
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/rh/criar_feriado/:
     post:
       operationId: rh_criar_feriado_create
@@ -3982,6 +4164,19 @@ paths:
       responses:
         '200':
           description: No response body
+  /api/rh/listar_documentos/:
+    get:
+      operationId: rh_listar_documentos_retrieve
+      description: '[RH] Listar documentos da empresa, com indicação de expirados.'
+      summary: Listar documentos da empresa (opcional ?colaborador_id=)
+      tags:
+      - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/rh/listar_faltas/:
     get:
       operationId: rh_listar_faltas_retrieve
@@ -4129,6 +4324,43 @@ paths:
               required:
               - contrato_id
               - nova_data_fim
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/subsidio_ferias/:
+    post:
+      operationId: rh_subsidio_ferias_create
+      description: |-
+        [MANUAL] Pré-visualizar o SUBSÍDIO DE FÉRIAS de UM colaborador.
+
+        Endpoint ESPECÍFICO, separado do 13º. Regras de Angola (Lei 7/15,
+        art. 157): mínimo 50% do salário base, proporcional aos meses
+        trabalhados, com desconto de INSS e IRT. Não grava nada.
+      summary: Pré-visualizar o subsídio de férias de um colaborador
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                colaborador_id:
+                  type: string
+                ano:
+                  type: integer
+                  description: 'Ano de vencimento das férias (default: ano atual)'
+                percentual:
+                  type: number
+                  description: Fração do salário base (default 0.50 = 50%)
+                meses_trabalhados:
+                  type: integer
+                  description: Opcional; se vazio é calculado pelo contrato
+              required:
+              - colaborador_id
       security:
       - jwtAuth: []
       - cookieAuth: []

@@ -120,6 +120,152 @@ export interface ProfileResponse {
   autenticado: boolean;
 }
 
+type ResourceId = string | number;
+
+export type ApiRole =
+  | 'dono_saas'
+  | 'admin'
+  | 'rh'
+  | 'supervisor'
+  | 'chefe_departamento'
+  | 'colaborador';
+
+export const ROLE_ENDPOINTS: Record<ApiRole, string[]> = {
+  dono_saas: [
+    '/api/admin-saas/dashboard/',
+    '/api/admin-saas/planos/',
+    '/api/admin-saas/planos/{id}/',
+    '/api/admin-saas/assinaturas/',
+    '/api/admin-saas/assinaturas/{id}/',
+    '/api/admin-saas/assinaturas/{id}/cancelar/',
+    '/api/admin-saas/assinaturas/{id}/gerar_fatura/',
+    '/api/admin-saas/assinaturas/{id}/reativar/',
+    '/api/admin-saas/assinaturas/{id}/suspender/',
+    '/api/admin-saas/faturas/',
+    '/api/admin-saas/faturas/{id}/',
+    '/api/admin-saas/faturas/{id}/marcar_paga/',
+    '/api/admin-saas/usuarios/',
+    '/api/admin-saas/usuarios/{id}/',
+    '/api/admin-saas/usuarios/{id}/redefinir_senha/',
+    '/api/admin-saas/solicitacoes/',
+    '/api/admin-saas/solicitacoes/{id}/',
+    '/api/admin-saas/solicitacoes/aprovar/',
+    '/api/admin-saas/solicitacoes/rejeitar/',
+    '/api/admin-saas/solicitacoes/pendentes/',
+    '/api/admin-saas/solicitacoes/resumo/',
+    '/api/admin-saas/logs/',
+    '/api/admin-saas/logs/{id}/',
+    '/api/admin-saas/logs/por_acao/',
+    '/api/admin-saas/logs/ultimos_30_dias/',
+  ],
+  admin: [
+    '/api/admin/minha_empresa/',
+    '/api/admin/minhas_empresas/',
+    '/api/admin/selecionar_empresa/',
+    '/api/admin/criar_empresa/',
+    '/api/admin/listar_departamentos/',
+    '/api/admin/criar_departamento/',
+    '/api/admin/listar_postos/',
+    '/api/admin/criar_posto/',
+    '/api/admin/listar_supervisores/',
+    '/api/admin/criar_supervisor/',
+    '/api/admin/criar_rh/',
+    '/api/admin/listar_turnos/',
+    '/api/admin/criar_turno/',
+    '/api/admin/configurar_horarios_globais/',
+    '/api/admin/visualizar_horarios_globais/',
+    '/api/admin/configurar_horarios_posto/',
+    '/api/admin/visualizar_horarios_posto/',
+    '/api/admin/aprovar_colaborador/',
+    '/api/admin/rejeitar_colaborador/',
+    '/api/admin/solicitacoes_colaboradores/',
+    '/api/admin/atualizar_empresa/',
+    '/api/admin/atribuir_departamento/',
+    '/api/departamentos/',
+    '/api/departamentos/{uuid}/',
+    '/api/roles/',
+    '/api/roles/{uuid}/',
+    '/api/configuracoes/',
+    '/api/configuracoes/{uuid}/',
+    '/api/configuracoes/{uuid}/atualizar_horarios/',
+    '/api/geofencing/atualizar_geofencing/',
+  ],
+  rh: [
+    '/api/rh/listar_funcionarios/',
+    '/api/rh/listar_contratos/',
+    '/api/rh/criar_contrato/',
+    '/api/rh/renovar_contrato/',
+    '/api/rh/validar_contrato/',
+    '/api/rh/listar_recibos/',
+    '/api/rh/calcular_folha/',
+    '/api/rh/gerar_recibo/',
+    '/api/rh/gerar_folha_automatica/',
+    '/api/rh/exportar_folha/',
+    '/api/rh/importar_folha/',
+    '/api/rh/exportar_funcionarios/',
+    '/api/rh/importar_funcionarios/',
+    '/api/rh/listar_feriados/',
+    '/api/rh/criar_feriado/',
+    '/api/rh/eliminar_feriado/',
+    '/api/rh/listar_ferias/',
+    '/api/rh/criar_ferias/',
+    '/api/rh/processar_ferias/',
+    '/api/rh/listar_declaracoes/',
+    '/api/rh/enviar_declaracao/',
+    '/api/rh/listar_faltas/',
+    '/api/rh/eliminar_falta/',
+    '/api/rh/exportar_faltas/',
+    '/api/rh/decimo_terceiro/',
+    '/api/rh/processar_decimo_terceiro/',
+    '/api/rh/subsidio_ferias/',
+    '/api/rh/configurar_almoco/',
+    '/api/rh/configurar_biometrico/',
+    '/api/rh/listar_documentos/',
+    '/api/rh/criar_documento/',
+  ],
+  supervisor: [
+    '/api/supervisor/listar_colaboradores/',
+    '/api/supervisor/listar_escalas/',
+    '/api/supervisor/criar_calendario/',
+    '/api/supervisor/atribuir_escala/',
+    '/api/supervisor/atualizar_dias_trabalho/',
+    '/api/supervisor/gerenciar_turno/',
+    '/api/supervisor/presencas_pendentes/',
+    '/api/supervisor/autorizar_presenca/',
+    '/api/supervisor/marcar_falta_colaborador/',
+    '/api/supervisor/relatorio_faltas/',
+    '/api/supervisor/visualizar_plano_trabalho/',
+    '/api/supervisor/atribuir_tarefas/',
+  ],
+  chefe_departamento: [
+    '/api/chefe/minha_equipa/',
+  ],
+  colaborador: [
+    '/api/colaborador/marcar_presenca/',
+    '/api/colaborador/marcar_presenca_fora/',
+    '/api/colaborador/iniciar_almoco/',
+    '/api/colaborador/terminar_almoco/',
+    '/api/colaborador/meu_almoco/',
+    '/api/colaborador/meu_resumo/',
+    '/api/colaborador/meu_horario/',
+    '/api/colaborador/meu_calendario/',
+    '/api/colaborador/minhas_tarefas/',
+    '/api/colaborador/marcar_tarefa_concluida/',
+    '/api/colaborador/minhas_ferias/',
+    '/api/colaborador/solicitar_ferias/',
+    '/api/colaborador/minhas_declaracoes/',
+    '/api/colaborador/meus_recibos/',
+    '/api/colaborador/status_contrato/',
+    '/api/colaborador/meus_atrasos/',
+    '/api/colaborador/noticias/',
+    '/api/colaborador/registar_gasto/',
+    '/api/colaborador/eliminar_gasto/',
+    '/api/colaborador/meus_gastos/',
+    '/api/colaborador/fugas_de_dinheiro/',
+    '/api/colaborador/minha_economia/',
+  ],
+};
+
 // ─── Auth ─────────────────────────────────────────────────────────
 export const authApi = {
   login: (email: string, password: string) =>
@@ -136,6 +282,15 @@ export const authApi = {
 export const adminApi = {
   getMyCompany: () =>
     api.get('/api/admin/minha_empresa/').then(r => r.data),
+
+  listMyCompanies: () =>
+    api.get('/api/admin/minhas_empresas/').then(r => r.data),
+
+  selectCompany: (body: { empresa_id: ResourceId }) =>
+    api.post('/api/admin/selecionar_empresa/', body).then(r => r.data),
+
+  createCompany: (body: Record<string, unknown>) =>
+    api.post('/api/admin/criar_empresa/', body).then(r => r.data),
 
   listDepartments: () =>
     api.get('/api/admin/listar_departamentos/').then(r => r.data),
@@ -197,8 +352,8 @@ export const companiesApi = {
   list: (page = 1) =>
     api.get('/api/empresas/', { params: { page } }).then(r => r.data),
 
-  get: (id: number) =>
-    api.get(`/api/empresas/${id}/`).then(r => r.data),
+  get: (uuid: ResourceId) =>
+    api.get(`/api/empresas/${uuid}/`).then(r => r.data),
 
   publicRegister: (body: Record<string, unknown>) =>
     api.post('/api/empresas/cadastro_publico/', body).then(r => r.data),
@@ -212,20 +367,20 @@ export const departmentsApi = {
   list: (page = 1) =>
     api.get('/api/departamentos/', { params: { page } }).then(r => r.data),
 
-  get: (id: number) =>
-    api.get(`/api/departamentos/${id}/`).then(r => r.data),
+  get: (uuid: ResourceId) =>
+    api.get(`/api/departamentos/${uuid}/`).then(r => r.data),
 
   create: (body: Record<string, unknown>) =>
     api.post('/api/departamentos/', body).then(r => r.data),
 
-  update: (id: number, body: Record<string, unknown>) =>
-    api.put(`/api/departamentos/${id}/`, body).then(r => r.data),
+  update: (uuid: ResourceId, body: Record<string, unknown>) =>
+    api.put(`/api/departamentos/${uuid}/`, body).then(r => r.data),
 
-  patch: (id: number, body: Record<string, unknown>) =>
-    api.patch(`/api/departamentos/${id}/`, body).then(r => r.data),
+  patch: (uuid: ResourceId, body: Record<string, unknown>) =>
+    api.patch(`/api/departamentos/${uuid}/`, body).then(r => r.data),
 
-  delete: (id: number) =>
-    api.delete(`/api/departamentos/${id}/`).then(r => r.data),
+  delete: (uuid: ResourceId) =>
+    api.delete(`/api/departamentos/${uuid}/`).then(r => r.data),
 };
 
 // ─── Roles (ColaboradorRole) ───────────────────────────────────────
@@ -233,20 +388,20 @@ export const rolesApi = {
   list: (page = 1) =>
     api.get('/api/roles/', { params: { page } }).then(r => r.data),
 
-  get: (id: number) =>
-    api.get(`/api/roles/${id}/`).then(r => r.data),
+  get: (uuid: ResourceId) =>
+    api.get(`/api/roles/${uuid}/`).then(r => r.data),
 
   create: (body: Record<string, unknown>) =>
     api.post('/api/roles/', body).then(r => r.data),
 
-  update: (id: number, body: Record<string, unknown>) =>
-    api.put(`/api/roles/${id}/`, body).then(r => r.data),
+  update: (uuid: ResourceId, body: Record<string, unknown>) =>
+    api.put(`/api/roles/${uuid}/`, body).then(r => r.data),
 
-  patch: (id: number, body: Record<string, unknown>) =>
-    api.patch(`/api/roles/${id}/`, body).then(r => r.data),
+  patch: (uuid: ResourceId, body: Record<string, unknown>) =>
+    api.patch(`/api/roles/${uuid}/`, body).then(r => r.data),
 
-  delete: (id: number) =>
-    api.delete(`/api/roles/${id}/`).then(r => r.data),
+  delete: (uuid: ResourceId) =>
+    api.delete(`/api/roles/${uuid}/`).then(r => r.data),
 };
 
 // ─── Configurations ────────────────────────────────────────────────
@@ -254,23 +409,23 @@ export const configApi = {
   list: (page = 1) =>
     api.get('/api/configuracoes/', { params: { page } }).then(r => r.data),
 
-  get: (id: number) =>
-    api.get(`/api/configuracoes/${id}/`).then(r => r.data),
+  get: (uuid: ResourceId) =>
+    api.get(`/api/configuracoes/${uuid}/`).then(r => r.data),
 
   create: (body: Record<string, unknown>) =>
     api.post('/api/configuracoes/', body).then(r => r.data),
 
-  update: (id: number, body: Record<string, unknown>) =>
-    api.put(`/api/configuracoes/${id}/`, body).then(r => r.data),
+  update: (uuid: ResourceId, body: Record<string, unknown>) =>
+    api.put(`/api/configuracoes/${uuid}/`, body).then(r => r.data),
 
-  patch: (id: number, body: Record<string, unknown>) =>
-    api.patch(`/api/configuracoes/${id}/`, body).then(r => r.data),
+  patch: (uuid: ResourceId, body: Record<string, unknown>) =>
+    api.patch(`/api/configuracoes/${uuid}/`, body).then(r => r.data),
 
-  delete: (id: number) =>
-    api.delete(`/api/configuracoes/${id}/`).then(r => r.data),
+  delete: (uuid: ResourceId) =>
+    api.delete(`/api/configuracoes/${uuid}/`).then(r => r.data),
 
-  updateSchedule: (id: number, body: Record<string, unknown>) =>
-    api.post(`/api/configuracoes/${id}/atualizar_horarios/`, body).then(r => r.data),
+  updateSchedule: (uuid: ResourceId, body: Record<string, unknown>) =>
+    api.post(`/api/configuracoes/${uuid}/atualizar_horarios/`, body).then(r => r.data),
 };
 
 // ─── RH endpoints ─────────────────────────────────────────────────
@@ -358,6 +513,18 @@ export const rhApi = {
 
   setLunchConfig: (body: { tolerancia_almoco_minutos?: number; descontar_excesso_almoco?: boolean }) =>
     api.post('/api/rh/configurar_almoco/', body).then(r => r.data),
+
+  configureBiometric: (body: Record<string, unknown>) =>
+    api.post('/api/rh/configurar_biometrico/', body).then(r => r.data),
+
+  listDocuments: () =>
+    api.get('/api/rh/listar_documentos/').then(r => r.data),
+
+  createDocument: (body: Record<string, unknown>) =>
+    api.post('/api/rh/criar_documento/', body).then(r => r.data),
+
+  vacationSubsidy: (body: Record<string, unknown>) =>
+    api.post('/api/rh/subsidio_ferias/', body).then(r => r.data),
 };
 
 // ─── Supervisor endpoints ──────────────────────────────────────────
@@ -397,6 +564,81 @@ export const supervisorApi = {
 
   assignTasks: (body: Record<string, unknown>) =>
     api.post('/api/supervisor/atribuir_tarefas/', body).then(r => r.data),
+};
+
+// â”€â”€â”€ Department chief endpoints â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export const chiefApi = {
+  myTeam: () =>
+    api.get('/api/chefe/minha_equipa/').then(r => r.data),
+};
+
+// â”€â”€â”€ Employee endpoints â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export const employeeApi = {
+  markPresence: (body: Record<string, unknown>) =>
+    api.post('/api/colaborador/marcar_presenca/', body).then(r => r.data),
+
+  markPresenceOutside: (body: Record<string, unknown>) =>
+    api.post('/api/colaborador/marcar_presenca_fora/', body).then(r => r.data),
+
+  startLunch: (body: Record<string, unknown> = {}) =>
+    api.post('/api/colaborador/iniciar_almoco/', body).then(r => r.data),
+
+  endLunch: (body: Record<string, unknown> = {}) =>
+    api.post('/api/colaborador/terminar_almoco/', body).then(r => r.data),
+
+  myLunch: () =>
+    api.get('/api/colaborador/meu_almoco/').then(r => r.data),
+
+  mySummary: () =>
+    api.get('/api/colaborador/meu_resumo/').then(r => r.data),
+
+  mySchedule: () =>
+    api.get('/api/colaborador/meu_horario/').then(r => r.data),
+
+  myCalendar: () =>
+    api.get('/api/colaborador/meu_calendario/').then(r => r.data),
+
+  myTasks: () =>
+    api.get('/api/colaborador/minhas_tarefas/').then(r => r.data),
+
+  completeTask: (body: Record<string, unknown>) =>
+    api.post('/api/colaborador/marcar_tarefa_concluida/', body).then(r => r.data),
+
+  myVacations: () =>
+    api.get('/api/colaborador/minhas_ferias/').then(r => r.data),
+
+  requestVacation: (body: Record<string, unknown>) =>
+    api.post('/api/colaborador/solicitar_ferias/', body).then(r => r.data),
+
+  myDeclarations: () =>
+    api.get('/api/colaborador/minhas_declaracoes/').then(r => r.data),
+
+  myReceipts: () =>
+    api.get('/api/colaborador/meus_recibos/').then(r => r.data),
+
+  contractStatus: () =>
+    api.get('/api/colaborador/status_contrato/').then(r => r.data),
+
+  myDelays: () =>
+    api.get('/api/colaborador/meus_atrasos/').then(r => r.data),
+
+  news: () =>
+    api.get('/api/colaborador/noticias/').then(r => r.data),
+
+  registerExpense: (body: Record<string, unknown>) =>
+    api.post('/api/colaborador/registar_gasto/', body).then(r => r.data),
+
+  deleteExpense: (body: { gasto_id: ResourceId }) =>
+    api.post('/api/colaborador/eliminar_gasto/', body).then(r => r.data),
+
+  myExpenses: () =>
+    api.get('/api/colaborador/meus_gastos/').then(r => r.data),
+
+  moneyLeaks: () =>
+    api.get('/api/colaborador/fugas_de_dinheiro/').then(r => r.data),
+
+  mySavings: () =>
+    api.get('/api/colaborador/minha_economia/').then(r => r.data),
 };
 
 // ─── SaaS Owner endpoints ──────────────────────────────────────────
@@ -514,6 +756,52 @@ export const saasApi = {
 
   logsLast30Days: () =>
     api.get('/api/admin-saas/logs/ultimos_30_dias/').then(r => r.data),
+};
+
+// â”€â”€â”€ Support endpoints â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export const supportApi = {
+  listTickets: (page = 1) =>
+    api.get('/api/suporte/tickets/', { params: { page } }).then(r => r.data),
+
+  createTicket: (body: Record<string, unknown>) =>
+    api.post('/api/suporte/tickets/', body).then(r => r.data),
+
+  getTicket: (id: ResourceId) =>
+    api.get(`/api/suporte/tickets/${id}/`).then(r => r.data),
+
+  updateTicket: (id: ResourceId, body: Record<string, unknown>) =>
+    api.put(`/api/suporte/tickets/${id}/`, body).then(r => r.data),
+
+  patchTicket: (id: ResourceId, body: Record<string, unknown>) =>
+    api.patch(`/api/suporte/tickets/${id}/`, body).then(r => r.data),
+
+  deleteTicket: (id: ResourceId) =>
+    api.delete(`/api/suporte/tickets/${id}/`).then(r => r.data),
+
+  respondTicket: (id: ResourceId, body: Record<string, unknown>) =>
+    api.post(`/api/suporte/tickets/${id}/responder/`, body).then(r => r.data),
+
+  setTicketStatus: (id: ResourceId, body: Record<string, unknown>) =>
+    api.post(`/api/suporte/tickets/${id}/definir_status/`, body).then(r => r.data),
+};
+
+// â”€â”€â”€ Assistant and biometric endpoints â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export const assistantApi = {
+  tools: () =>
+    api.get('/api/assistente/ferramentas/').then(r => r.data),
+
+  ask: (body: Record<string, unknown>) =>
+    api.post('/api/assistente/perguntar/', body).then(r => r.data),
+};
+
+export const biometricApi = {
+  register: (body: Record<string, unknown>) =>
+    api.post('/api/biometrico/registrar/', body).then(r => r.data),
+
+  importFile: (body: FormData) =>
+    api.post('/api/biometrico/importar_ficheiro/', body, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data),
 };
 
 // ─── Geofencing ────────────────────────────────────────────────────
