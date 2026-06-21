@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Building2, CheckCircle2, Loader2, LockKeyhole, Mail, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import { usePublicRegisterCompany } from '../lib/api-hooks';
+import { GeoMap } from '../shared/GeoMap';
 
 interface CompanyRegisterForm {
   nome: string;
@@ -10,6 +11,9 @@ interface CompanyRegisterForm {
   email: string;
   telefone: string;
   endereco: string;
+  latitude?: number;
+  longitude?: number;
+  raio_geofencing?: number;
   admin_nome: string;
   admin_email: string;
   admin_telefone?: string;
@@ -22,7 +26,13 @@ const inputClass =
 export function PublicCompanyRegisterPage() {
   const [submitted, setSubmitted] = useState(false);
   const registerCompany = usePublicRegisterCompany();
-  const { register, handleSubmit, formState: { errors } } = useForm<CompanyRegisterForm>();
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<CompanyRegisterForm>({
+    defaultValues: { raio_geofencing: 200 },
+  });
+  const endereco = watch('endereco');
+  const latitude = watch('latitude');
+  const longitude = watch('longitude');
+  const raioGeofencing = watch('raio_geofencing');
 
   const onSubmit = async (data: CompanyRegisterForm) => {
     try {
@@ -112,6 +122,33 @@ export function PublicCompanyRegisterPage() {
               <Field label="Endereco" error={errors.endereco?.message}>
                 <input {...register('endereco', { required: 'Obrigatorio' })} className={inputClass} placeholder="Rua, municipio, provincia" />
               </Field>
+
+              <div className="grid gap-4 sm:grid-cols-[1fr_1fr_0.7fr]">
+                <Field label="Latitude">
+                  <input {...register('latitude')} type="number" step="0.000001" className={inputClass} placeholder="-8.839988" />
+                </Field>
+                <Field label="Longitude">
+                  <input {...register('longitude')} type="number" step="0.000001" className={inputClass} placeholder="13.289437" />
+                </Field>
+                <Field label="Raio">
+                  <input {...register('raio_geofencing')} type="number" min="50" max="5000" className={inputClass} />
+                </Field>
+              </div>
+
+              <GeoMap
+                latitude={latitude}
+                longitude={longitude}
+                radiusMeters={raioGeofencing ?? 200}
+                label="Local da empresa"
+                address={endereco}
+                searchable
+                onLocationChange={({ latitude, longitude, address }) => {
+                  setValue('latitude', latitude, { shouldDirty: true });
+                  setValue('longitude', longitude, { shouldDirty: true });
+                  if (address) setValue('endereco', address, { shouldDirty: true });
+                }}
+                heightClassName="h-56"
+              />
 
               <div className="border-t border-slate-100 pt-5">
                 <h3 className="text-sm font-semibold text-slate-950">Responsavel pelo acesso</h3>

@@ -105,7 +105,12 @@ export function PostsPage() {
 
 function PostDrawer({ post, onClose, onSave }: { post: Post | null; onClose: () => void; onSave: (p: Post) => void }) {
   const [saving, setSaving] = useState(false);
-  const { register, handleSubmit } = useForm({ defaultValues: post ?? {} });
+  const { register, handleSubmit, setValue, watch } = useForm({ defaultValues: post ?? {} });
+  const lat = watch('latitude');
+  const lng = watch('longitude');
+  const location = watch('location');
+  const radius = watch('radius_meters');
+  const name = watch('name');
 
   const onSubmit = async (data: any) => {
     setSaving(true);
@@ -147,7 +152,20 @@ function PostDrawer({ post, onClose, onSave }: { post: Post | null; onClose: () 
             <F label="Raio de geofencing">
               <input {...register('radius_meters')} defaultValue={post?.radius_meters ?? 200} type="number" min="50" max="5000" className={ic()} />
             </F>
-            <GeoMap latitude={post?.latitude} longitude={post?.longitude} radiusMeters={post?.radius_meters ?? 200} label={post?.name ?? 'Posto'} address={post?.location} heightClassName="h-40" />
+            <GeoMap
+              latitude={lat}
+              longitude={lng}
+              radiusMeters={radius ?? 200}
+              label={name || 'Posto'}
+              address={location}
+              searchable
+              onLocationChange={({ latitude, longitude, address }) => {
+                setValue('latitude', latitude, { shouldDirty: true });
+                setValue('longitude', longitude, { shouldDirty: true });
+                if (address) setValue('location', address, { shouldDirty: true });
+              }}
+              heightClassName="h-48"
+            />
             <F label="Descrição">
               <textarea {...register('description')} defaultValue={post?.description} rows={3} placeholder="Descrição do posto..."
                 className={cn(ic(), 'h-auto resize-none py-2')} />

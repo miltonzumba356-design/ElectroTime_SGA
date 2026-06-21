@@ -86,7 +86,7 @@ describe('adaptEmployee', () => {
     id: 1,
     nome: 'João Silva',
     email: 'joao@test.com',
-    cpf: '123.456.789-00',
+    cpf: '000000000LA000',
     matricula: 'ET-0001',
     cargo: 'Engenheiro',
     cargo_id: 3,
@@ -142,9 +142,9 @@ describe('adaptPost', () => {
   const raw = {
     id: 1,
     nome: 'Sede',
-    endereco: 'Av. Paulista',
-    cidade: 'São Paulo',
-    estado: 'SP',
+    endereco: 'Talatona',
+    cidade: 'Luanda',
+    estado: 'Luanda',
     ativo: true,
     total_colaboradores: 50,
   };
@@ -154,7 +154,7 @@ describe('adaptPost', () => {
   });
 
   it('concatenates address parts into location', () => {
-    expect(adaptPost(raw).location).toBe('Av. Paulista, São Paulo, SP');
+    expect(adaptPost(raw).location).toBe('Talatona, Luanda, Luanda');
   });
 
   it('maps total_colaboradores → employee_count', () => {

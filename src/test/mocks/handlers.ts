@@ -1,5 +1,5 @@
 /**
- * MSW request handlers — mirror the OpenAPI contract so tests run
+ * MSW request handlers â€” mirror the OpenAPI contract so tests run
  * against a faithful representation of the real API without network calls.
  */
 import { http, HttpResponse } from 'msw';
@@ -7,7 +7,7 @@ import { http, HttpResponse } from 'msw';
 const BASE = 'https://eletro-time-production.up.railway.app';
 
 export const handlers = [
-  // ── Auth ────────────────────────────────────────────────────────
+  // â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   http.post(`${BASE}/api/auth/login/`, () =>
     HttpResponse.json({
       access: 'eyJhbGciOiJIUzI1NiJ9.test-access',
@@ -22,7 +22,7 @@ export const handlers = [
     HttpResponse.json({ access: 'eyJhbGciOiJIUzI1NiJ9.refreshed-access' }),
   ),
 
-  // ── Admin ────────────────────────────────────────────────────────
+  // â”€â”€ Admin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   http.get(`${BASE}/api/admin/listar_departamentos/`, () =>
     HttpResponse.json([
       { id: 1, nome: 'Desenvolvimento', descricao: 'Equipe dev', responsavel: 'Maria', total_colaboradores: 8 },
@@ -44,40 +44,40 @@ export const handlers = [
 
   http.get(`${BASE}/api/admin/listar_postos/`, () =>
     HttpResponse.json([
-      { id: 1, nome: 'Sede', endereco: 'Av. Paulista', cidade: 'SP', estado: 'SP', latitude: -23.5, longitude: -46.6, raio_geofencing: 150, ativo: true },
+      { id: 1, nome: 'Sede', endereco: 'Talatona', cidade: 'Luanda', estado: 'Luanda', latitude: -8.8399, longitude: 13.2894, raio_geofencing: 150, ativo: true },
     ]),
   ),
 
-  // ── RH ───────────────────────────────────────────────────────────
+  // â”€â”€ RH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   http.get(`${BASE}/api/rh/listar_colaboradores/`, () =>
     HttpResponse.json([
-      { id: 1, nome: 'João Silva', email: 'joao@test.com', cpf: '123.456.789-00', matricula: 'ET-0001', cargo: 'Engenheiro', departamento: 'Desenvolvimento', status: 'ativo' },
-      { id: 2, nome: 'Ana Costa', email: 'ana@test.com', cpf: null, matricula: 'ET-0002', cargo: 'Designer', departamento: 'Comercial', status: 'ferias' },
+      { id: 1, nome: 'JoÃ£o Silva', email: 'joao@test.com', BI: '000000000LA000', matricula: 'ET-0001', cargo: 'Engenheiro', departamento: 'Desenvolvimento', status: 'ativo' },
+      { id: 2, nome: 'Ana Costa', email: 'ana@test.com', BI: null, matricula: 'ET-0002', cargo: 'Designer', departamento: 'Comercial', status: 'ferias' },
     ]),
   ),
 
   http.get(`${BASE}/api/rh/listar_ferias/`, () =>
     HttpResponse.json([
-      { id: 1, colaborador_id: 1, colaborador_nome: 'João Silva', data_inicio: '2026-07-01', data_fim: '2026-07-15', dias: 15, status: 'aprovado', criado_em: '2026-06-01T10:00:00Z' },
+      { id: 1, colaborador_id: 1, colaborador_nome: 'JoÃ£o Silva', data_inicio: '2026-07-01', data_fim: '2026-07-15', dias: 15, status: 'aprovado', criado_em: '2026-06-01T10:00:00Z' },
     ]),
   ),
 
   http.get(`${BASE}/api/rh/listar_contratos/`, () =>
     HttpResponse.json([
-      { id: 1, colaborador_id: 1, colaborador_nome: 'João Silva', tipo_contrato: 'clt', status: 'ativo', salario_base: '5000.00', data_inicio: '2024-01-01' },
+      { id: 1, colaborador_id: 1, colaborador_nome: 'JoÃ£o Silva', tipo_contrato: 'clt', status: 'ativo', salario_base: '5000.00', data_inicio: '2024-01-01' },
     ]),
   ),
 
   http.get(`${BASE}/api/rh/listar_feriados/`, () =>
     HttpResponse.json([
       { id: 1, nome: 'Natal', data: '2026-12-25', tipo: 'nacional', recorrente: true },
-      { id: 2, nome: 'Independência', data: '2026-11-11', tipo: 'nacional', recorrente: true },
+      { id: 2, nome: 'IndependÃªncia', data: '2026-11-11', tipo: 'nacional', recorrente: true },
     ]),
   ),
 
   http.get(`${BASE}/api/rh/listar_declaracoes/`, () =>
     HttpResponse.json([
-      { id: 1, colaborador_id: 1, colaborador_nome: 'João Silva', tipo: 'employment', assunto: 'Declaração de Vínculo', conteudo: 'Declaramos que...', status: 'enviada', criado_em: '2026-06-01T10:00:00Z' },
+      { id: 1, colaborador_id: 1, colaborador_nome: 'JoÃ£o Silva', tipo: 'employment', assunto: 'DeclaraÃ§Ã£o de VÃ­nculo', conteudo: 'Declaramos que...', status: 'enviada', criado_em: '2026-06-01T10:00:00Z' },
     ]),
   ),
 
@@ -89,18 +89,18 @@ export const handlers = [
     }),
   ),
 
-  // ── Supervisor ───────────────────────────────────────────────────
+  // â”€â”€ Supervisor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   http.get(`${BASE}/api/supervisor/relatorio_faltas/`, () =>
     HttpResponse.json([
-      { colaborador_nome: 'Pedro Lima', departamento: 'Logística', total_faltas: 2, dias: ['2026-06-03', '2026-06-10'] },
+      { colaborador_nome: 'Pedro Lima', departamento: 'LogÃ­stica', total_faltas: 2, dias: ['2026-06-03', '2026-06-10'] },
     ]),
   ),
 
-  http.get(`${BASE}/api/supervisor/presenças_pendentes/`, () =>
+  http.get(`${BASE}/api/supervisor/presenÃ§as_pendentes/`, () =>
     HttpResponse.json([]),
   ),
 
-  // ── SaaS ─────────────────────────────────────────────────────────
+  // â”€â”€ SaaS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   http.get(`${BASE}/api/admin-saas/logs/`, () =>
     HttpResponse.json({
       count: 1, next: null, previous: null,

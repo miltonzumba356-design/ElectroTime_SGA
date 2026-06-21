@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   adminApi, companiesApi, departmentsApi, rolesApi, configApi,
   rhApi, supervisorApi, saasApi, geofencingApi, publicApi, authApi,
+  biometricApi, supportApi,
 } from './api';
 
 // ─── Query Keys ───────────────────────────────────────────────────
@@ -396,6 +397,18 @@ export function useSetLunchConfig() {
     mutationFn: rhApi.setLunchConfig,
     onSuccess: () => qc.invalidateQueries({ queryKey: QK.lunchConfig }),
   });
+}
+
+export function useConfigureBiometric() {
+  return useMutation({ mutationFn: rhApi.configureBiometric });
+}
+
+export function useRegisterBiometric() {
+  return useMutation({ mutationFn: biometricApi.register });
+}
+
+export function useCreateSupportTicket() {
+  return useMutation({ mutationFn: supportApi.createTicket });
 }
 
 // ─── Supervisor ────────────────────────────────────────────────────

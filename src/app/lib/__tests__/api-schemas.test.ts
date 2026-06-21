@@ -96,7 +96,7 @@ describe('EmployeeSchema', () => {
     id: 1,
     nome: 'João Silva',
     email: 'joao@test.com',
-    cpf: '123.456.789-00',
+    cpf: '000000000LA000',
     matricula: 'ET-0001',
     status: 'ativo',
     tipo_contrato: 'clt',

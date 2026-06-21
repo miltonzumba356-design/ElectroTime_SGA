@@ -63,7 +63,7 @@ export function DataTable<T extends Record<string, any>>({
     return [...filtered].sort((a, b) => {
       const av = a[sortKey] ?? '';
       const bv = b[sortKey] ?? '';
-      const cmp = String(av).localeCompare(String(bv), 'pt-BR', { numeric: true });
+      const cmp = String(av).localeCompare(String(bv), 'pt-AO', { numeric: true });
       return sortDir === 'asc' ? cmp : -cmp;
     });
   }, [filtered, sortKey, sortDir]);
@@ -140,7 +140,7 @@ export function DataTable<T extends Record<string, any>>({
                     </div>
                   </th>
                 ))}
-                {rowActions && <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground">Ações</th>}
+                {rowActions && <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground">AÃ§Ãµes</th>}
               </tr>
             </thead>
             <tbody>
@@ -180,7 +180,7 @@ export function DataTable<T extends Record<string, any>>({
                   >
                     {columns.map(col => (
                       <td key={String(col.key)} className="px-4 py-3.5 text-sm text-foreground">
-                        {col.cell ? col.cell(row) : String(row[col.key as string] ?? '—')}
+                        {col.cell ? col.cell(row) : String(row[col.key as string] ?? 'â€”')}
                       </td>
                     ))}
                     {rowActions && (

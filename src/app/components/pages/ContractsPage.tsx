@@ -275,7 +275,7 @@ function ContractDrawer({ contract, employees, onClose, onSave }: {
               <F l="Data de Início"><input {...register('start_date')} defaultValue={contract?.start_date} type="date" className={ic} /></F>
               <F l="Data de Fim (opcional)"><input {...register('end_date')} defaultValue={contract?.end_date} type="date" className={ic} /></F>
             </div>
-            <F l="Salário Base (R$)">
+            <F l="Salário Base (Kz)">
               <input {...register('base_salary')} defaultValue={contract?.base_salary} type="number" placeholder="5000" className={ic} />
             </F>
             <F l="Benefícios">
@@ -301,4 +301,3 @@ function ContractDrawer({ contract, employees, onClose, onSave }: {
     </div>
   );
 }
-

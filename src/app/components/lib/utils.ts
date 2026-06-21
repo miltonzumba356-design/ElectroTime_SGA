@@ -27,24 +27,19 @@ export function formatBI(bi: string): string {
   return bi;
 }
 
-export function formatCPF(cpf: string): string {
-  return formatBI(cpf);
-}
-
 export function formatNIF(nif: string): string {
   return nif;
 }
 
-export function formatCNPJ(cnpj: string): string {
-  return formatNIF(cnpj);
-}
-
 export function formatPhone(phone: string): string {
   const digits = phone.replace(/\D/g, '');
-  if (digits.length === 11) {
-    return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+  if (digits.startsWith('244') && digits.length === 12) {
+    return digits.replace(/(244)(\d{3})(\d{3})(\d{3})/, '+$1 $2 $3 $4');
   }
-  return digits.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+  if (digits.length === 9) {
+    return digits.replace(/(\d{3})(\d{3})(\d{3})/, '+244 $1 $2 $3');
+  }
+  return phone;
 }
 
 export function formatCurrency(value: number): string {

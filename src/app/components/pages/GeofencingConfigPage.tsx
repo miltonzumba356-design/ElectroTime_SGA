@@ -166,7 +166,12 @@ export function GeofencingConfigPage() {
 
 function GeoZoneDrawer({ zone, onClose, onSave }: { zone: GeoZone | null; onClose: () => void; onSave: (z: GeoZone) => void }) {
   const [saving, setSaving] = useState(false);
-  const { register, handleSubmit } = useForm({ defaultValues: zone ?? {} });
+  const { register, handleSubmit, setValue, watch } = useForm({ defaultValues: zone ?? {} });
+  const lat = watch('lat');
+  const lng = watch('lng');
+  const address = watch('address');
+  const radius = watch('radius_meters');
+  const name = watch('name');
 
   const onSubmit = async (data: any) => {
     setSaving(true);
@@ -207,7 +212,20 @@ function GeoZoneDrawer({ zone, onClose, onSave }: { zone: GeoZone | null; onClos
               <F l="Latitude"><input {...register('lat')} defaultValue={zone?.lat} type="number" step="0.0001" placeholder="-8.8399" className={ic} /></F>
               <F l="Longitude"><input {...register('lng')} defaultValue={zone?.lng} type="number" step="0.0001" placeholder="13.2894" className={ic} /></F>
             </div>
-            <GeoMap latitude={zone?.lat} longitude={zone?.lng} radiusMeters={zone?.radius_meters ?? 200} label={zone?.name ?? 'Nova zona'} heightClassName="h-40" />
+            <GeoMap
+              latitude={lat}
+              longitude={lng}
+              radiusMeters={radius ?? 200}
+              label={name || 'Nova zona'}
+              address={address}
+              searchable
+              onLocationChange={({ latitude, longitude, address }) => {
+                setValue('lat', latitude, { shouldDirty: true });
+                setValue('lng', longitude, { shouldDirty: true });
+                if (address) setValue('address', address, { shouldDirty: true });
+              }}
+              heightClassName="h-48"
+            />
             <F l="Raio (metros)">
               <input {...register('radius_meters')} defaultValue={zone?.radius_meters ?? 200} type="number" min="50" max="5000" className={ic} />
               <p className="mt-1 text-xs text-muted-foreground">Colaboradores a mais de {'{raio}'}m serão sinalizados para autorização.</p>
