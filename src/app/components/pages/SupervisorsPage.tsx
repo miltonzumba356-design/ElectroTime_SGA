@@ -38,8 +38,8 @@ export function SupervisorsPage() {
         </div>
       )
     },
-    { key: 'department_name', header: 'Departamento', sortable: true, cell: r => <span className="text-sm">{r.department_name ?? 'â€”'}</span> },
-    { key: 'role_name', header: 'FunÃ§Ã£o', cell: r => <span className="text-sm text-muted-foreground">{r.role_name ?? 'â€”'}</span> },
+    { key: 'department_name', header: 'Departamento', sortable: true, cell: r => <span className="text-sm">{r.department_name ?? '—'}</span> },
+    { key: 'role_name', header: 'Função', cell: r => <span className="text-sm text-muted-foreground">{r.role_name ?? '—'}</span> },
     { key: 'phone', header: 'Telefone', cell: r => <span className="text-sm">{formatPhone(r.phone)}</span> },
     { key: 'employee_count', header: 'Subordinados', sortable: true, cell: r => <span className="text-sm font-medium">{r.employee_count}</span> },
     { key: 'active', header: 'Status', cell: r => <ActiveBadge active={r.active} /> },
@@ -48,7 +48,7 @@ export function SupervisorsPage() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setDeleteLoading(true);
-    toast.info('RemoÃ§Ã£o de supervisores deve ser gerida pelo administrador.');
+    toast.info('Remoção de supervisores deve ser gerida pelo administrador.');
     setDeleteTarget(null);
     setDeleteLoading(false);
   };
@@ -154,7 +154,7 @@ function SupervisorDrawer({ supervisor, departments, onClose, onSave }: {
                 {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
               </select>
             </F>
-            <F l="FunÃ§Ã£o / Cargo"><input {...register('role_name')} defaultValue={supervisor?.role_name} placeholder="Gerente de OperaÃ§Ãµes" className={ic()} /></F>
+            <F l="Função / Cargo"><input {...register('role_name')} defaultValue={supervisor?.role_name} placeholder="Gerente de Operações" className={ic()} /></F>
             <div className="flex items-center gap-3">
               <input type="checkbox" id="sv-active" {...register('active')} defaultChecked={supervisor?.active ?? true} className="h-4 w-4 accent-primary" />
               <label htmlFor="sv-active" className="text-sm text-foreground">Supervisor ativo</label>

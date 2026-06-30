@@ -36,7 +36,24 @@ export function PublicCompanyRegisterPage() {
 
   const onSubmit = async (data: CompanyRegisterForm) => {
     try {
-      await registerCompany.mutateAsync(data);
+      const nameParts = data.admin_nome.trim().split(/\s+/);
+      const admin_nome = nameParts[0];
+      const admin_sobrenome = nameParts.length > 1 ? nameParts.slice(1).join(' ') : nameParts[0];
+      const admin_username = data.admin_email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_');
+      await registerCompany.mutateAsync({
+        nome: data.nome,
+        nif: data.nif,
+        email: data.email,
+        telefone: data.telefone,
+        endereco: data.endereco,
+        ...(data.latitude != null && { latitude: data.latitude }),
+        ...(data.longitude != null && { longitude: data.longitude }),
+        ...(data.raio_geofencing != null && { raio_geofencing: data.raio_geofencing }),
+        admin_username,
+        admin_email: data.admin_email,
+        admin_nome,
+        admin_sobrenome,
+      });
       setSubmitted(true);
       toast.success('Solicitacao enviada. Aguarde aprovacao do Dono SaaS.');
     } catch {

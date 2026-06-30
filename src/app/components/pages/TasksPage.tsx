@@ -9,7 +9,7 @@ import { DataTable, type Column } from '../shared/DataTable';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { Badge } from '../shared/StatusBadge';
 import type { Task, TaskStatus, TaskPriority } from '../lib/types';
-import { useEmployees } from '../lib/api-hooks';
+import { useEmployees, useAssignTasks } from '../lib/api-hooks';
 import { normalizeList, adaptEmployee } from '../lib/api-adapters';
 import { formatDate, cn } from '../lib/utils';
 
@@ -30,6 +30,7 @@ const PRIORITY_MAP: Record<TaskPriority, { label: string; variant: any; dot: str
 export function TasksPage() {
   const { data: rawEmployees } = useEmployees();
   const employees = normalizeList(rawEmployees, adaptEmployee);
+  const assignMut = useAssignTasks();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Task | null>(null);
@@ -74,13 +75,26 @@ export function TasksPage() {
     setDeleteLoading(false);
   };
 
-  const onSave = (t: Task) => {
+  const onSave = async (t: Task) => {
     if (editTarget) {
       setTasks(prev => prev.map(x => x.id === t.id ? t : x));
       toast.success('Tarefa atualizada.');
     } else {
-      setTasks(prev => [t, ...prev]);
-      toast.success('Tarefa criada com sucesso.');
+      try {
+        const priority = t.priority === 'low' ? 'baixa' : t.priority === 'high' ? 'alta' : 'média';
+        await assignMut.mutateAsync({
+          colaborador_id: Number(t.assigned_to_id),
+          titulo: t.title,
+          descricao: t.description ?? '',
+          prazo: t.due_date,
+          prioridade: priority,
+        });
+        setTasks(prev => [t, ...prev]);
+        toast.success('Tarefa atribuída com sucesso.');
+      } catch {
+        setTasks(prev => [t, ...prev]);
+        toast.success('Tarefa criada localmente.');
+      }
     }
     setDrawerOpen(false);
   };

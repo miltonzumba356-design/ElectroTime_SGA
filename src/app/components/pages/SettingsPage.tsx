@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { Save, Bell, Shield, Globe, Palette, Clock, Loader2, Fingerprint, LifeBuoy } from 'lucide-react';
+import { Save, Bell, Shield, Globe, Palette, Clock, Loader2, Fingerprint, LifeBuoy, Building2, Check, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHeader } from '../shared/PageHeader';
 import { useAppStore } from '../store/app.store';
 import { cn } from '../lib/utils';
-import { useConfigureBiometric, useCreateSupportTicket } from '../lib/api-hooks';
+import { useConfigureBiometric, useCreateSupportTicket, useMyCompanies, useSelectCompany, useMyCompany, useSupportTickets, useSetTicketStatus } from '../lib/api-hooks';
+import { formatDate } from '../lib/utils';
 
 const SECTIONS = [
   { id: 'general', label: 'Geral', icon: Globe },
@@ -118,25 +119,72 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 function GeneralSettings() {
   const [lang, setLang] = useState('pt-AO');
   const [tz, setTz] = useState('Africa/Luanda');
+  const { data: myCompany } = useMyCompany();
+  const { data: rawCompanies } = useMyCompanies();
+  const selectCompany = useSelectCompany();
+  const user = useAppStore(s => s.user);
+
+  const companies: { id: string; name: string; status: string }[] = Array.isArray(rawCompanies)
+    ? rawCompanies.map((c: any) => ({ id: String(c.id ?? c.uuid), name: c.nome ?? c.name ?? '—', status: c.status ?? '' }))
+    : [];
+
   const ic = 'h-9 rounded-lg border border-border bg-input-background px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30';
+
+  const handleSelectCompany = async (id: string) => {
+    try {
+      await selectCompany.mutateAsync({ empresa_id: id });
+      toast.success('Empresa selecionada. Recarregue a página para aplicar.');
+    } catch {
+      toast.error('Erro ao selecionar empresa.');
+    }
+  };
+
   return (
     <div className="space-y-5">
-      <SectionTitle title="Configuracoes Gerais" desc="Idioma, fuso horario e preferencias da empresa" />
+      <SectionTitle title="Configurações Gerais" desc="Idioma, fuso horário e preferências da empresa" />
       <div className="space-y-4">
         <div>
           <label className="mb-1.5 block text-xs font-medium text-foreground">Nome da empresa</label>
-          <input defaultValue="Electro Time, Lda" className={cn(ic, 'w-full')} />
+          <input defaultValue={myCompany?.nome ?? 'Electro Time, Lda'} readOnly className={cn(ic, 'w-full opacity-70 cursor-not-allowed')} />
         </div>
+
+        {user?.role === 'admin' && companies.length > 1 && (
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-foreground">Empresa ativa</label>
+            <p className="mb-2 text-xs text-muted-foreground">Selecione qual empresa está a gerir agora.</p>
+            <div className="space-y-2">
+              {companies.map(c => (
+                <button key={c.id} onClick={() => handleSelectCompany(c.id)}
+                  disabled={selectCompany.isPending}
+                  className={cn(
+                    'flex w-full items-center justify-between rounded-lg border px-3 py-2.5 text-left text-sm transition-colors',
+                    myCompany?.id === Number(c.id) || myCompany?.uuid === c.id
+                      ? 'border-primary bg-primary/5 text-primary'
+                      : 'border-border hover:border-primary/40 text-foreground'
+                  )}>
+                  <span className="flex items-center gap-2">
+                    <Building2 className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+                    {c.name}
+                  </span>
+                  {(myCompany?.id === Number(c.id) || myCompany?.uuid === c.id) && (
+                    <Check className="h-4 w-4 text-primary" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div>
           <label className="mb-1.5 block text-xs font-medium text-foreground">Idioma</label>
           <select value={lang} onChange={e => setLang(e.target.value)} className={cn(ic, 'w-full')}>
-            <option value="pt-AO">Portugues (Angola)</option>
+            <option value="pt-AO">Português (Angola)</option>
             <option value="en-US">English (US)</option>
-            <option value="es">Espanol</option>
+            <option value="es">Español</option>
           </select>
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-foreground">Fuso Horario</label>
+          <label className="mb-1.5 block text-xs font-medium text-foreground">Fuso Horário</label>
           <select value={tz} onChange={e => setTz(e.target.value)} className={cn(ic, 'w-full')}>
             <option value="Africa/Luanda">Africa/Luanda (GMT+1)</option>
           </select>
@@ -290,11 +338,35 @@ function BiometricSettings() {
   );
 }
 
+const TICKET_STATUS_COLORS: Record<string, string> = {
+  aberto: 'text-blue-600 bg-blue-50 dark:bg-blue-900/20',
+  em_andamento: 'text-amber-600 bg-amber-50 dark:bg-amber-900/20',
+  resolvido: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20',
+  fechado: 'text-muted-foreground bg-muted',
+};
+
+const TICKET_STATUS_LABELS: Record<string, string> = {
+  aberto: 'Aberto',
+  em_andamento: 'Em andamento',
+  resolvido: 'Resolvido',
+  fechado: 'Fechado',
+};
+
 function SupportSettings() {
   const createTicket = useCreateSupportTicket();
+  const { data: rawTickets, isLoading: loadingTickets } = useSupportTickets();
+  const setStatusMut = useSetTicketStatus();
   const [assunto, setAssunto] = useState('');
   const [mensagem, setMensagem] = useState('');
   const [prioridade, setPrioridade] = useState('normal');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+
+  const tickets: any[] = Array.isArray(rawTickets)
+    ? rawTickets
+    : Array.isArray((rawTickets as any)?.results)
+      ? (rawTickets as any).results
+      : [];
 
   const send = async () => {
     try {
@@ -302,42 +374,131 @@ function SupportSettings() {
       setAssunto('');
       setMensagem('');
       setPrioridade('normal');
+      setShowForm(false);
       toast.success('Ticket enviado ao suporte.');
     } catch {
       toast.error('Nao foi possivel enviar o ticket.');
     }
   };
 
+  const closeTicket = async (id: string | number) => {
+    try {
+      await setStatusMut.mutateAsync({ id, body: { status: 'fechado' } });
+      toast.success('Ticket fechado.');
+    } catch {
+      toast.error('Erro ao fechar ticket.');
+    }
+  };
+
+  const ic = 'h-9 w-full rounded-lg border border-border bg-input-background px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30';
+
   return (
     <div className="space-y-5">
-      <SectionTitle title="Suporte" desc="Abertura de tickets para o suporte da plataforma" />
-      <div className="space-y-4">
-        <div>
-          <label className="mb-1.5 block text-xs font-medium text-foreground">Assunto</label>
-          <input value={assunto} onChange={e => setAssunto(e.target.value)} className="h-9 w-full rounded-lg border border-border bg-input-background px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30" />
+      <SectionTitle title="Suporte" desc="Tickets e comunicacao com o suporte da plataforma" />
+
+      {/* Tickets list */}
+      <div>
+        <div className="mb-3 flex items-center justify-between">
+          <h4 className="text-xs font-semibold text-foreground">Meus Tickets</h4>
+          <button onClick={() => setShowForm(f => !f)}
+            className="flex h-7 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-medium text-white hover:bg-primary/90 transition-colors">
+            <MessageSquare className="h-3 w-3" />
+            {showForm ? 'Fechar formulario' : 'Novo ticket'}
+          </button>
         </div>
-        <div>
-          <label className="mb-1.5 block text-xs font-medium text-foreground">Prioridade</label>
-          <select value={prioridade} onChange={e => setPrioridade(e.target.value)} className="h-9 w-full rounded-lg border border-border bg-input-background px-3 text-sm text-foreground focus:border-primary focus:outline-none">
-            <option value="baixa">Baixa</option>
-            <option value="normal">Normal</option>
-            <option value="alta">Alta</option>
-            <option value="urgente">Urgente</option>
-          </select>
-        </div>
-        <div>
-          <label className="mb-1.5 block text-xs font-medium text-foreground">Mensagem</label>
-          <textarea value={mensagem} onChange={e => setMensagem(e.target.value)} rows={4} className="w-full resize-none rounded-lg border border-border bg-input-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30" />
-        </div>
-        <button
-          onClick={send}
-          disabled={createTicket.isPending || !assunto.trim() || !mensagem.trim()}
-          className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-60"
-        >
-          {createTicket.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LifeBuoy className="h-4 w-4" />}
-          Enviar ticket
-        </button>
+
+        {loadingTickets ? (
+          <div className="flex h-16 items-center justify-center">
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          </div>
+        ) : tickets.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
+            Nenhum ticket enviado ainda
+          </div>
+        ) : (
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {tickets.map((t: any) => {
+              const id = String(t.id ?? '');
+              const status = t.status ?? 'aberto';
+              const expanded = expandedId === id;
+              return (
+                <div key={id} className="rounded-xl border border-border bg-card overflow-hidden">
+                  <button
+                    onClick={() => setExpandedId(expanded ? null : id)}
+                    className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-muted/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className={cn('rounded-md px-2 py-0.5 text-[10px] font-medium flex-shrink-0',
+                        TICKET_STATUS_COLORS[status] ?? 'text-muted-foreground bg-muted')}>
+                        {TICKET_STATUS_LABELS[status] ?? status}
+                      </span>
+                      <span className="text-sm font-medium text-foreground truncate">{t.assunto ?? t.subject ?? `Ticket #${id}`}</span>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                      <span className="text-xs text-muted-foreground">{formatDate(t.criado_em ?? t.created_at ?? '')}</span>
+                      {expanded ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
+                    </div>
+                  </button>
+                  {expanded && (
+                    <div className="border-t border-border px-4 py-3 space-y-2">
+                      <p className="text-sm text-foreground whitespace-pre-wrap">{t.mensagem ?? t.message ?? ''}</p>
+                      {t.resposta && (
+                        <div className="rounded-lg bg-primary/5 border border-primary/20 px-3 py-2">
+                          <p className="text-xs font-medium text-primary mb-1">Resposta do suporte:</p>
+                          <p className="text-sm text-foreground">{t.resposta}</p>
+                        </div>
+                      )}
+                      {status !== 'fechado' && status !== 'resolvido' && (
+                        <button
+                          onClick={() => closeTicket(id)}
+                          disabled={setStatusMut.isPending}
+                          className="text-xs text-muted-foreground hover:text-foreground underline transition-colors"
+                        >
+                          Marcar como fechado
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
+
+      {/* New ticket form */}
+      {showForm && (
+        <div className="rounded-xl border border-border p-4 space-y-4">
+          <h4 className="text-xs font-semibold text-foreground">Novo Ticket</h4>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-foreground">Assunto</label>
+            <input value={assunto} onChange={e => setAssunto(e.target.value)} className={ic} placeholder="Descricao breve do problema" />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-foreground">Prioridade</label>
+            <select value={prioridade} onChange={e => setPrioridade(e.target.value)} className={ic}>
+              <option value="baixa">Baixa</option>
+              <option value="normal">Normal</option>
+              <option value="alta">Alta</option>
+              <option value="urgente">Urgente</option>
+            </select>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-foreground">Mensagem</label>
+            <textarea value={mensagem} onChange={e => setMensagem(e.target.value)} rows={4}
+              className="w-full resize-none rounded-lg border border-border bg-input-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
+              placeholder="Descreva o problema em detalhe..." />
+          </div>
+          <button
+            onClick={send}
+            disabled={createTicket.isPending || !assunto.trim() || !mensagem.trim()}
+            className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-60"
+          >
+            {createTicket.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LifeBuoy className="h-4 w-4" />}
+            Enviar ticket
+          </button>
+        </div>
+      )}
     </div>
   );
 }

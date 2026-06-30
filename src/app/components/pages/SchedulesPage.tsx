@@ -9,8 +9,10 @@ import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { ActiveBadge } from '../shared/StatusBadge';
 import type { Schedule, ScheduleType } from '../lib/types';
 import { cn } from '../lib/utils';
-import { useSchedules, useCreateSchedule } from '../lib/api-hooks';
-import { adaptSchedule, normalizeList } from '../lib/api-adapters';
+import { useSchedules, useCreateSchedule, useSupervisorEmployees } from '../lib/api-hooks';
+import { adaptEmployee, adaptSchedule, normalizeList } from '../lib/api-adapters';
+import { useAppStore } from '../store/app.store';
+const normList = normalizeList;
 
 const SCHEDULE_TYPE_LABELS: Record<ScheduleType, string> = {
   fixed: 'Fixo', '5x2': '5×2', '6x1': '6×1', '12x36': '12×36', custom: 'Personalizado',
@@ -21,8 +23,12 @@ const DAYS_SHORT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 export function SchedulesPage() {
   const { data: rawSchedules, isLoading } = useSchedules();
   const createMut = useCreateSchedule();
+  const { data: rawSvEmployees } = useSupervisorEmployees();
+  const svEmployees = normList(rawSvEmployees, adaptEmployee);
+  const userRole = useAppStore(s => s.user?.role);
   const schedules: Schedule[] = normalizeList(rawSchedules, adaptSchedule);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [calendarDrawerOpen, setCalendarDrawerOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Schedule | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Schedule | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -77,10 +83,18 @@ export function SchedulesPage() {
         title="Escalas de Trabalho"
         description="Configure os padrões de escala e rotação de turnos"
         actions={
-          <button onClick={() => { setEditTarget(null); setDrawerOpen(true); }}
-            className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white hover:bg-primary/90 transition-colors">
-            <Plus className="h-4 w-4" /> Nova Escala
-          </button>
+          <div className="flex items-center gap-2">
+            {userRole === 'supervisor' && (
+              <button onClick={() => setCalendarDrawerOpen(true)}
+                className="flex h-9 items-center gap-2 rounded-lg border border-border px-3 text-sm text-muted-foreground hover:bg-muted transition-colors">
+                <CalendarDays className="h-4 w-4" /> Calendário 24/48h
+              </button>
+            )}
+            <button onClick={() => { setEditTarget(null); setDrawerOpen(true); }}
+              className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white hover:bg-primary/90 transition-colors">
+              <Plus className="h-4 w-4" /> Nova Escala
+            </button>
+          </div>
         }
       />
       <DataTable data={schedules} columns={columns} searchFields={['name']}
@@ -101,6 +115,11 @@ export function SchedulesPage() {
       </AnimatePresence>
       <ConfirmDialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={handleDelete}
         loading={deleteLoading} title="Excluir escala" description={`Excluir "${deleteTarget?.name}"?`} />
+      <AnimatePresence>
+        {calendarDrawerOpen && (
+          <CalendarCycleDrawer employees={svEmployees} onClose={() => setCalendarDrawerOpen(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -173,3 +192,112 @@ function ScheduleDrawer({ schedule, onClose, onSave, loading }: { schedule: Sche
 }
 
 const ic = () => 'h-9 w-full rounded-lg border border-border bg-input-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30';
+
+function CalendarCycleDrawer({
+  employees,
+  onClose,
+}: {
+  employees: { id: string; name: string; status: string }[];
+  onClose: () => void;
+}) {
+  const { register, handleSubmit } = useForm({
+    defaultValues: { ciclo: '24_48', data_inicio: '', data_fim: '' },
+  });
+  const [saving, setSaving] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  const toggleEmployee = (id: string) =>
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+
+  const onSubmit = async (data: any) => {
+    if (!selectedIds.length) { toast.error('Selecione pelo menos um colaborador.'); return; }
+    setSaving(true);
+    try {
+      const { supervisorApi } = await import('../lib/api');
+      await supervisorApi.createSchedule({
+        ciclo: data.ciclo,
+        data_inicio: data.data_inicio,
+        data_fim: data.data_fim || undefined,
+        colaborador_ids: selectedIds.map(Number),
+      });
+      toast.success('Calendário 24/48h criado com sucesso.');
+      onClose();
+    } catch {
+      toast.error('Erro ao criar calendário.');
+    }
+    setSaving(false);
+  };
+
+  const active = employees.filter(e => e.status === 'active');
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+        transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+        className="relative z-10 flex h-full w-full max-w-md flex-col bg-card shadow-2xl">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">Calendário 24/48h</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Escala de turnos rotativos</p>
+          </div>
+          <button onClick={onClose} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted"><X className="h-4 w-4" /></button>
+        </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col overflow-y-auto">
+          <div className="flex-1 space-y-4 px-6 py-5">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-foreground">Tipo de ciclo</label>
+              <select {...register('ciclo')} className={ic()}>
+                <option value="24_48">24/48 horas (24h trabalho, 48h descanso)</option>
+                <option value="12_36">12/36 horas (12h trabalho, 36h descanso)</option>
+                <option value="8_16">8/16 horas (8h trabalho, 16h descanso)</option>
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-foreground">Data início</label>
+                <input type="date" {...register('data_inicio', { required: true })} className={ic()} />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-foreground">Data fim (opcional)</label>
+                <input type="date" {...register('data_fim')} className={ic()} />
+              </div>
+            </div>
+            <div>
+              <label className="mb-2 block text-xs font-medium text-foreground">
+                Colaboradores ({selectedIds.length} selecionados)
+              </label>
+              <div className="space-y-1.5 max-h-60 overflow-y-auto rounded-lg border border-border p-2">
+                {active.length === 0 && (
+                  <p className="text-xs text-muted-foreground py-2 text-center">Nenhum colaborador ativo</p>
+                )}
+                {active.map(e => (
+                  <label key={e.id} className={cn(
+                    'flex items-center gap-2.5 rounded-lg px-3 py-2 cursor-pointer transition-colors text-sm',
+                    selectedIds.includes(e.id) ? 'bg-primary/5 text-primary' : 'hover:bg-muted text-foreground'
+                  )}>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(e.id)}
+                      onChange={() => toggleEmployee(e.id)}
+                      className="h-3.5 w-3.5 accent-primary"
+                    />
+                    {e.name}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-border px-6 py-4 flex justify-end gap-2.5">
+            <button type="button" onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted">Cancelar</button>
+            <button type="submit" disabled={saving} className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-60">
+              {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              Criar Calendário
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </div>
+  );
+}

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useForm, Controller } from 'react-hook-form';
 import {
-  Plus, Pencil, Trash2, Eye, X, Loader2, UserCircle,
+  Plus, Pencil, Trash2, Eye, X, Loader2, UserCircle, Building2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHeader } from '../shared/PageHeader';
@@ -12,7 +12,7 @@ import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { EmployeeStatusBadge } from '../shared/StatusBadge';
 import type { Employee } from '../lib/types';
 import { formatDate, getInitials, cn } from '../lib/utils';
-import { useEmployees, useAdminDepartments, useTurnos, useRoles } from '../lib/api-hooks';
+import { useEmployees, useAdminDepartments, useTurnos, useRoles, useAssignDepartment } from '../lib/api-hooks';
 import { adaptEmployee, normalizeList } from '../lib/api-adapters';
 
 const CONTRACT_LABELS: Record<string, string> = {
@@ -30,11 +30,13 @@ export function EmployeesPage() {
   const timetables  = normalizeList(rawTurnos, (t: any) => ({ id: String(t.id), name: t.nome ?? t.name ?? '' }));
   const roles       = normalizeList(rawRoles, (r: any) => ({ id: String(r.id), name: r.nome ?? r.name ?? '' }));
 
+  const assignDeptMut = useAssignDepartment();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Employee | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Employee | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [viewTarget, setViewTarget] = useState<Employee | null>(null);
+  const [assignDeptTarget, setAssignDeptTarget] = useState<Employee | null>(null);
 
   const counts = {
     total: employees.length,
@@ -154,6 +156,7 @@ export function EmployeesPage() {
         rowActions={row => (
           <div className="flex items-center justify-end gap-1">
             <ActionBtn icon={Eye} onClick={() => setViewTarget(row)} title="Ver detalhes" />
+            <ActionBtn icon={Building2} onClick={() => setAssignDeptTarget(row)} title="Atribuir departamento" />
             <ActionBtn icon={Pencil} onClick={() => openEdit(row)} title="Editar" />
             <ActionBtn icon={Trash2} onClick={() => setDeleteTarget(row)} title="Excluir" danger />
           </div>
@@ -188,6 +191,27 @@ export function EmployeesPage() {
         description={`Tem certeza que deseja excluir "${deleteTarget?.name}"? Esta ação não pode ser desfeita.`}
         confirmLabel="Excluir"
       />
+
+      {/* Assign Department Modal */}
+      <AnimatePresence>
+        {assignDeptTarget && (
+          <AssignDepartmentModal
+            employee={assignDeptTarget}
+            departments={departments}
+            onClose={() => setAssignDeptTarget(null)}
+            onAssign={async (deptId) => {
+              try {
+                await assignDeptMut.mutateAsync({ colaborador_id: Number(assignDeptTarget.id), departamento_id: Number(deptId) });
+                toast.success('Departamento atribuído com sucesso.');
+                setAssignDeptTarget(null);
+              } catch {
+                toast.error('Erro ao atribuir departamento.');
+              }
+            }}
+            loading={assignDeptMut.isPending}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -499,3 +523,66 @@ const inputCls = (hasError: boolean) =>
     'focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors',
     hasError ? 'border-destructive' : 'border-border'
   );
+
+function AssignDepartmentModal({
+  employee,
+  departments,
+  onClose,
+  onAssign,
+  loading,
+}: {
+  employee: Employee;
+  departments: { id: string; name: string }[];
+  onClose: () => void;
+  onAssign: (deptId: string) => Promise<void>;
+  loading: boolean;
+}) {
+  const [selected, setSelected] = useState(employee.department_id ?? '');
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="relative z-10 w-full max-w-sm rounded-2xl border border-border bg-card shadow-2xl p-6"
+      >
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">Atribuir Departamento</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">{employee.name}</p>
+          </div>
+          <button onClick={onClose} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="mb-5">
+          <label className="mb-1.5 block text-xs font-medium text-foreground">Departamento</label>
+          <select
+            value={selected}
+            onChange={e => setSelected(e.target.value)}
+            className="h-9 w-full rounded-lg border border-border bg-input-background px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
+          >
+            <option value="">Selecione...</option>
+            {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+          </select>
+        </div>
+        <div className="flex justify-end gap-2.5">
+          <button onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted">
+            Cancelar
+          </button>
+          <button
+            onClick={() => selected && onAssign(selected)}
+            disabled={!selected || loading}
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-60"
+          >
+            {loading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            Atribuir
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}

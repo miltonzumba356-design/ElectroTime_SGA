@@ -3698,6 +3698,34 @@ paths:
       responses:
         '200':
           description: No response body
+  /api/rh/criar_processamento/:
+    post:
+      operationId: rh_criar_processamento_create
+      description: '[RH] Cria a folha do mês (lote) vazia, para depois incluir funcionários.'
+      summary: Criar um processamento (folha do mês) vazio
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mes:
+                  type: integer
+                ano:
+                  type: integer
+                descricao:
+                  type: string
+              required:
+              - mes
+              - ano
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/rh/decimo_terceiro/:
     post:
       operationId: rh_decimo_terceiro_create
@@ -3731,6 +3759,19 @@ paths:
                     do contrato no ano
               required:
               - colaborador_id
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/detalhe_processamento/:
+    get:
+      operationId: rh_detalhe_processamento_retrieve
+      description: '[RH] Lista os funcionários (recibos) de um processamento. ?processamento_id='
+      summary: Detalhe do processamento (funcionários do lote)
+      tags:
+      - '[RH] Recursos Humanos'
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -4140,6 +4181,45 @@ paths:
       responses:
         '200':
           description: No response body
+  /api/rh/incluir_funcionario/:
+    post:
+      operationId: rh_incluir_funcionario_create
+      description: '[RH] Inclui um funcionário na folha do mês (gera e liga o recibo).'
+      summary: Incluir um funcionário no processamento (gera o recibo)
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                processamento_id:
+                  type: string
+                colaborador_id:
+                  type: string
+              required:
+              - processamento_id
+              - colaborador_id
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/incluir_todos/:
+    post:
+      operationId: rh_incluir_todos_create
+      description: '[RH] Inclui todos os colaboradores ativos da empresa no processamento.'
+      summary: Incluir TODOS os ativos no processamento
+      tags:
+      - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/rh/listar_contratos/:
     get:
       operationId: rh_listar_contratos_retrieve
@@ -4225,12 +4305,91 @@ paths:
       responses:
         '200':
           description: No response body
+  /api/rh/listar_processamentos/:
+    get:
+      operationId: rh_listar_processamentos_retrieve
+      description: '[RH] Lista as folhas do mês (processamentos) da empresa.'
+      summary: Listar processamentos da empresa
+      tags:
+      - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/rh/listar_recibos/:
     get:
       operationId: rh_listar_recibos_retrieve
       description: 'Listar recibos da empresa (filtros: ?colaborador_id=&mes=&ano=)'
       tags:
       - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/marcar_pago/:
+    post:
+      operationId: rh_marcar_pago_create
+      description: '[RH] Marca um recibo como pago (não recalcula nada).'
+      summary: Marcar um recibo como PAGO
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recibo_id:
+                  type: string
+                  description: id ou uuid do recibo
+                referencia:
+                  type: string
+                  description: Referência do pagamento (transferência, Multicaixa)
+              required:
+              - recibo_id
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/pagamentos_pendentes/:
+    get:
+      operationId: rh_pagamentos_pendentes_retrieve
+      description: |-
+        [RH] Recibos por pagar, com indicação dos que estão atrasados.
+
+        Filtros opcionais: ?mes=&ano=
+      summary: Listar pagamentos pendentes (recibos por pagar)
+      tags:
+      - '[RH] Recursos Humanos'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/pagar_processamento/:
+    post:
+      operationId: rh_pagar_processamento_create
+      description: '[RH] Marca todos os recibos pendentes do lote como pagos e fecha-o.'
+      summary: Pagar o processamento (marca todos os recibos do lote como pagos)
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                processamento_id:
+                  type: string
+              required:
+              - processamento_id
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -4294,6 +4453,33 @@ paths:
               required:
               - ferias_id
               - acao
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/rh/remover_funcionario/:
+    post:
+      operationId: rh_remover_funcionario_create
+      description: '[RH] Remove um funcionário da folha do mês (apaga o recibo do
+        lote).'
+      summary: Remover um funcionário do processamento
+      tags:
+      - '[RH] Recursos Humanos'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                processamento_id:
+                  type: string
+                colaborador_id:
+                  type: string
+              required:
+              - processamento_id
+              - colaborador_id
       security:
       - jwtAuth: []
       - cookieAuth: []

@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   adminApi, companiesApi, departmentsApi, rolesApi, configApi,
-  rhApi, supervisorApi, saasApi, geofencingApi, publicApi, authApi,
-  biometricApi, supportApi,
+  rhApi, supervisorApi, chiefApi, saasApi, geofencingApi, publicApi, authApi,
+  biometricApi, supportApi, assistantApi,
 } from './api';
 
 // ─── Query Keys ───────────────────────────────────────────────────
@@ -44,11 +44,38 @@ export const QK = {
   saasLogsByAction:  ['saas-logs-by-action'],
   employeeRequests:  ['employee-requests'],
   lunchConfig:       ['lunch-config'],
+  myCompanies:       ['my-companies'],
+  documents:         ['documents'],
+  supportTickets:    (page: number) => ['support-tickets', page],
 };
 
 // ─── Admin ────────────────────────────────────────────────────────
 export function useMyCompany() {
   return useQuery({ queryKey: QK.myCompany, queryFn: adminApi.getMyCompany });
+}
+
+export function useMyCompanies() {
+  return useQuery({ queryKey: QK.myCompanies, queryFn: adminApi.listMyCompanies });
+}
+
+export function useSelectCompany() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: adminApi.selectCompany,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QK.myCompany });
+      qc.invalidateQueries({ queryKey: QK.employees });
+      qc.invalidateQueries({ queryKey: QK.departmentsList });
+    },
+  });
+}
+
+export function useCreateAdminCompany() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: adminApi.createCompany,
+    onSuccess: () => qc.invalidateQueries({ queryKey: QK.myCompanies }),
+  });
 }
 
 export function useMyProfile() {
@@ -407,8 +434,91 @@ export function useRegisterBiometric() {
   return useMutation({ mutationFn: biometricApi.register });
 }
 
+export function useImportBiometric() {
+  return useMutation({ mutationFn: biometricApi.importFile });
+}
+
+export function useCalcThirteenth() {
+  return useMutation({ mutationFn: rhApi.calcThirteenth });
+}
+
+export function useProcessThirteenth() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: rhApi.processThirteenth,
+    onSuccess: () => qc.invalidateQueries({ queryKey: QK.payroll }),
+  });
+}
+
+export function useVacationSubsidy() {
+  return useMutation({ mutationFn: rhApi.vacationSubsidy });
+}
+
+export function useDocuments() {
+  return useQuery({ queryKey: QK.documents, queryFn: rhApi.listDocuments });
+}
+
+export function useCreateDocument() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: rhApi.createDocument,
+    onSuccess: () => qc.invalidateQueries({ queryKey: QK.documents }),
+  });
+}
+
+export function useExportPayroll(params?: Record<string, unknown>) {
+  return useQuery({
+    queryKey: ['export-payroll', params],
+    queryFn: () => rhApi.exportPayroll(params),
+    enabled: false,
+  });
+}
+
+export function useExportEmployeesMut() {
+  return useMutation({ mutationFn: (params?: Record<string, unknown>) => rhApi.exportEmployees(params) });
+}
+
+export function useExportAbsencesMut() {
+  return useMutation({ mutationFn: (params?: Record<string, unknown>) => rhApi.exportAbsences(params) });
+}
+
+export function useAskAssistant() {
+  return useMutation({ mutationFn: assistantApi.ask });
+}
+
+export function useAssistantTools() {
+  return useQuery({ queryKey: ['assistant-tools'], queryFn: assistantApi.tools });
+}
+
 export function useCreateSupportTicket() {
   return useMutation({ mutationFn: supportApi.createTicket });
+}
+
+export function useSupportTickets(page = 1) {
+  return useQuery({ queryKey: QK.supportTickets(page), queryFn: () => supportApi.listTickets(page) });
+}
+
+export function useRespondTicket() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string | number; body: Record<string, unknown> }) =>
+      supportApi.respondTicket(id, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['support-tickets'] }),
+  });
+}
+
+export function useSetTicketStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string | number; body: Record<string, unknown> }) =>
+      supportApi.setTicketStatus(id, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['support-tickets'] }),
+  });
+}
+
+// ─── Department Chief ──────────────────────────────────────────────
+export function useChiefMyTeam() {
+  return useQuery({ queryKey: ['chief-team'], queryFn: chiefApi.myTeam });
 }
 
 // ─── Supervisor ────────────────────────────────────────────────────

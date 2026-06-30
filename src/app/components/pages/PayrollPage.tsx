@@ -10,7 +10,8 @@ import { StatsCard } from '../shared/StatsCard';
 import { DataTable, type Column } from '../shared/DataTable';
 import { Badge } from '../shared/StatusBadge';
 import type { Payroll, PayrollItem, PayrollStatus } from '../lib/types';
-import { usePayroll, useCalculatePayroll, useGenerateAutoPayroll } from '../lib/api-hooks';
+import { usePayroll, useCalculatePayroll, useGenerateAutoPayroll, useProcessThirteenth, useCalcThirteenth, useEmployees, useExportEmployeesMut } from '../lib/api-hooks';
+import { adaptEmployee, normalizeList } from '../lib/api-adapters';
 import { normalizeList } from '../lib/api-adapters';
 import { formatDate, formatCurrency, cn } from '../lib/utils';
 
@@ -24,12 +25,14 @@ const STATUS_MAP: Record<PayrollStatus, { label: string; variant: any }> = {
 
 const TYPE_LABELS: Record<string, string> = {
   monthly: 'Mensal',
-  thirteenth_individual: '13.Âº Individual',
-  thirteenth_collective: '13.Âº Coletivo',
+  thirteenth_individual: '13.º Individual',
+  thirteenth_collective: '13.º Coletivo',
 };
 
 export function PayrollPage() {
   const { data: rawPayrolls } = usePayroll();
+  const { data: rawEmployees } = useEmployees();
+  const employees = normalizeList(rawEmployees, adaptEmployee);
   const calculateMut = useCalculatePayroll();
   const autoMut = useGenerateAutoPayroll();
   const payrolls: Payroll[] = normalizeList(rawPayrolls, (p: any): Payroll => ({
@@ -49,7 +52,7 @@ export function PayrollPage() {
       id: String(i.id ?? ''),
       payroll_id: String(p.id ?? ''),
       employee_id: String(i.colaborador_id ?? ''),
-      employee_name: i.colaborador_nome ?? i.nome ?? 'â€”',
+      employee_name: i.colaborador_nome ?? i.nome ?? '—',
       department_name: i.departamento ?? undefined,
       role_name: i.cargo ?? undefined,
       base_salary: Number(i.salario_base ?? 0),
@@ -73,8 +76,9 @@ export function PayrollPage() {
 
   const handleProcess = async () => {
     setProcessing(true);
+    const now = new Date();
     try {
-      await autoMut.mutateAsync({});
+      await autoMut.mutateAsync({ mes: now.getMonth() + 1, ano: now.getFullYear() });
       toast.success('Folha processada com sucesso!');
     } catch {
       toast.error('Erro ao processar folha.');
@@ -94,7 +98,7 @@ export function PayrollPage() {
   };
 
   const columns: Column<Payroll>[] = [
-    { key: 'reference_month', header: 'ReferÃªncia', sortable: true,
+    { key: 'reference_month', header: 'Referência', sortable: true,
       cell: r => <span className="text-sm font-medium">{r.reference_month} {r.reference_year}</span> },
     { key: 'type', header: 'Tipo', cell: r => (
       <span className="rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground">{TYPE_LABELS[r.type]}</span>
@@ -103,12 +107,12 @@ export function PayrollPage() {
       cell: r => <div className="flex items-center gap-1"><Users className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-sm">{r.total_employees}</span></div> },
     { key: 'total_gross', header: 'Total Bruto', sortable: true,
       cell: r => <span className="text-sm font-medium">{formatCurrency(r.total_gross)}</span> },
-    { key: 'total_net', header: 'Total LÃ­quido', sortable: true,
+    { key: 'total_net', header: 'Total Líquido', sortable: true,
       cell: r => <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatCurrency(r.total_net)}</span> },
     { key: 'status', header: 'Status', cell: r => {
       const s = STATUS_MAP[r.status];
       return <Badge label={s.label} variant={s.variant} dot />;
-    }},
+    } },
     { key: 'erp_exported', header: 'Primavera', cell: r => (
       r.erp_exported
         ? <div className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400"><CheckCircle className="h-3.5 w-3.5" />Exportado</div>
@@ -121,14 +125,14 @@ export function PayrollPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Folha de SalÃ¡rio"
-        description="Processamento, cÃ¡lculo e exportaÃ§Ã£o para ERP Primavera"
+        title="Folha de Salário"
+        description="Processamento, cálculo e exportação para ERP Primavera"
         actions={
           <div className="flex items-center gap-2">
             <button onClick={() => setShow13Modal(true)}
               className="flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-sm text-muted-foreground hover:bg-muted transition-colors">
               <Calculator className="h-3.5 w-3.5" />
-              13.Âº SalÃ¡rio
+              13.º Salário
             </button>
             <button onClick={handleProcess} disabled={processing}
               className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-60 transition-colors">
@@ -141,7 +145,7 @@ export function PayrollPage() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatsCard title="Total Bruto" value={formatCurrency(currentPayroll?.total_gross ?? 0)} color="blue" delay={0} />
-        <StatsCard title="Total LÃ­quido" value={formatCurrency(currentPayroll?.total_net ?? 0)} color="green" delay={0.05} />
+        <StatsCard title="Total Líquido" value={formatCurrency(currentPayroll?.total_net ?? 0)} color="green" delay={0.05} />
         <StatsCard title="Colaboradores" value={currentPayroll?.total_employees ?? 0} color="slate" delay={0.1} />
         <StatsCard title="Folhas Fechadas" value={payrolls.filter(p => p.status === 'closed').length} color="purple" delay={0.15} />
       </div>
@@ -156,7 +160,7 @@ export function PayrollPage() {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-foreground">Folha de {currentPayroll.reference_month} {currentPayroll.reference_year} calculada</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {currentPayroll.total_employees} colaboradores Â· LÃ­quido total: <strong>{formatCurrency(currentPayroll.total_net)}</strong>
+              {currentPayroll.total_employees} colaboradores · Líquido total: <strong>{formatCurrency(currentPayroll.total_net)}</strong>
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -208,10 +212,10 @@ export function PayrollPage() {
                 <div>
                   <h2 className="text-sm font-semibold text-foreground">
                     Folha {selectedPayroll.reference_month} {selectedPayroll.reference_year}
-                    {' â€” '}{TYPE_LABELS[selectedPayroll.type]}
+                    {' — '}{TYPE_LABELS[selectedPayroll.type]}
                   </h2>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {selectedPayroll.total_employees} colaboradores Â· LÃ­quido: {formatCurrency(selectedPayroll.total_net)}
+                    {selectedPayroll.total_employees} colaboradores · Líquido: {formatCurrency(selectedPayroll.total_net)}
                   </p>
                 </div>
                 <button onClick={() => setSelectedPayroll(null)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted"><X className="h-4 w-4" /></button>
@@ -220,10 +224,10 @@ export function PayrollPage() {
                 <table className="w-full text-sm">
                   <thead className="sticky top-0 bg-muted/50 border-b border-border">
                     <tr>
-                      {['FuncionÃ¡rio', 'SalÃ¡rio Base', 'H. Extras', 'Faltas (desc.)', 'INSS', 'IRT', 'LÃ­quido'].map(h => (
+                      {['Funcionário', 'Salário Base', 'H. Extras', 'Faltas (desc.)', 'INSS', 'IRT', 'Líquido'].map(h => (
                         <th key={h} className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground">{h}</th>
                       ))}
-                      <th className="px-4 py-2.5 text-right text-xs font-medium text-muted-foreground">AÃ§Ãµes</th>
+                      <th className="px-4 py-2.5 text-right text-xs font-medium text-muted-foreground">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -235,17 +239,17 @@ export function PayrollPage() {
                         </td>
                         <td className="px-4 py-3 text-sm">{formatCurrency(item.base_salary)}</td>
                         <td className="px-4 py-3 text-sm text-emerald-600 dark:text-emerald-400">
-                          {item.overtime_value > 0 ? `+${formatCurrency(item.overtime_value)}` : 'â€”'}
+                          {item.overtime_value > 0 ? `+${formatCurrency(item.overtime_value)}` : '—'}
                         </td>
                         <td className="px-4 py-3 text-sm text-red-600 dark:text-red-400">
-                          {item.absence_deduction > 0 ? `-${formatCurrency(item.absence_deduction)}` : 'â€”'}
+                          {item.absence_deduction > 0 ? `-${formatCurrency(item.absence_deduction)}` : '—'}
                         </td>
                         <td className="px-4 py-3 text-sm text-muted-foreground">-{formatCurrency(item.inss_value)}</td>
                         <td className="px-4 py-3 text-sm text-muted-foreground">-{formatCurrency(item.IRT_value)}</td>
                         <td className="px-4 py-3 text-sm font-semibold text-foreground">{formatCurrency(item.net_salary)}</td>
                         <td className="px-4 py-3 text-right">
                           <button onClick={() => setPreviewItem(item)}
-                            className="text-xs text-primary hover:underline">PrÃ©-visualizar</button>
+                            className="text-xs text-primary hover:underline">Pré-visualizar</button>
                         </td>
                       </tr>
                     ))}
@@ -278,14 +282,14 @@ export function PayrollPage() {
                 <div>
                   <p className="text-xs text-muted-foreground">Colaborador</p>
                   <p className="text-sm font-semibold text-foreground">{previewItem.employee_name}</p>
-                  <p className="text-xs text-muted-foreground">{previewItem.role_name} Â· {previewItem.department_name}</p>
+                  <p className="text-xs text-muted-foreground">{previewItem.role_name} · {previewItem.department_name}</p>
                 </div>
                 <div className="rounded-lg border border-border overflow-hidden">
                   <div className="bg-muted/30 px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Proventos</div>
                   {[
-                    ['SalÃ¡rio Base', formatCurrency(previewItem.base_salary)],
+                    ['Salário Base', formatCurrency(previewItem.base_salary)],
                     previewItem.overtime_value > 0 ? ['Horas Extras', `+ ${formatCurrency(previewItem.overtime_value)}`] : null,
-                    previewItem.bonus ? ['BÃ´nus', `+ ${formatCurrency(previewItem.bonus)}`] : null,
+                    previewItem.bonus ? ['Bônus', `+ ${formatCurrency(previewItem.bonus)}`] : null,
                   ].filter(Boolean).map((row, i) => (
                     <div key={i} className="flex justify-between px-4 py-2 border-t border-border text-sm">
                       <span className="text-muted-foreground">{row![0]}</span>
@@ -304,7 +308,7 @@ export function PayrollPage() {
                     </div>
                   ))}
                   <div className="flex justify-between bg-primary/5 border-t border-primary/20 px-4 py-3">
-                    <span className="text-sm font-bold text-foreground">LÃ­quido a Receber</span>
+                    <span className="text-sm font-bold text-foreground">Líquido a Receber</span>
                     <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(previewItem.net_salary)}</span>
                   </div>
                 </div>
@@ -316,25 +320,40 @@ export function PayrollPage() {
 
       {/* 13th Salary Modal */}
       <AnimatePresence>
-        {show13Modal && <Thirteenth13Modal onClose={() => setShow13Modal(false)} />}
+        {show13Modal && <Thirteenth13Modal employees={employees} onClose={() => setShow13Modal(false)} />}
       </AnimatePresence>
     </div>
   );
 }
 
-function Thirteenth13Modal({ onClose }: { onClose: () => void }) {
+function Thirteenth13Modal({ onClose, employees }: { onClose: () => void; employees: { id: string; name: string; status: string }[] }) {
   const [type, setType] = useState<'individual' | 'collective'>('collective');
-  const [processing, setProcessing] = useState(false);
+  const [employeeId, setEmployeeId] = useState('');
+  const [ano, setAno] = useState(new Date().getFullYear());
+  const processMut = useProcessThirteenth();
+  const calcMut = useCalcThirteenth();
 
   const handle = async () => {
-    setProcessing(true);
-    await new Promise(r => setTimeout(r, 2000));
-    toast.success(`13.Âº salÃ¡rio ${type === 'collective' ? 'coletivo' : 'individual'} processado!`, {
-      description: 'Conforme Lei 7/15 â€” cÃ¡lculo proporcional aplicado.',
-    });
-    setProcessing(false);
-    onClose();
+    try {
+      if (type === 'collective') {
+        await processMut.mutateAsync({ ano });
+        toast.success('13.º salário coletivo processado!', {
+          description: 'Conforme Lei 7/15 — cálculo proporcional aplicado.',
+        });
+      } else {
+        if (!employeeId) { toast.error('Selecione um funcionário.'); return; }
+        await calcMut.mutateAsync({ colaborador_id: Number(employeeId), ano });
+        toast.success('13.º salário individual calculado!', {
+          description: 'Conforme Lei 7/15 — cálculo proporcional aplicado.',
+        });
+      }
+      onClose();
+    } catch {
+      toast.error('Erro ao processar 13.º salário.');
+    }
   };
+
+  const processing = processMut.isPending || calcMut.isPending;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -344,8 +363,8 @@ function Thirteenth13Modal({ onClose }: { onClose: () => void }) {
         className="relative z-10 w-full max-w-md rounded-2xl border border-border bg-card shadow-2xl p-6">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">Processar 13.Âº SalÃ¡rio</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Conforme Lei 7/15 â€” cÃ¡lculo proporcional</p>
+            <h2 className="text-sm font-semibold text-foreground">Processar 13.º Salário</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Conforme Lei 7/15 — cálculo proporcional</p>
           </div>
           <button onClick={onClose} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted"><X className="h-4 w-4" /></button>
         </div>
@@ -353,8 +372,8 @@ function Thirteenth13Modal({ onClose }: { onClose: () => void }) {
         <div className="space-y-3 mb-5">
           <p className="text-xs font-medium text-foreground mb-2">Tipo de processamento</p>
           {[
-            { v: 'collective', l: 'Coletivo', d: 'Processa o 13.Âº para todos os colaboradores ativos de uma sÃ³ vez' },
-            { v: 'individual', l: 'Individual', d: 'Selecionar um colaborador especÃ­fico para calcular o 13.Âº' },
+            { v: 'collective', l: 'Coletivo', d: 'Processa o 13.º para todos os colaboradores ativos de uma só vez' },
+            { v: 'individual', l: 'Individual', d: 'Selecionar um colaborador específico para calcular o 13.º' },
           ].map(opt => (
             <label key={opt.v} className={cn('flex items-start gap-3 rounded-xl border p-4 cursor-pointer transition-colors',
               type === opt.v ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'
@@ -368,9 +387,38 @@ function Thirteenth13Modal({ onClose }: { onClose: () => void }) {
           ))}
         </div>
 
+        <div className="space-y-3 mb-4">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-foreground">Ano de referência</label>
+            <input
+              type="number"
+              value={ano}
+              onChange={e => setAno(Number(e.target.value))}
+              min={2020}
+              max={2100}
+              className="h-9 w-full rounded-lg border border-border bg-input-background px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
+            />
+          </div>
+          {type === 'individual' && (
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-foreground">Funcionário</label>
+              <select
+                value={employeeId}
+                onChange={e => setEmployeeId(e.target.value)}
+                className="h-9 w-full rounded-lg border border-border bg-input-background px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
+              >
+                <option value="">Selecione...</option>
+                {employees.filter(e => e.status === 'active').map(e => (
+                  <option key={e.id} value={e.id}>{e.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
         <div className="rounded-lg border border-amber-500/20 bg-amber-500/8 px-4 py-3 mb-5">
           <p className="text-xs text-amber-700 dark:text-amber-400">
-            <strong>Lei 7/15:</strong> O cÃ¡lculo aplicarÃ¡ as regras de proporcionalidade por meses trabalhados e os descontos de INSS e IRT conforme tabela vigente.
+            <strong>Lei 7/15:</strong> O cálculo aplicará as regras de proporcionalidade por meses trabalhados e os descontos de INSS e IRT conforme tabela vigente.
           </p>
         </div>
 
@@ -379,7 +427,7 @@ function Thirteenth13Modal({ onClose }: { onClose: () => void }) {
           <button onClick={handle} disabled={processing}
             className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-60">
             {processing && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-            Processar 13.Âº
+            Processar 13.º
           </button>
         </div>
       </motion.div>

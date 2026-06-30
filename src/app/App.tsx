@@ -25,6 +25,7 @@ const ProfilePage       = lazy(() => import('./components/pages/ProfilePage').th
 const PublicCompanyRegisterPage = lazy(() => import('./components/pages/PublicCompanyRegisterPage').then(m => ({ default: m.PublicCompanyRegisterPage })));
 
 // RH exclusive
+const DocumentsPage        = lazy(() => import('./components/pages/DocumentsPage').then(m => ({ default: m.DocumentsPage })));
 const ContractsPage        = lazy(() => import('./components/pages/ContractsPage').then(m => ({ default: m.ContractsPage })));
 const PayrollPage          = lazy(() => import('./components/pages/PayrollPage').then(m => ({ default: m.PayrollPage })));
 const HolidaysPage         = lazy(() => import('./components/pages/HolidaysPage').then(m => ({ default: m.HolidaysPage })));
@@ -105,6 +106,7 @@ function AppRoutes() {
             <Route path="user-management" element={<UserManagementPage />} />
 
             {/* RH exclusive */}
+            <Route path="documents" element={<DocumentsPage />} />
             <Route path="contracts" element={<ContractsPage />} />
             <Route path="payroll" element={<PayrollPage />} />
             <Route path="holidays" element={<HolidaysPage />} />

@@ -29,6 +29,7 @@ import {
   useSaasPendingRequests,
   useSaasRequestsSummary,
   useSchedules,
+  useChiefMyTeam,
   useSupervisorEmployees,
   useVacations,
   useWorkPlan,
@@ -463,7 +464,7 @@ function SupervisorDashboard() {
 }
 
 function DepartmentChiefDashboard() {
-  const { data: employeesRaw, isLoading: loadingEmployees } = useSupervisorEmployees();
+  const { data: employeesRaw, isLoading: loadingEmployees } = useChiefMyTeam();
   const { data: absenceRaw } = useAbsenceReport();
   const { data: pendingRaw } = usePendingPresences();
 

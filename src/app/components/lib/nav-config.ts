@@ -5,7 +5,7 @@ import {
   CalendarDays, Clock, ClipboardCheck, FileText, BarChart3,
   Settings, User, Factory, BookOpen, FileSignature,
   DollarSign, CalendarX, CalendarOff, Stamp, CheckSquare,
-  AlertCircle, UserPlus, ShieldCheck, Inbox, CreditCard, ReceiptText,
+  AlertCircle, UserPlus, ShieldCheck, Inbox, CreditCard, ReceiptText, FolderOpen,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -150,6 +150,7 @@ export const ROLE_NAV: Record<UserRole, RoleNavConfig> = {
       title: 'Comunicação',
       items: [
         { to: '/declarations', icon: Stamp, label: 'Declarações' },
+        { to: '/documents', icon: FolderOpen, label: 'Documentos' },
       ],
     },
     {
@@ -176,7 +177,7 @@ export const ROLE_NAV: Record<UserRole, RoleNavConfig> = {
     {
       title: 'Operação',
       items: [
-        { to: '/geofencing-auth', icon: AlertCircle, label: 'Presenças Pendentes', badge: 2 },
+        { to: '/geofencing-auth', icon: AlertCircle, label: 'Presenças Pendentes' },
         { to: '/attendance', icon: ClipboardCheck, label: 'Presenças' },
         { to: '/absence-registration', icon: CalendarX, label: 'Registo de Faltas' },
       ],
@@ -265,5 +266,7 @@ export const ROLE_ROUTE_ACCESS: Record<UserRole, string[]> = Object.fromEntries(
 ) as Record<UserRole, string[]>;
 
 export function canAccessPath(role: UserRole, pathname: string) {
-  return ROLE_ROUTE_ACCESS[role]?.includes(pathname) ?? false;
+  const routes = ROLE_ROUTE_ACCESS[role];
+  if (!routes) return false;
+  return routes.some(r => pathname === r || (r !== '/' && pathname.startsWith(r + '/')));
 }

@@ -1,192 +1,193 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useEffect, useState } from 'react';
+import { motion } from 'motion/react';
 import { useForm } from 'react-hook-form';
-import { Plus, Pencil, Trash2, X, Loader2, ShieldCheck, Navigation, MapPin, Circle } from 'lucide-react';
+import { Pencil, X, Loader2, ShieldCheck, Navigation, MapPin, ShieldOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHeader } from '../shared/PageHeader';
 import { StatsCard } from '../shared/StatsCard';
-import { ConfirmDialog } from '../shared/ConfirmDialog';
-import { ActiveBadge } from '../shared/StatusBadge';
 import { GeoMap } from '../shared/GeoMap';
 import { cn } from '../lib/utils';
-import { useUpdateGeofencing } from '../lib/api-hooks';
+import { useMyCompanyDetail, useUpdateGeofencing } from '../lib/api-hooks';
 
-interface GeoZone {
-  id: string;
-  name: string;
-  address: string;
+interface GeofencingForm {
   lat: number;
   lng: number;
   radius_meters: number;
-  active: boolean;
-  post_name?: string;
-  created_at: string;
+  address: string;
+  permitir_fora: boolean;
 }
 
 export function GeofencingConfigPage() {
+  const { data: company, isLoading } = useMyCompanyDetail();
   const updateMut = useUpdateGeofencing();
-  const [zones, setZones] = useState<GeoZone[]>([]);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<GeoZone | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<GeoZone | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [editing, setEditing] = useState(false);
 
-  const handleDelete = async () => {
-    if (!deleteTarget) return;
-    setDeleteLoading(true);
-    await new Promise(r => setTimeout(r, 700));
-    setZones(prev => prev.filter(z => z.id !== deleteTarget.id));
-    toast.success(`Zona "${deleteTarget.name}" removida.`);
-    setDeleteTarget(null);
-    setDeleteLoading(false);
-  };
-
-  const onSave = async (z: GeoZone) => {
-    try {
-      await updateMut.mutateAsync({
-        nome: z.name,
-        latitude: z.lat,
-        longitude: z.lng,
-        raio_metros: z.radius_meters,
-        ativo: z.active,
-      });
-      if (editTarget) {
-        setZones(prev => prev.map(x => x.id === z.id ? z : x));
-        toast.success('Zona de geofencing atualizada.');
-      } else {
-        setZones(prev => [...prev, { ...z, id: `gz-${Date.now()}`, created_at: new Date().toISOString() }]);
-        toast.success('Zona criada com sucesso.');
-      }
-    } catch {
-      toast.error('Erro ao guardar zona de geofencing.');
-    }
-    setDrawerOpen(false);
-  };
+  const lat = company?.latitude ? Number(company.latitude) : undefined;
+  const lng = company?.longitude ? Number(company.longitude) : undefined;
+  const radius = company?.raio_geofencing ?? 200;
+  const hasZone = lat != null && lng != null;
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Geofencing"
-        description="Configure as zonas de geolocalização para controlo de presença"
+        description="Configure a zona de geolocalização para controlo de presença"
         actions={
-          <button onClick={() => { setEditTarget(null); setDrawerOpen(true); }}
-            className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white hover:bg-primary/90 transition-colors">
-            <Plus className="h-4 w-4" /> Nova Zona
-          </button>
+          hasZone && !editing ? (
+            <button
+              onClick={() => setEditing(true)}
+              className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white hover:bg-primary/90 transition-colors"
+            >
+              <Pencil className="h-4 w-4" /> Editar Zona
+            </button>
+          ) : null
         }
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <StatsCard title="Zonas Ativas" value={zones.filter(z => z.active).length} color="green" delay={0} />
-        <StatsCard title="Total de Zonas" value={zones.length} color="blue" delay={0.05} />
-        <StatsCard title="Raio Médio" value={zones.length ? `${Math.round(zones.reduce((s, z) => s + z.radius_meters, 0) / zones.length)}m` : '—'} color="slate" delay={0.1} />
+        <StatsCard title="Estado" value={hasZone ? 'Ativa' : 'Inativa'} color={hasZone ? 'green' : 'slate'} delay={0} />
+        <StatsCard title="Raio" value={hasZone ? `${radius}m` : '—'} color="blue" delay={0.05} />
+        <StatsCard title="Empresa" value={company?.nome ?? '—'} color="purple" delay={0.1} />
       </div>
 
-      {/* Zone cards */}
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        {zones.map((zone, i) => (
-          <motion.div key={zone.id}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-            className={cn('rounded-xl border bg-card p-5 hover:shadow-sm transition-shadow', zone.active ? 'border-border' : 'border-border opacity-60')}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start gap-3 flex-1 min-w-0">
-                <div className="relative flex-shrink-0">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <MapPin className="h-5 w-5 text-primary" />
-                  </div>
-                  {zone.active && (
-                    <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-emerald-500 border-2 border-card" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-foreground">{zone.name}</p>
-                    <ActiveBadge active={zone.active} />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5 truncate">{zone.address}</p>
-                  {zone.post_name && (
-                    <p className="text-xs text-primary mt-0.5">Posto: {zone.post_name}</p>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center gap-1 flex-shrink-0">
-                <button onClick={() => { setEditTarget(zone); setDrawerOpen(true); }}
-                  className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                  <Pencil className="h-3.5 w-3.5" />
-                </button>
-                <button onClick={() => setDeleteTarget(zone)}
-                  className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-colors">
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
+      {isLoading ? (
+        <div className="flex h-48 items-center justify-center">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : editing ? (
+        <GeofencingEditPanel
+          initialLat={lat}
+          initialLng={lng}
+          initialRadius={radius}
+          initialAddress={company?.endereco ?? ''}
+          onClose={() => setEditing(false)}
+          onSave={async (form) => {
+            try {
+              await updateMut.mutateAsync({
+                latitude: form.lat,
+                longitude: form.lng,
+                raio_geofencing: form.radius_meters,
+                permitir_presenca_fora_geofencing: form.permitir_fora,
+              });
+              toast.success('Geofencing atualizado com sucesso.');
+              setEditing(false);
+            } catch {
+              toast.error('Erro ao atualizar o geofencing.');
+            }
+          }}
+          saving={updateMut.isPending}
+        />
+      ) : hasZone ? (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-xl border border-border bg-card p-5 space-y-4"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 flex-shrink-0">
+              <MapPin className="h-5 w-5 text-primary" />
             </div>
-
-            <div className="mt-4">
-              <GeoMap
-                latitude={zone.lat}
-                longitude={zone.lng}
-                radiusMeters={zone.radius_meters}
-                label={zone.name}
-                address={zone.address}
-                heightClassName="h-44"
-              />
+            <div>
+              <p className="text-sm font-semibold text-foreground">{company?.nome}</p>
+              <p className="text-xs text-muted-foreground">{company?.endereco}</p>
             </div>
+          </div>
 
-            {/* Visual radius indicator */}
-            <div className="mt-4 flex items-center gap-3">
-              <div className="relative flex h-12 w-12 items-center justify-center">
+          <GeoMap
+            latitude={lat}
+            longitude={lng}
+            radiusMeters={radius}
+            label={company?.nome ?? 'Empresa'}
+            address={company?.endereco}
+            heightClassName="h-72"
+          />
+
+          <div className="flex items-center gap-4 pt-2">
+            <div className="flex items-center gap-3">
+              <div className="relative flex h-12 w-12 items-center justify-center flex-shrink-0">
                 <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping" style={{ animationDuration: '3s' }} />
                 <div className="absolute inset-1 rounded-full border border-primary/40" />
                 <Navigation className="h-4 w-4 text-primary" />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Raio autorizado</p>
-                <p className="text-lg font-bold text-foreground">{zone.radius_meters}m</p>
-              </div>
-              <div className="ml-auto text-right">
-                <p className="text-xs text-muted-foreground">Ponto GPS</p>
-                <p className="text-xs font-mono text-foreground">{zone.lat.toFixed(4)}, {zone.lng.toFixed(4)}</p>
+                <p className="text-lg font-bold text-foreground">{radius}m</p>
               </div>
             </div>
-          </motion.div>
-        ))}
-      </div>
+            <div className="ml-auto text-right">
+              <p className="text-xs text-muted-foreground">Coordenadas GPS</p>
+              <p className="text-xs font-mono text-foreground">{lat?.toFixed(5)}, {lng?.toFixed(5)}</p>
+            </div>
+          </div>
 
-      <AnimatePresence>
-        {drawerOpen && <GeoZoneDrawer zone={editTarget} onClose={() => setDrawerOpen(false)} onSave={onSave} />}
-      </AnimatePresence>
-      <ConfirmDialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={handleDelete}
-        loading={deleteLoading} title="Remover zona" description={`Remover "${deleteTarget?.name}"?`} />
+          <div className={cn(
+            'flex items-center gap-2 rounded-lg border px-3 py-2 text-xs',
+            company?.configuracao?.permitir_presenca_fora_geofencing
+              ? 'border-amber-500/30 bg-amber-500/8 text-amber-700 dark:text-amber-400'
+              : 'border-emerald-500/30 bg-emerald-500/8 text-emerald-700 dark:text-emerald-400'
+          )}>
+            {company?.configuracao?.permitir_presenca_fora_geofencing
+              ? <ShieldOff className="h-3.5 w-3.5 flex-shrink-0" />
+              : <ShieldCheck className="h-3.5 w-3.5 flex-shrink-0" />
+            }
+            {company?.configuracao?.permitir_presenca_fora_geofencing
+              ? 'Presença fora da zona é permitida (sujeita a autorização manual)'
+              : 'Presença fora da zona requer autorização manual do supervisor'
+            }
+          </div>
+        </motion.div>
+      ) : (
+        <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-border border-dashed bg-muted/20 py-16">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+            <MapPin className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-medium text-foreground">Sem zona de geofencing configurada</p>
+            <p className="text-xs text-muted-foreground mt-1">Configure as coordenadas e raio da empresa nas definições.</p>
+          </div>
+          <button
+            onClick={() => setEditing(true)}
+            className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white hover:bg-primary/90 transition-colors"
+          >
+            <ShieldCheck className="h-4 w-4" /> Configurar Agora
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-function GeoZoneDrawer({ zone, onClose, onSave }: { zone: GeoZone | null; onClose: () => void; onSave: (z: GeoZone) => void }) {
-  const [saving, setSaving] = useState(false);
-  const { register, handleSubmit, setValue, watch } = useForm({ defaultValues: zone ?? {} });
+function GeofencingEditPanel({
+  initialLat,
+  initialLng,
+  initialRadius,
+  initialAddress,
+  onClose,
+  onSave,
+  saving,
+}: {
+  initialLat?: number;
+  initialLng?: number;
+  initialRadius: number;
+  initialAddress: string;
+  onClose: () => void;
+  onSave: (form: GeofencingForm) => Promise<void>;
+  saving: boolean;
+}) {
+  const { register, handleSubmit, setValue, watch } = useForm<GeofencingForm>({
+    defaultValues: {
+      lat: initialLat ?? -8.839988,
+      lng: initialLng ?? 13.289437,
+      radius_meters: initialRadius,
+      address: initialAddress,
+      permitir_fora: false,
+    },
+  });
+
   const lat = watch('lat');
   const lng = watch('lng');
   const address = watch('address');
   const radius = watch('radius_meters');
-  const name = watch('name');
-
-  const onSubmit = async (data: any) => {
-    setSaving(true);
-    await new Promise(r => setTimeout(r, 700));
-    onSave({
-      id: zone?.id ?? `gz-${Date.now()}`,
-      created_at: zone?.created_at ?? new Date().toISOString(),
-      active: Boolean(data.active),
-      ...data,
-      lat: Number(data.lat) || 0,
-      lng: Number(data.lng) || 0,
-      radius_meters: Number(data.radius_meters) || 200,
-    });
-    setSaving(false);
-  };
 
   const ic = 'h-9 w-full rounded-lg border border-border bg-input-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30';
   const F = ({ l, children }: { l: string; children: React.ReactNode }) => (
@@ -194,58 +195,70 @@ function GeoZoneDrawer({ zone, onClose, onSave }: { zone: GeoZone | null; onClos
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-        transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-        className="relative z-10 flex h-full w-full max-w-md flex-col bg-card shadow-2xl">
-        <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h2 className="text-sm font-semibold text-foreground">{zone ? 'Editar Zona' : 'Nova Zona de Geofencing'}</h2>
-          <button onClick={onClose} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted"><X className="h-4 w-4" /></button>
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-xl border border-primary/30 bg-card p-6 shadow-sm space-y-5"
+    >
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-foreground">Editar Zona de Geofencing</h3>
+        <button onClick={onClose} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted">
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit(onSave)} className="space-y-4">
+        <F l="Endereço">
+          <input {...register('address')} className={ic} placeholder="Rua, município, província" />
+        </F>
+
+        <div className="grid grid-cols-2 gap-3">
+          <F l="Latitude">
+            <input {...register('lat', { valueAsNumber: true })} type="number" step="0.000001" className={ic} placeholder="-8.839988" />
+          </F>
+          <F l="Longitude">
+            <input {...register('lng', { valueAsNumber: true })} type="number" step="0.000001" className={ic} placeholder="13.289437" />
+          </F>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col overflow-y-auto">
-          <div className="flex-1 space-y-4 px-6 py-5">
-            <F l="Nome da Zona"><input {...register('name')} defaultValue={zone?.name} placeholder="Sede Luanda" className={ic} /></F>
-            <F l="Endereço"><input {...register('address')} defaultValue={zone?.address} placeholder="Rua, município, província" className={ic} /></F>
-            <div className="grid grid-cols-2 gap-3">
-              <F l="Latitude"><input {...register('lat')} defaultValue={zone?.lat} type="number" step="0.0001" placeholder="-8.8399" className={ic} /></F>
-              <F l="Longitude"><input {...register('lng')} defaultValue={zone?.lng} type="number" step="0.0001" placeholder="13.2894" className={ic} /></F>
-            </div>
-            <GeoMap
-              latitude={lat}
-              longitude={lng}
-              radiusMeters={radius ?? 200}
-              label={name || 'Nova zona'}
-              address={address}
-              searchable
-              onLocationChange={({ latitude, longitude, address }) => {
-                setValue('lat', latitude, { shouldDirty: true });
-                setValue('lng', longitude, { shouldDirty: true });
-                if (address) setValue('address', address, { shouldDirty: true });
-              }}
-              heightClassName="h-48"
-            />
-            <F l="Raio (metros)">
-              <input {...register('radius_meters')} defaultValue={zone?.radius_meters ?? 200} type="number" min="50" max="5000" className={ic} />
-              <p className="mt-1 text-xs text-muted-foreground">Colaboradores a mais de {'{raio}'}m serão sinalizados para autorização.</p>
-            </F>
-            <F l="Posto associado (opcional)"><input {...register('post_name')} defaultValue={zone?.post_name} placeholder="Nome do posto" className={ic} /></F>
-            <div className="flex items-center gap-3">
-              <input type="checkbox" id="gz-active" {...register('active')} defaultChecked={zone?.active ?? true} className="h-4 w-4 accent-primary" />
-              <label htmlFor="gz-active" className="text-sm text-foreground">Zona ativa</label>
-            </div>
-          </div>
-          <div className="border-t border-border px-6 py-4 flex justify-end gap-2.5">
-            <button type="button" onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted">Cancelar</button>
-            <button type="submit" disabled={saving}
-              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-60">
-              {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              {zone ? 'Guardar' : 'Criar Zona'}
-            </button>
-          </div>
-        </form>
-      </motion.div>
-    </div>
+
+        <GeoMap
+          latitude={lat}
+          longitude={lng}
+          radiusMeters={radius ?? 200}
+          label="Zona da empresa"
+          address={address}
+          searchable
+          onLocationChange={({ latitude, longitude, address }) => {
+            setValue('lat', latitude, { shouldDirty: true });
+            setValue('lng', longitude, { shouldDirty: true });
+            if (address) setValue('address', address, { shouldDirty: true });
+          }}
+          heightClassName="h-56"
+        />
+
+        <F l="Raio autorizado (metros)">
+          <input {...register('radius_meters', { valueAsNumber: true })} type="number" min="50" max="10000" step="50" className={ic} />
+          <p className="mt-1 text-xs text-muted-foreground">Colaboradores fora deste raio serão sinalizados para autorização.</p>
+        </F>
+
+        <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
+          <input type="checkbox" id="permitir-fora" {...register('permitir_fora')} className="h-4 w-4 accent-primary" />
+          <label htmlFor="permitir-fora" className="text-sm text-foreground cursor-pointer">
+            Permitir presença fora da zona (requer autorização manual)
+          </label>
+        </div>
+
+        <div className="flex justify-end gap-2.5 pt-2">
+          <button type="button" onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted">
+            Cancelar
+          </button>
+          <button type="submit" disabled={saving}
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-60">
+            {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            Guardar Geofencing
+          </button>
+        </div>
+      </form>
+    </motion.div>
   );
 }

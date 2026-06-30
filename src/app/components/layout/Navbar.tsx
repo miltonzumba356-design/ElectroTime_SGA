@@ -36,12 +36,7 @@ const routeLabels: Record<string, string[]> = {
   '/audit': ['Auditoria'],
 };
 
-const NOTIFS = [
-  { id: 1, text: 'João Carlos solicitou férias', time: '5 min atrás', unread: true },
-  { id: 2, text: 'Thiago Ribeiro faltou hoje', time: '2 h atrás', unread: true },
-  { id: 3, text: '3 atestados aguardando aprovação', time: '4 h atrás', unread: true },
-  { id: 4, text: 'Relatório mensal disponível', time: 'Ontem', unread: false },
-];
+const NOTIFS: { id: number; text: string; time: string; unread: boolean }[] = [];
 
 export function Navbar() {
   const location = useLocation();

@@ -2,6 +2,7 @@ import { Outlet, Navigate, useLocation } from 'react-router';
 import { motion } from 'motion/react';
 import { Sidebar } from './Sidebar';
 import { Navbar } from './Navbar';
+import { AIAssistant } from './AIAssistant';
 import { useAppStore } from '../store/app.store';
 import { canAccessPath, normalizeUserRole } from '../lib/nav-config';
 
@@ -36,6 +37,7 @@ export function AppLayout() {
           </motion.div>
         </main>
       </div>
+      <AIAssistant />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useForm } from 'react-hook-form';
-import { Plus, Pencil, Trash2, X, Loader2, UserPlus, Key } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Loader2, UserPlus, Key, Check, XCircle, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHeader } from '../shared/PageHeader';
 import { DataTable, type Column } from '../shared/DataTable';
@@ -10,7 +10,10 @@ import { ActiveBadge } from '../shared/StatusBadge';
 import { ROLE_LABELS, ROLE_COLORS } from '../lib/nav-config';
 import type { AuthUser, UserRole } from '../lib/types';
 import { formatDate, getInitials, cn } from '../lib/utils';
-import { useAdminDepartments, useAdminSupervisors, useCreateRh, useCreateSupervisor } from '../lib/api-hooks';
+import {
+  useAdminDepartments, useAdminSupervisors, useCreateRh, useCreateSupervisor,
+  useEmployeeRequests, useApproveEmployee, useRejectEmployee,
+} from '../lib/api-hooks';
 import { normalizeList } from '../lib/api-adapters';
 
 const CREATABLE_ROLES: UserRole[] = ['rh', 'supervisor', 'chefe_departamento'];
@@ -28,8 +31,11 @@ type UserFormData = {
 export function UserManagementPage() {
   const { data: rawSupervisors } = useAdminSupervisors();
   const { data: rawDepartments } = useAdminDepartments();
+  const { data: rawRequests, isLoading: loadingRequests } = useEmployeeRequests();
   const createSupervisor = useCreateSupervisor();
   const createRh = useCreateRh();
+  const approveMut = useApproveEmployee();
+  const rejectMut = useRejectEmployee();
 
   const users: SystemUser[] = normalizeList(rawSupervisors, (s: any): SystemUser => ({
     id: String(s.id ?? ''),
@@ -49,6 +55,16 @@ export function UserManagementPage() {
     name: d.nome ?? d.name ?? '',
   }));
 
+  const pendingRequests = normalizeList(rawRequests, (r: any) => ({
+    id: String(r.id ?? ''),
+    name: r.nome ?? r.name ?? r.colaborador_nome ?? '—',
+    email: r.email ?? r.colaborador_email ?? '—',
+    department: r.departamento ?? r.department ?? '—',
+    role: r.cargo ?? r.role ?? '—',
+    created_at: r.criado_em ?? r.created_at ?? '',
+  }));
+
+  const [activeTab, setActiveTab] = useState<'users' | 'requests'>('users');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<SystemUser | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<SystemUser | null>(null);
@@ -152,21 +168,103 @@ export function UserManagementPage() {
     }
   };
 
+  const handleApprove = async (id: string) => {
+    try {
+      await approveMut.mutateAsync({ colaborador_id: Number(id) });
+      toast.success('Colaborador aprovado com sucesso.');
+    } catch {
+      toast.error('Erro ao aprovar colaborador.');
+    }
+  };
+
+  const handleReject = async (id: string) => {
+    try {
+      await rejectMut.mutateAsync({ colaborador_id: Number(id) });
+      toast.success('Solicitação rejeitada.');
+    } catch {
+      toast.error('Erro ao rejeitar colaborador.');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Utilizadores do Sistema"
         description="Gerir contas suportadas pelos endpoints de administração"
         actions={
-          <button
-            onClick={() => { setEditTarget(null); setDrawerOpen(true); }}
-            className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white hover:bg-primary/90 transition-colors"
-          >
-            <UserPlus className="h-4 w-4" /> Novo Utilizador
-          </button>
+          activeTab === 'users' ? (
+            <button
+              onClick={() => { setEditTarget(null); setDrawerOpen(true); }}
+              className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white hover:bg-primary/90 transition-colors"
+            >
+              <UserPlus className="h-4 w-4" /> Novo Utilizador
+            </button>
+          ) : null
         }
       />
 
+      {/* Tabs */}
+      <div className="flex items-center gap-1 rounded-lg border border-border bg-muted/30 p-1 w-fit">
+        {([
+          { id: 'users', label: 'Supervisores / RH' },
+          { id: 'requests', label: `Colaboradores Pendentes${pendingRequests.length > 0 ? ` (${pendingRequests.length})` : ''}` },
+        ] as const).map(t => (
+          <button key={t.id} onClick={() => setActiveTab(t.id)}
+            className={cn('rounded-md px-3 py-1.5 text-xs font-medium transition-colors',
+              activeTab === t.id ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+            )}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'requests' ? (
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
+          {loadingRequests ? (
+            <div className="flex h-32 items-center justify-center">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : pendingRequests.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <Clock className="h-8 w-8 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">Nenhuma solicitação pendente</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {pendingRequests.map(req => (
+                <div key={req.id} className="flex items-center justify-between gap-4 px-5 py-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-xs font-bold text-amber-600">
+                      {getInitials(req.name)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{req.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{req.email}</p>
+                      {req.department !== '—' && <p className="text-xs text-primary">{req.department} · {req.role}</p>}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => handleReject(req.id)}
+                      disabled={rejectMut.isPending}
+                      className="flex h-8 items-center gap-1.5 rounded-lg border border-red-500/30 px-3 text-xs font-medium text-red-600 hover:bg-red-500/10 disabled:opacity-50 transition-colors"
+                    >
+                      <XCircle className="h-3.5 w-3.5" /> Rejeitar
+                    </button>
+                    <button
+                      onClick={() => handleApprove(req.id)}
+                      disabled={approveMut.isPending}
+                      className="flex h-8 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+                    >
+                      <Check className="h-3.5 w-3.5" /> Aprovar
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
       <DataTable
         data={users}
         columns={columns}
@@ -195,6 +293,7 @@ export function UserManagementPage() {
           </div>
         )}
       />
+      )}
 
       <AnimatePresence>
         {drawerOpen && (

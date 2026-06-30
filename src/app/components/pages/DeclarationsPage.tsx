@@ -13,9 +13,9 @@ import { normalizeList, adaptEmployee } from '../lib/api-adapters';
 import { formatDateTime, cn } from '../lib/utils';
 
 const TYPE_MAP: Record<DeclarationType, { label: string; variant: any; template: string }> = {
-  employment: { label: 'VÃ­nculo', variant: 'info', template: 'Declaramos que {NOME}, BI {BI}, encontra-se vinculado(a) a esta empresa desde {DATA_ADMISSÃƒO}, exercendo a funÃ§Ã£o de {CARGO}.' },
+  employment: { label: 'Vínculo', variant: 'info', template: 'Declaramos que {NOME}, BI {BI}, encontra-se vinculado(a) a esta empresa desde {DATA_ADMISSÃO}, exercendo a função de {CARGO}.' },
   income:     { label: 'RemuneraÃ§Ã£o', variant: 'success', template: 'Declaramos que {NOME}, BI {BI}, percebe remuneraÃ§Ã£o mensal bruta de {SALÃRIO} nesta empresa.' },
-  work:       { label: 'Trabalho', variant: 'default', template: 'Declaramos que {NOME} trabalha em regime presencial com jornada de 44 horas semanais, sem acumular outros vÃ­nculos empregatÃ­cios.' },
+  work:       { label: 'Trabalho', variant: 'default', template: 'Declaramos que {NOME} trabalha em regime presencial com jornada de 44 horas semanais, sem acumular outros vínculos empregatícios.' },
   custom:     { label: 'Personalizada', variant: 'neutral', template: '' },
 };
 
@@ -34,12 +34,12 @@ export function DeclarationsPage() {
     id: String(d.id ?? ''),
     company_id: String(d.empresa ?? ''),
     employee_id: String(d.colaborador_id ?? d.colaborador ?? ''),
-    employee_name: d.colaborador_nome ?? d.nome ?? 'â€”',
+    employee_name: d.colaborador_nome ?? d.nome ?? '—',
     employee_email: d.email ?? d.colaborador_email ?? undefined,
     employee_registration: d.matricula ?? undefined,
     department_name: d.departamento ?? undefined,
     type: d.tipo ?? 'employment',
-    subject: d.assunto ?? d.subject ?? 'â€”',
+    subject: d.assunto ?? d.subject ?? '—',
     content: d.conteudo ?? d.content ?? '',
     status: d.status === 'enviada' ? 'sent' : d.status === 'entregue' ? 'delivered' : d.status === 'falhou' ? 'failed' : 'draft',
     sent_at: d.enviado_em ?? d.sent_at ?? undefined,
@@ -53,7 +53,7 @@ export function DeclarationsPage() {
   const [sending, setSending] = useState<string | null>(null);
 
   const columns: Column<Declaration>[] = [
-    { key: 'employee_name', header: 'DestinatÃ¡rio', sortable: true,
+    { key: 'employee_name', header: 'Destinatário', sortable: true,
       cell: r => <div><p className="text-sm font-medium text-foreground">{r.employee_name}</p><p className="text-xs text-muted-foreground">{r.employee_email}</p></div> },
     { key: 'type', header: 'Tipo', cell: r => {
       const t = TYPE_MAP[r.type];
@@ -66,18 +66,18 @@ export function DeclarationsPage() {
     }},
     { key: 'sent_at', header: 'Enviada em', cell: r => (
       r.sent_at ? <span className="text-sm text-muted-foreground">{formatDateTime(r.sent_at)}</span>
-                : <span className="text-sm text-muted-foreground">â€”</span>
+                : <span className="text-sm text-muted-foreground">—</span>
     )},
-    { key: 'created_by', header: 'Emitido por', cell: r => <span className="text-sm text-muted-foreground">{r.created_by ?? 'â€”'}</span> },
+    { key: 'created_by', header: 'Emitido por', cell: r => <span className="text-sm text-muted-foreground">{r.created_by ?? '—'}</span> },
   ];
 
   const handleResend = async (id: string) => {
     setSending(id);
     try {
       await sendMut.mutateAsync(Number(id));
-      toast.success('DeclaraÃ§Ã£o enviada com sucesso!', { description: 'Entregue no e-mail do colaborador.' });
+      toast.success('Declaração enviada com sucesso!', { description: 'Entregue no e-mail do colaborador.' });
     } catch {
-      toast.error('Erro ao enviar declaraÃ§Ã£o.');
+      toast.error('Erro ao enviar declaração.');
     }
     setSending(null);
   };
@@ -85,9 +85,9 @@ export function DeclarationsPage() {
   const onSave = async (data: any) => {
     try {
       await sendMut.mutateAsync(data);
-      toast.success('DeclaraÃ§Ã£o criada e enviada!');
+      toast.success('Declaração criada e enviada!');
     } catch {
-      toast.error('Erro ao criar declaraÃ§Ã£o.');
+      toast.error('Erro ao criar declaração.');
     }
     setDrawerOpen(false);
   };
@@ -95,12 +95,12 @@ export function DeclarationsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="DeclaraÃ§Ãµes"
-        description="EmissÃ£o e envio de declaraÃ§Ãµes via API ao colaborador"
+        title="Declarações"
+        description="Emissão e envio de declarações via API ao colaborador"
         actions={
           <button onClick={() => setDrawerOpen(true)}
             className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white hover:bg-primary/90 transition-colors">
-            <Plus className="h-4 w-4" /> Nova DeclaraÃ§Ã£o
+            <Plus className="h-4 w-4" /> Nova Declaração
           </button>
         }
       />
@@ -116,7 +116,7 @@ export function DeclarationsPage() {
         searchFields={['employee_name', 'subject', 'department_name']}
         rowActions={row => (
           <div className="flex items-center justify-end gap-1">
-            <button onClick={() => setViewTarget(row)} title="Ver declaraÃ§Ã£o"
+            <button onClick={() => setViewTarget(row)} title="Ver declaração"
               className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
               <Eye className="h-3.5 w-3.5" />
             </button>
@@ -152,7 +152,7 @@ export function DeclarationsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-foreground">{viewTarget.subject}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Para: {viewTarget.employee_name} Â· {viewTarget.employee_email}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Para: {viewTarget.employee_name} · {viewTarget.employee_email}</p>
                   </div>
                   <Badge label={STATUS_MAP[viewTarget.status].label} variant={STATUS_MAP[viewTarget.status].variant} dot />
                 </div>
@@ -230,23 +230,23 @@ function DeclarationDrawer({ employees, onClose, onSave }: {
         className="relative z-10 flex h-full w-full max-w-lg flex-col bg-card shadow-2xl">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">Nova DeclaraÃ§Ã£o</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">SerÃ¡ enviada por e-mail ao colaborador via API.</p>
+            <h2 className="text-sm font-semibold text-foreground">Nova Declaração</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Será enviada por e-mail ao colaborador via API.</p>
           </div>
           <button onClick={onClose} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted"><X className="h-4 w-4" /></button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col overflow-y-auto">
           <div className="flex-1 space-y-4 px-6 py-5">
-            <F l="FuncionÃ¡rio">
+            <F l="Funcionário">
               <select {...register('employee_id')} className={ic}>
                 <option value="">Selecione...</option>
                 {employees.filter(e => e.status === 'active').map(e => (
-                  <option key={e.id} value={e.id}>{e.name} â€” {e.registration}</option>
+                  <option key={e.id} value={e.id}>{e.name} — {e.registration}</option>
                 ))}
               </select>
             </F>
             <div>
-              <label className="mb-2 block text-xs font-medium text-foreground">Tipo de DeclaraÃ§Ã£o</label>
+              <label className="mb-2 block text-xs font-medium text-foreground">Tipo de Declaração</label>
               <div className="grid grid-cols-2 gap-2">
                 {(Object.entries(TYPE_MAP) as [DeclarationType, any][]).map(([type, info]) => (
                   <button key={type} type="button" onClick={() => setSelectedType(type)}
@@ -257,14 +257,14 @@ function DeclarationDrawer({ employees, onClose, onSave }: {
                 ))}
               </div>
             </div>
-            <F l="Assunto"><input {...register('subject')} placeholder="DeclaraÃ§Ã£o de VÃ­nculo EmpregatÃ­cio" className={ic} /></F>
-            <F l="ConteÃºdo">
+            <F l="Assunto"><input {...register('subject')} placeholder="Declaração de Vínculo Empregatício" className={ic} /></F>
+            <F l="Conteúdo">
               <textarea {...register('content')} defaultValue={getTemplate()} rows={6}
-                placeholder={getTemplate() || 'ConteÃºdo da declaraÃ§Ã£o...'}
+                placeholder={getTemplate() || 'Conteúdo da declaração...'}
                 className={cn(ic, 'h-auto resize-none py-2')} />
               {selectedType !== 'custom' && (
                 <button type="button" onClick={() => setValue('content', getTemplate())}
-                  className="mt-1 text-xs text-primary hover:underline">â†º Usar modelo padrÃ£o</button>
+                  className="mt-1 text-xs text-primary hover:underline">↺ Usar modelo padrão</button>
               )}
             </F>
           </div>
